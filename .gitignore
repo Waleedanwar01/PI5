@@ -1,0 +1,3 @@
+# Only exclude env files as requested
+backend/.env
+frontend/.env
