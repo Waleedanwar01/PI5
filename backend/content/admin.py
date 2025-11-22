@@ -357,7 +357,7 @@ class HomePageAdmin(SortableAdminBase, admin.ModelAdmin):
                 '\n'
                 '- Text & Headings: Type normally. Use the Format menu (p, h2–h4).\n'
                 '- Images: Click the Image button → Image Info tab for URL or the Upload tab to choose a file from your computer → set Alt text, alignment and size → Insert.\n'
-                '- Videos: Homepage editor me YouTube/Vimeo link embed karein ya local video file upload karein. Placement ke liye "Video Placements" (Top/Bottom) bhi use kar sakte hain.\n'
+                '- Videos: Embed a YouTube/Vimeo link or upload a local video file. For placement, use "Video Placements" (Top/Bottom).\n'
                 '- Buttons: Select text → add a Link (URL or #id) → apply Styles → "Button" or "Primary Button". Alternatively, in Link → Advanced, set class to "btn" or "btn btn-primary".\n'
                 '- Anchors/IDs: Select a heading or text → use the Set ID toolbar button → enter a unique id (e.g., advantages). Then link to it with href="#advantages".\n'
                 '- Open in new tab: In the Link dialog, set Target to New Window (_blank) or add rel="noopener" in Advanced.\n'
@@ -532,7 +532,7 @@ class InsuranceCompanyAdmin(admin.ModelAdmin):
         }),
         ("Coverage Shortcut", {
             'fields': ("states_multi", "nationwide_all"),
-            'description': "Asaan tariqa: yahan se states select kar ke statewide coverage add/update ho jayegi. 'All states' select karne se saari states cover ho jayengi."
+            'description': "Quick method: select states here to add/update statewide coverage. Selecting 'All states' will mark coverage in all states."
         }),
         ("System", {
             'fields': ("updated_at",)
