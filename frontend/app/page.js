@@ -1,49 +1,60 @@
 import React from "react";
-import { headers } from "next/headers";
-import OptimizedHero from "./components/OptimizedHero.jsx";
+import HeroWithNavbar from "./components/HeroWithNavbar.jsx";
+import WhyChooseSection from "./components/WhyChooseSection.jsx";
 // FeaturedIn removed per request
 import SectionRenderer from "./components/SectionRenderer.jsx";
 import ClientHomepage from "./ClientHomepage.jsx";
 
-export const dynamic = "force-dynamic";
-
-async function fetchHomepage() {
-  const h = headers();
-  const proto = h.get("x-forwarded-proto") ?? "http";
-  const host = h.get("host") ?? "localhost:3000";
-  const origin = `${proto}://${host}`;
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2000);
-    const res = await fetch(`${origin}/api/homepage`, { cache: "no-store", signal: controller.signal });
-    clearTimeout(timer);
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json?.data ?? json;
-  } catch {
-    return null;
-  }
-}
+// Ensure this page is static at the server level; all dynamic
+// content loads in client components without blocking route rendering.
 
 export async function generateMetadata() {
-  const data = await fetchHomepage();
-  const title = data?.meta?.title ?? "Home";
-  const description = data?.meta?.description ?? "Welcome";
-  const image = data?.meta?.image ?? undefined;
+  try {
+    // Try to fetch homepage data first
+    const base = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+    const homepageUrl = `${base}/api/homepage/`;
+    const response = await fetch(homepageUrl, { cache: 'no-store' });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (data?.meta_title) {
+        return {
+          title: data.meta_title,
+          description: data.meta_description || '',
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching homepage metadata:', error);
+  }
+  
+  try {
+    // Fallback to site config
+    const base = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+    const siteConfigUrl = `${base}/api/site-config/`;
+    const response = await fetch(siteConfigUrl, { cache: 'no-store' });
+    
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        title: data?.brand_name || "Car Insurance Comparison",
+        description: data?.tagline || "Compare car insurance rates",
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching site config metadata:', error);
+  }
+  
+  // Final fallback
   return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      images: image ? [image] : undefined,
-    },
+    title: "Car Insurance Comparison",
+    description: "Compare car insurance rates and find the best coverage for you",
   };
 }
 
-export default async function HomePage() {
-  const data = await fetchHomepage();
-  const sections = Array.isArray(data?.sections) ? data.sections : [];
+export default function HomePage() {
+  // Render without server-side data to avoid route-level loading issues
+  const sections = [];
   const lowerType = (t) => String(t || '').toLowerCase();
   const baseContentSections = sections.filter((s) => 
     lowerType(s.type) !== 'featured' && 
@@ -92,8 +103,11 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-white text-gray-900">
-      {/* Hero at top */}
-      <OptimizedHero />
+      {/* Hero with Integrated Navbar */}
+      <HeroWithNavbar />
+
+      {/* Why Choose Us Section */}
+      <WhyChooseSection />
 
       {/* Removed Featured In and videos below per request */}
 

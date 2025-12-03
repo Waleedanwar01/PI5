@@ -1,8 +1,15 @@
 export async function fetchJSON(path) {
-  // Use Next.js internal API routes to avoid CORS
-  const url = path;
+  // Construct full URL using environment configuration
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+  const url = path.startsWith('http') ? path : `${apiBase}${path}`;
+  
   // Disable caching so newly added blogs/categories reflect immediately
-  const res = await fetch(url, { cache: 'no-store' });
+  const res = await fetch(url, { 
+    cache: 'no-store',
+    headers: {
+      'Accept': 'application/json',
+    }
+  });
   if (!res.ok) throw new Error(`Failed: ${res.status} ${url}`);
   return res.json();
 }

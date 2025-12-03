@@ -11,7 +11,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        public: ["Public Sans", "sans-serif"],
+        exo2: ["Exo 2", "sans-serif"],
       },
     },
   },

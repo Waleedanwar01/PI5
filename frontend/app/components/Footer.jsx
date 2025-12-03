@@ -10,7 +10,7 @@ import { getMediaUrl } from '../lib/config.js';
 // Helper functions (resolveHref and FooterCopyright) remain the same.
 
 const Footer = () => {
-    const [brandName, setBrandName] = useState("AutoInsurance.org");
+    const [brandName, setBrandName] = useState("Car Insurance Comparison");
     const [logoUrl, setLogoUrl] = useState(null);
     const [logoHeight, setLogoHeight] = useState(null);
     const [disclaimer, setDisclaimer] = useState("");
@@ -117,237 +117,121 @@ const Footer = () => {
     // ** 3. Used negative margin (-mt-10) on the FORM SECTION.       **
     // *****************************************************************
     return (
-        <footer className="bg-gradient-to-b from-neutral-900 to-neutral-800 text-gray-500 font-sans relative pt-16 overflow-visible"> 
-            {/* 1. Wave shape at the top (Ocean Wave Effect) */}
-            <div 
-                className="absolute top-0 left-0 w-full h-16 bg-gradient-to-b from-neutral-900 to-neutral-800 border-b border-neutral-700/50"
-                style={{
-                    // Creates a wavy, organic shape by clipping an ellipse
-                    clipPath: 'ellipse(100% 50% at 50% 100%)', 
-                    transform: 'translateY(-50%)', 
-                    zIndex: 0, // Behind the content
-                }}
-            />
-
-            {/* ==== FORM SECTION (Blue band) - Slightly outside and inside footer ==== */}  
-            <div className="relative text-center px-4 overflow-visible z-20 -mt-20 sm:-mt-24 md:-mt-28 pb-20"> 
-                {/* Full-width blue band from 'Trusted by' down to the form */}
-                <div className="relative overflow-hidden w-full rounded-2xl bg-gradient-to-r from-sky-600 to-blue-800 py-10 sm:py-12 shadow-xl ring-1 ring-white/10">
-                    
-                    {/* Dotted pattern at bottom of the band */}
-                    <div
-                        className="absolute inset-x-0 bottom-0 h-24 opacity-40 pointer-events-none"
-                        aria-hidden="true"
-                        style={{
-                            backgroundImage:
-                                'radial-gradient(circle, rgba(255,255,255,0.85) 1px, rgba(255,255,255,0) 1px)',
-                            backgroundSize: '12px 12px',
-                            backgroundPosition: 'center',
-                        }}
-                    />
-
-                    <div className="relative max-w-5xl mx-auto px-4">
-                        {/* Trust indicators */}
-                        <div className="flex justify-center mb-6">
-                            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 border border-white/30">
-                                <Shield className="w-5 h-5 text-white" />
-                                <span className="text-white text-sm font-semibold">Trusted by 500K+ Users</span>
-                            </div>
+        <footer className="bg-black text-gray-300 font-sans">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                {/* Top panel: logo + description like the screenshot */}
+                <div className="bg-[#111] border border-neutral-800 p-6 md:p-8">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                        <div className="flex items-center gap-4">
+                            {logoUrl ? (
+                                <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto" />
+                            ) : null}
+                            <h2 className="text-white text-xl font-semibold">{brandName}</h2>
                         </div>
-
-                        <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight"> 
-                            Find the Best <span className="text-[var(--ai-orange-300)]">Auto Insurance</span> Rates
-                        </h2>
-                        <p className="text-blue-100 mb-10 text-lg max-w-2xl mx-auto">
-                            Compare quotes from top-rated insurers in your area. Save up to 40% on your premium today.
-                        </p>
-
-                        {/* Foreground form card */}
-                        <div className="relative max-w-3xl mx-auto px-3 sm:px-0">
-                            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 sm:p-6 shadow-2xl border border-gray-100"> 
-                                <form
-                                    className="flex flex-col sm:flex-row items-stretch gap-3"
-                                    onSubmit={(e) => {
-                                        e.preventDefault();
-                                        const form = e.currentTarget;
-                                        const zipInput = form.querySelector('input[name="zip"]');
-                                        const zip = String(zipInput?.value || '').replace(/\D/g, '').slice(0, 5);
-                                        if (zip.length === 5) {
-                                            window.location.href = `/quotes?zip=${encodeURIComponent(zip)}`;
-                                        }
-                                    }}
-                                >
-                                    <div className="relative flex-1 grid grid-cols-1 gap-3">
-                                        <div className="relative">
-                                            <input
-                                                name="zip"
-                                                type="text"
-                                                inputMode="numeric"
-                                                placeholder="Enter your ZIP code"
-                                                className="w-full px-6 py-4 rounded-full text-gray-800 bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--ai-orange-500)] border border-gray-300 placeholder-gray-500 text-lg transition-colors duration-200"
-                                            />
-                                        </div>
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className="bg-gradient-to-r from-[var(--ai-orange-500)] to-[var(--ai-orange-hover)] hover:from-[var(--ai-orange-hover)] hover:to-[var(--ai-orange-700)] text-white font-bold px-8 py-4 rounded-full transition-transform duration-200 flex items-center justify-center gap-2 transform hover:scale-105 text-lg whitespace-nowrap group shadow-lg shadow-[var(--ai-orange-700)]/40"
-                                    >
-                                        <span className="group-hover:scale-105 transition-transform">GET QUOTES</span>
-                                        <Star className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                                    </button>
-                                </form>
-                                <div className="flex flex-wrap items-center justify-center gap-6 mt-4 text-sm text-gray-600"> 
-                                    <div className="flex items-center gap-2">
-                                        <Shield className="w-4 h-4 text-green-500" /> 
-                                        <span className="font-medium">256-bit SSL</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
-                                        <span>No credit check</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
-                                        <span>100% Free</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* ==== MAIN FOOTER SECTION ==== */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10 relative z-10"> 
-                {/* Top Section: Logo & Description */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-neutral-700 pb-8 mb-8"> 
-                    <div className="md:w-3/4 mb-6 md:mb-0">
-                        <h2 className="text-2xl font-bold text-white mb-2">
-                            {brandName}
-                        </h2>
-                        <p className="text-gray-400 leading-relaxed max-w-2xl text-sm sm:text-base">
+                        <p className="text-sm text-gray-300 max-w-3xl">
                             {footerText}
                         </p>
-                        
-                        {/* Trust Badges */}
-                        <div className="flex flex-wrap gap-4 mt-6">
-                            <div className="flex items-center gap-2 bg-green-600/20 text-green-300 px-4 py-2 rounded-xl border border-green-500/30"> 
-                                <Shield className="w-4 h-4" />
-                                <span className="text-sm font-medium">Insured & Licensed</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-blue-600/20 text-blue-300 px-4 py-2 rounded-xl border border-blue-500/30"> 
-                                <Star className="w-4 h-4" />
-                                <span className="text-sm font-medium">A+ Rated Service</span>
-                            </div>
-                        </div>
                     </div>
 
-                    {/* Links & Social */}
-                    <div className="flex flex-col items-start md:items-end w-full md:w-1/4 pt-4 md:pt-0">
-                        {socialLinks && socialLinks.length > 0 ? (
-                            <div className="flex items-center gap-3">
-                                {socialLinks.map((href, idx) => {
-                                    const Icon = iconFor(href);
-                                    return (
-                                        <a
-                                            key={`${href}-${idx}`}
-                                            href={href}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-neutral-600 text-gray-300 hover:text-white hover:border-blue-500 hover:bg-blue-600 transition-all duration-300 transform hover:scale-110 shadow-md"
-                                            aria-label="Social link"
+                    {/* Company + Legal sections */}
+                    {(companyLinks?.length > 0 || legalLinks?.length > 0) && (
+                        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8">
+                            {companyLinks?.length > 0 && (
+                                <div>
+                                    <h3 className="text-white font-semibold mb-3">Company</h3>
+                                    <div className="flex flex-col gap-2">
+                                        <SmartLink
+                                            href="/guide"
+                                            className="text-gray-300 hover:text-white transition-colors duration-200 text-sm"
                                         >
-                                            <Icon className="w-5 h-5" />
-                                        </a>
-                                    );
-                                })}
-                            </div>
+                                            Read Our Main Guide
+                                        </SmartLink>
+                                        {companyLinks.map((item, idx) => (
+                                            <SmartLink
+                                                key={`${String(item.page_slug || item.href || item.name || '')}-${idx}`}
+                                                href={resolveHref(item)}
+                                                className="text-gray-300 hover:text-white transition-colors duration-200 text-sm"
+                                            >
+                                                {item.name}
+                                            </SmartLink>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {legalLinks?.length > 0 && (
+                                <div>
+                                    <h3 className="text-white font-semibold mb-3">Legal</h3>
+                                    <div className="flex flex-col gap-2">
+                                        {legalLinks.map((item, idx) => (
+                                            <SmartLink
+                                                key={`${String(item.page_slug || item.href || item.name || '')}-${idx}`}
+                                                href={resolveHref(item)}
+                                                className="text-gray-300 hover:text-white transition-colors duration-200 text-sm"
+                                            >
+                                                {item.name}
+                                            </SmartLink>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Follow us row */}
+                    {socialLinks && socialLinks.length > 0 ? (
+                        <div className="mt-8 flex items-center gap-3">
+                            <span className="text-sm text-gray-400">Follow us on:</span>
+                            {socialLinks.map((href, idx) => {
+                                const Icon = iconFor(href);
+                                return (
+                                    <a
+                                        key={`${href}-${idx}`}
+                                        href={href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-neutral-700 text-gray-300 hover:text-white hover:border-white/30 hover:bg-white/10 transition-colors"
+                                        aria-label="Social link"
+                                    >
+                                        <Icon className="w-4.5 h-4.5" />
+                                    </a>
+                                );
+                            })}
+                        </div>
+                    ) : null}
+                </div>
+
+                {/* Bottom bar: copyright + legal inline links */}
+                <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        {logoUrl ? (
+                            <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto" />
                         ) : null}
+                        <FooterCopyright brandName={brandName} />
                     </div>
-                </div>
-
-                {/* Company & Legal lists in main footer */}
-                {(companyLinks?.length > 0 || legalLinks?.length > 0) && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 mb-8">
-                        {companyLinks?.length > 0 && (
-                            <div>
-                                <h3 className="text-white font-semibold mb-3">Company</h3>
-                                <div className="flex flex-col gap-2">
-                                    {companyLinks.map((item, idx) => (
-                                        <SmartLink
-                                            key={`${String(item.page_slug || item.href || item.name || '')}-${idx}`}
-                                            href={resolveHref(item)}
-                                            className="text-gray-300 hover:text-white hover:underline transition-colors duration-200 text-sm"
-                                        >
-                                            {item.name}
-                                        </SmartLink>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                        {legalLinks?.length > 0 && (
-                            <div>
-                                <h3 className="text-white font-semibold mb-3">Legal</h3>
-                                <div className="flex flex-col gap-2">
-                                    {legalLinks.map((item, idx) => (
-                                        <SmartLink
-                                            key={`${String(item.page_slug || item.href || item.name || '')}-${idx}`}
-                                            href={resolveHref(item)}
-                                            className="text-gray-400 hover:text-white hover:underline transition-colors duration-200 text-sm"
-                                        >
-                                            {item.name}
-                                        </SmartLink>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* Bottom Section */}
-                <div className="text-sm">
-                    <div className="mb-4 flex flex-col md:flex-row justify-between items-start md:items-center bg-neutral-900 md:p-6 p-4 rounded-xl border border-neutral-700 shadow-inner"> 
-                        <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-3 md:mb-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                                {logoUrl ? (
-                                    <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto" />
-                                ) : null}
-                                <FooterCopyright brandName={brandName} />
-                            </div>
-                            
-                            {/* Quick Links moved to the right */}
-                            <div className="flex items-center gap-3 sm:ml-auto">
+                    {legalLinks?.length > 0 && (
+                        <div className="flex items-center gap-4 text-xs">
+                            {legalLinks.map((item, idx) => (
                                 <SmartLink
-                                    href="/articles"
-                                    className="px-4 py-2 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-200 hover:text-white rounded-lg transition-all duration-300 text-sm font-medium"
+                                    key={`legal-inline-${idx}`}
+                                    href={resolveHref(item)}
+                                    className="text-gray-300 hover:text-white"
                                 >
-                                    Articles
+                                    {item.name}
                                 </SmartLink>
-                                <SmartLink
-                                    href="/contact"
-                                    className="px-4 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 text-green-200 hover:text-white rounded-lg transition-all duration-300 text-sm font-medium"
-                                >
-                                    Contact
-                                </SmartLink>
-                            </div>
-                            
+                            ))}
                         </div>
-                    </div>
+                    )}
                 </div>
 
-                <p className="mt-4 pt-4 border-t border-neutral-800 text-[10px] sm:text-xs leading-relaxed text-gray-500">
+                <p className="mt-4 pt-4 border-t border-neutral-800 text-[10px] sm:text-xs leading-relaxed text-gray-400">
                     {disclaimer || (
-                        "Disclaimer: AutoInsurance.org strives to present the most up-to-date and comprehensive information on saving money on car insurance possible. This information may be different than what you see when you visit an insurance provider, insurance agency, or insurance company website. All insurance rates, products, and services are presented without warranty and guarantee. When evaluating rates, please verify directly with your insurance company or agent. Quotes and offers are not binding, nor a guarantee of coverage."
+                        "Disclaimer: CarInsuranceComparison.com strives to present the most up-to-date and comprehensive information on saving money on car insurance possible. This information may be different than what you see when you visit an insurance provider, insurance agency, or insurance company website. All insurance rates, products, and services are presented without warranty and guarantee. When evaluating rates, please verify directly with your insurance company or agent. Quotes and offers are not binding, nor a guarantee of coverage."
                     )}
                 </p>
 
                 {address ? (
                     <div className="w-full mt-2">
                         <p className="text-xs text-gray-500">{address}</p>
-                        {addressSource && (
-                            <p className="text-[10px] text-gray-400 mt-1">
-                                Source: {addressSource === 'article' ? 'From article content' : addressSource === 'site_config' ? 'From site configuration' : 'Default'}
-                            </p>
-                        )}
                     </div>
                 ) : null}
             </div>

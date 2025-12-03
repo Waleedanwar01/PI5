@@ -10,7 +10,7 @@ export async function generateMetadata({ searchParams }) {
     const res = await fetch(`${base}/api/site-config/`, { cache: 'no-store', signal: controller.signal });
     clearTimeout(timer);
     const cfg = await res.json();
-    const brand = (cfg?.brand_name || 'AutoInsurance.org').trim();
+    const brand = (cfg?.brand_name || 'Car Insurance Comparison').trim();
     const titleZip = zip || 'Your Area';
     return {
       title: `Auto Insurance Quotes in ${titleZip} | ${brand}`,
@@ -72,9 +72,37 @@ export default async function QuotesPage({ searchParams }) {
   const ok = data?.ok === true;
   const source = data?._source || 'proxy';
 
-  // Top Pick: first company from API response; others remain in original order
-  const topCompany = companies.length > 0 ? companies[0] : null;
-  const otherCompanies = companies.slice(1);
+  function filterCompaniesByZip(list, zipCode) {
+    const z = String(zipCode || '').replace(/\D/g, '').slice(0, 5);
+    if (z.length !== 5) return list;
+    const within = (range) => {
+      const s = String(range || '').trim();
+      if (!s) return false;
+      const m = s.match(/^(\d{5})\s*-\s*(\d{5})$/);
+      if (!m) return false;
+      const a = parseInt(m[1], 10);
+      const b = parseInt(m[2], 10);
+      const v = parseInt(z, 10);
+      if (Number.isNaN(a) || Number.isNaN(b) || Number.isNaN(v)) return false;
+      return v >= Math.min(a, b) && v <= Math.max(a, b);
+    };
+    const matches = (c) => {
+      if (!c || typeof c !== 'object') return false;
+      if (Array.isArray(c.zip_ranges) && c.zip_ranges.some(within)) return true;
+      if (Array.isArray(c.coverage_zip_ranges) && c.coverage_zip_ranges.some(within)) return true;
+      const prefixes = c.zip_prefixes || c.coverage_zip_prefixes;
+      if (Array.isArray(prefixes) && prefixes.some((p) => String(z).startsWith(String(p || '').trim()))) return true;
+      const zips = c.supported_zips || c.coverage_zips || c.zips;
+      if (Array.isArray(zips) && zips.some((v) => String(v || '').trim() === z)) return true;
+      return false;
+    };
+    const filtered = list.filter(matches);
+    return filtered.length > 0 ? filtered : list;
+  }
+
+  const filteredCompanies = filterCompaniesByZip(companies, zip);
+  const topCompany = filteredCompanies.length > 0 ? filteredCompanies[0] : null;
+  const otherCompanies = filteredCompanies.slice(1);
 
   return (
     <div className="min-h-[60vh] bg-white pb-16">
@@ -83,7 +111,7 @@ export default async function QuotesPage({ searchParams }) {
         <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
           The Best Auto Insurance Rates for {zip || '—'}
         </h1>
-        <p className="mt-2 text-gray-600">Companies found: {companies.length}</p>
+        <p className="mt-2 text-gray-600">Companies found: {filteredCompanies.length}</p>
 
         {/* Top filter bar (client component) */}
         <div className="mt-6">
@@ -138,7 +166,7 @@ export default async function QuotesPage({ searchParams }) {
 
         {/* Companies grid cards */}
         <div className="mt-10">
-          {companies.length === 0 ? (
+          {filteredCompanies.length === 0 ? (
             <div className="rounded-xl border border-gray-200 p-6 text-gray-800">
               No companies found for ZIP {zip || '—'}. Try a different ZIP.
               {!ok && data?.error ? (
@@ -147,7 +175,7 @@ export default async function QuotesPage({ searchParams }) {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {companies.map((c, idx) => {
+              {filteredCompanies.map((c, idx) => {
                 return (
                   <div key={`${c.slug || c.name}-${idx}`} className="group relative rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition">
                     <div className="flex items-start justify-between gap-4">

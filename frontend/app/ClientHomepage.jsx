@@ -23,8 +23,8 @@ export default function ClientHomepage() {
           
           // Set dynamic page title and meta from homepage
           if (homepageData.meta_title) {
-            document.title = `${homepageData.meta_title} | AutoInsurance.org`;
-            
+            document.title = `${homepageData.meta_title} | Car Insurance Comparison`;
+          
             // Update meta description
             const metaDescription = document.querySelector('meta[name="description"]');
             if (metaDescription && homepageData.meta_description) {
@@ -184,7 +184,7 @@ export default function ClientHomepage() {
                   <div key={String(it.slug || index)} className="border-b border-gray-200 pb-4 last:border-b-0">
                     <Link
                       href={`/articles/${encodeURIComponent(String(it.slug || ''))}`}
-                      className="text-lg md:text-xl font-semibold text-gray-900 hover:text-orange-700 transition-colors duration-200 block line-clamp-2"
+                      className="text-lg md:text-xl font-semibold text-gray-700 hover:text-blue-600 transition-colors duration-200 block line-clamp-2"
                     >
                       {it.title}
                     </Link>
@@ -202,7 +202,7 @@ export default function ClientHomepage() {
             <div className="text-center mt-8 md:mt-12">
               <Link
                 href="/articles"
-                className="inline-flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-orange-600 to-orange-700 text-white font-semibold rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm md:text-base w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-gray-800 text-white font-semibold rounded-xl hover:bg-gray-900 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm md:text-base w-full sm:w-auto"
               >
                 View All Articles
                 <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

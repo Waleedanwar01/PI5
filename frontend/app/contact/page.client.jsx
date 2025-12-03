@@ -10,14 +10,14 @@ export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [status, setStatus] = useState({ ok: false, error: '', sent: false });
   const [loading, setLoading] = useState(false);
-  const [cfg, setCfg] = useState({ brand_name: 'AutoInsurance.org', email: '', phone_number: '(800) 308-0987', company_address: '' });
+  const [cfg, setCfg] = useState({ brand_name: 'Car Insurance Comparison', email: '', phone_number: '(800) 308-0987', company_address: '' });
 
   useEffect(() => {
     fetch('/api/site-config/', { cache: 'no-store' })
       .then(r => r.json())
       .then(data => {
         setCfg({
-          brand_name: data.brand_name || 'AutoInsurance.org',
+          brand_name: data.brand_name || 'Car Insurance Comparison',
           email: data.email || '',
           phone_number: data.phone_number || '(800) 308-0987',
           company_address: data.company_address || '',
@@ -97,13 +97,13 @@ export default function ContactPage() {
                 <div>
                   <p className="font-semibold">Speak to a Live Agent And Get Insurance Quotes:</p>
                   <p>
-                    Call <SmartLink href={`tel:${(cfg.phone_number || '').replace(/\s+/g,'')}`} className="text-orange-700 hover:underline">{cfg.phone_number}</SmartLink>
+                    Call <SmartLink href={`tel:${(cfg.phone_number || '').replace(/\s+/g,'')}`} className="text-blue-600 hover:underline">{cfg.phone_number}</SmartLink>
                   </p>
                 </div>
                 {cfg.email ? (
                   <div>
                     <p className="font-semibold">Support Email:</p>
-        <p><SmartLink href={`mailto:${cfg.email}`} className="text-orange-700 hover:underline">{cfg.email}</SmartLink></p>
+        <p><SmartLink href={`mailto:${cfg.email}`} className="text-blue-600 hover:underline">{cfg.email}</SmartLink></p>
                   </div>
                 ) : null}
               </div>

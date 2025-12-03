@@ -15,16 +15,17 @@ function isSpecial(href) {
 }
 
 export default function SmartLink({ href = '#', children, className = '', prefetch, onClick, ...rest }) {
+  const cls = String(className || '').trim() || 'text-blue-600 hover:text-blue-700';
   if (isInternal(href)) {
     return (
-      <Link href={href} className={className} prefetch={prefetch} onClick={onClick} {...rest}>
+      <Link href={href} className={cls} prefetch={prefetch} onClick={onClick} {...rest}>
         {children}
       </Link>
     );
   }
   const externalProps = isSpecial(href) ? {} : { target: '_blank', rel: 'noopener noreferrer' };
   return (
-    <a href={href} className={className} onClick={onClick} {...externalProps} {...rest}>
+    <a href={href} className={cls} onClick={onClick} {...externalProps} {...rest}>
       {children}
     </a>
   );

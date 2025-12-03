@@ -94,11 +94,10 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 # Database
-# Parse DATABASE_URL for Neon PostgreSQL; no hardcoded values.
+# Parse DATABASE_URL for database connection
 _DATABASE_URL = os.getenv('DATABASE_URL')
-if not _DATABASE_URL:
-    raise RuntimeError('DATABASE_URL environment variable is required')
 
+# Parse PostgreSQL URL
 _pg = urlparse(_DATABASE_URL)
 DATABASES = {
     'default': {

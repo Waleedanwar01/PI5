@@ -4,6 +4,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   trailingSlash: false,
   reactStrictMode: true,
   env: {
@@ -23,6 +24,18 @@ const nextConfig = {
         hostname: '127.0.0.1',
         port: '8000',
         pathname: '/media/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8000',
+        pathname: '/**',
       },
     ],
   },

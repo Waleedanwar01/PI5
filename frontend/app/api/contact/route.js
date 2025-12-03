@@ -1,26 +1,31 @@
-import { headers } from 'next/headers';
-
-async function getApiBase() {
-  const envBase = process.env.NEXT_PUBLIC_API_BASE;
-  if (envBase) return envBase;
-  try {
-    const h = await headers();
-    const host = h.get('host') || '127.0.0.1:3002';
-    const hostname = host.split(':')[0];
-    return `http://${hostname}:8000`;
-  } catch {
-    return 'http://127.0.0.1:8000';
-  }
-}
-
 export async function POST(req) {
-  const API_BASE = getApiBase();
   const body = await req.text();
-  const res = await fetch(`${API_BASE}/api/contact/submit/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body,
-  });
-  const json = await res.json();
-  return Response.json(json, { status: res.status });
+  const bases = [];
+  const direct = process.env.NEXT_PUBLIC_CONTACT_SUBMIT_URL;
+  const envBase = process.env.NEXT_PUBLIC_API_BASE;
+  const altBase = process.env.NEXT_PUBLIC_BACKEND_URL;
+  if (direct) bases.push(direct);
+  if (envBase) bases.push(`${envBase}/api/contact/submit/`);
+  if (altBase) bases.push(`${altBase}/api/contact/submit/`);
+  bases.push(`http://localhost:8000/api/contact/submit/`);
+  for (const url of bases) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      let json = {};
+      try { json = await res.json(); } catch { json = {}; }
+      if (res.ok) {
+        return Response.json({ ok: true }, { status: 200 });
+      }
+    } catch {}
+  }
+  return Response.json({ ok: false, error: 'Submission temporarily unavailable' }, { status: 200 });
 }

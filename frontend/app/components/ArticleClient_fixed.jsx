@@ -265,7 +265,7 @@ export default function ArticleClient({ slug }) {
                   <div className="h-12 w-12 rounded-full bg-gray-200" />
                 )}
                 <div className="flex-1">
-                  <div className="font-semibold text-orange-700">Written by:</div>
+                  <div className="font-semibold text-blue-600">Written by:</div>
                   <div className="font-medium">{blog.author ?? "Unknown"}</div>
                   {blog.author_description && (
                     <div className="text-sm text-gray-600 mt-1">{blog.author_description}</div>
@@ -287,7 +287,7 @@ export default function ArticleClient({ slug }) {
                   <div className="h-12 w-12 rounded-full bg-gray-200" />
                 )}
                 <div className="flex-1">
-                  <div className="font-semibold text-orange-700">Reviewed by:</div>
+                  <div className="font-semibold text-blue-600">Reviewed by:</div>
                   <div className="font-medium">{blog.reviewer ?? "Unknown"}</div>
                   {blog.reviewer_description && (
                     <div className="text-sm text-gray-600 mt-1">{blog.reviewer_description}</div>
@@ -326,7 +326,7 @@ export default function ArticleClient({ slug }) {
                   <li key={item.id}>
                     <button
                       onClick={(e) => handleTocClick(e, item.id)}
-                      className={`block w-full text-left text-sm transition-all duration-200 hover:text-orange-700 ${
+                      className={`block w-full text-left text-sm transition-all duration-200 hover:text-blue-600 ${
                         item.level === "h3" ? "pl-4 border-l ml-1" : ""
                       } ${
                         activeHeading === item.id
@@ -347,7 +347,7 @@ export default function ArticleClient({ slug }) {
         <div className={`${toc.length > 0 ? "lg:col-span-8" : "col-span-12"}`}>
           <article
             ref={articleRef}
-            className="prose prose-lg max-w-none px-2 sm:px-0"
+            className="prose prose-lg max-w-none px-2 sm:px-0 prose-a:text-gray-600 hover:prose-a:text-blue-600 prose-a:underline-offset-2 hover:prose-a:underline"
           >
             <div dangerouslySetInnerHTML={{ __html: blog.content_html }} />
           </article>
@@ -366,17 +366,25 @@ export default function ArticleClient({ slug }) {
                   key={String(it.slug || '')}
                   className="group rounded-xl border bg-white shadow-md hover:shadow-xl transition overflow-hidden flex flex-col"
                 >
-                  {it.hero_image && (
+                  {it.hero_image ? (
                     <ResponsiveImage
                       src={it.hero_image}
+                      className="w-full"
+                      maxHeight={160}
+                    />
+                  ) : (
+                    <ResponsiveImage
+                      src="https://via.placeholder.com/640x360?text=Article"
                       className="w-full"
                       maxHeight={160}
                     />
                   )}
 
                   <div className="p-4 flex flex-col flex-grow">
-                    <h4 className="text-base font-semibold group-hover:text-orange-700">
-                      <Link href={`/articles/${encodeURIComponent(String(it.slug || ''))}`}>{it.title}</Link>
+                    <h4 className="text-base font-semibold">
+                      <Link href={`/articles/${encodeURIComponent(String(it.slug || ''))}`} className="text-gray-800 hover:text-blue-600 transition-colors">
+                        {it.title}
+                      </Link>
                     </h4>
 
                     {it.summary && (
@@ -395,7 +403,7 @@ export default function ArticleClient({ slug }) {
                       )}
                       <Link
                         href={`/articles/${encodeURIComponent(String(it.slug || ''))}`}
-                        className="text-orange-700 font-semibold"
+                        className="text-gray-700 hover:text-blue-600 font-semibold transition-colors"
                       >
                         Read more →
                       </Link>

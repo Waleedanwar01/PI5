@@ -41,14 +41,14 @@ export default function FilterBar({ zip: initialZip = '' }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-3 sm:gap-4">
         <div className="flex flex-col">
           <label className="text-[11px] font-medium text-gray-600">Multiple Vehicles</label>
-          <select className="mt-1 w-full h-10 rounded-lg border-gray-300 bg-gray-50 px-2 text-sm focus:ring-2 focus:ring-orange-300 focus:border-orange-300" value={multipleVehicles} onChange={(e) => setMultipleVehicles(e.target.value)}>
+          <select className="w-full h-10 border border-gray-300 bg-white px-3 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500" value={multipleVehicles} onChange={(e) => setMultipleVehicles(e.target.value)}>
             <option>Yes</option>
             <option>No</option>
           </select>
         </div>
         <div className="flex flex-col">
           <label className="text-[11px] font-medium text-gray-600">Age</label>
-          <select className="mt-1 w-full h-10 rounded-lg border-gray-300 bg-gray-50 px-2 text-sm focus:ring-2 focus:ring-orange-300 focus:border-orange-300" value={age} onChange={(e) => setAge(e.target.value)}>
+          <select className="w-full h-10 border border-gray-300 bg-white px-3 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500" value={age} onChange={(e) => setAge(e.target.value)}>
             <option>18-24</option>
             <option>25-34</option>
             <option>35-44</option>
@@ -59,28 +59,28 @@ export default function FilterBar({ zip: initialZip = '' }) {
         </div>
         <div className="flex flex-col">
           <label className="text-[11px] font-medium text-gray-600">Currently Insured?</label>
-          <select className="mt-1 w-full h-10 rounded-lg border-gray-300 bg-gray-50 px-2 text-sm focus:ring-2 focus:ring-orange-300 focus:border-orange-300" value={insured} onChange={(e) => setInsured(e.target.value)}>
+          <select className="w-full h-10 border border-gray-300 bg-white px-3 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500" value={insured} onChange={(e) => setInsured(e.target.value)}>
             <option>Yes</option>
             <option>No</option>
           </select>
         </div>
         <div className="flex flex-col">
           <label className="text-[11px] font-medium text-gray-600">Married?</label>
-          <select className="mt-1 w-full h-10 rounded-lg border-gray-300 bg-gray-50 px-2 text-sm focus:ring-2 focus:ring-orange-300 focus:border-orange-300" value={married} onChange={(e) => setMarried(e.target.value)}>
+          <select className="w-full h-10 border border-gray-300 bg-white px-3 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500" value={married} onChange={(e) => setMarried(e.target.value)}>
             <option>Married</option>
             <option>Single</option>
           </select>
         </div>
         <div className="flex flex-col">
           <label className="text-[11px] font-medium text-gray-600">Homeowner?</label>
-          <select className="mt-1 w-full h-10 rounded-lg border-gray-300 bg-gray-50 px-2 text-sm focus:ring-2 focus:ring-orange-300 focus:border-orange-300" value={homeowner} onChange={(e) => setHomeowner(e.target.value)}>
+          <select className="w-full h-10 border border-gray-300 bg-white px-3 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500" value={homeowner} onChange={(e) => setHomeowner(e.target.value)}>
             <option>Yes</option>
             <option>No</option>
           </select>
         </div>
         <div className="flex flex-col">
           <label className="text-[11px] font-medium text-gray-600">Credit?</label>
-          <select className="mt-1 w-full h-10 rounded-lg border-gray-300 bg-gray-50 px-2 text-sm focus:ring-2 focus:ring-orange-300 focus:border-orange-300" value={credit} onChange={(e) => setCredit(e.target.value)}>
+          <select className="w-full h-10 border border-gray-300 bg-white px-3 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500" value={credit} onChange={(e) => setCredit(e.target.value)}>
             <option>Poor</option>
             <option>Fair</option>
             <option>Good</option>
@@ -89,7 +89,7 @@ export default function FilterBar({ zip: initialZip = '' }) {
         </div>
         <div className="flex flex-col">
           <label className="text-[11px] font-medium text-gray-600">Accidents?</label>
-          <select className="mt-1 w-full h-10 rounded-lg border-gray-300 bg-gray-50 px-2 text-sm focus:ring-2 focus:ring-orange-300 focus:border-orange-300" value={accidents} onChange={(e) => setAccidents(e.target.value)}>
+          <select className="w-full h-10 border border-gray-300 bg-white px-3 text-sm focus:ring-1 focus:ring-blue-500 focus:border-blue-500" value={accidents} onChange={(e) => setAccidents(e.target.value)}>
             <option>No</option>
             <option>Yes</option>
           </select>

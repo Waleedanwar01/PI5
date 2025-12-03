@@ -19,7 +19,7 @@ try:
         print("User 'admin' already exists. Updating password...")
         user = User.objects.get(username='admin')
         user.email = 'admin@gmail.com'
-        user.set_password('@Admin11!')
+        user.set_password('Admin1122@')
         user.is_superuser = True
         user.is_staff = True
         user.save()
@@ -29,13 +29,13 @@ try:
         user = User.objects.create_superuser(
             username='admin',
             email='admin@gmail.com',
-            password='@Admin11!'
+            password='Admin1122@'
         )
         print("SUCCESS: Superuser 'admin' created successfully!")
     
     print(f"Username: admin")
     print(f"Email: admin@gmail.com")
-    print(f"Password: @Admin11!")
+    print(f"Password: Admin1122@")
     
 except Exception as e:
     print(f"ERROR creating superuser: {e}")

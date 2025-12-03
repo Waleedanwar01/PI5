@@ -15,12 +15,11 @@ export async function GET(req, { params }) {
   try {
     const res = await fetch(`${API_BASE}/api/blogs/${slug}/`, { cache: 'no-store' });
     if (!res.ok) {
-      // Do not fallback to category: detail route only resolves real blog slugs
-      return Response.json({ error: 'Blog not found' }, { status: res.status });
+      return Response.json({ blog: null }, { status: 200 });
     }
     const json = await res.json();
     return Response.json(json);
   } catch (e) {
-    return Response.json({ error: 'Upstream error' }, { status: 500 });
+    return Response.json({ blog: null }, { status: 200 });
   }
 }

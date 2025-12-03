@@ -1,12 +1,14 @@
 "use client"
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import Navbar from './Navbar.jsx';
-import Footer from './Footer.jsx';
+import FooterWithBlueForm from './FooterWithBlueForm.jsx';
 import BackToTop from './BackToTop.jsx';
 import FloatingQuoteButton from './FloatingQuoteButton.jsx';
 import { getMediaUrl } from '../lib/config.js';
 
 export default function ClientLayout({ children }) {
+  const pathname = usePathname();
   // Read site-config on mount and apply admin-configured orange accent
   React.useEffect(() => {
     let mounted = true;
@@ -63,7 +65,7 @@ export default function ClientLayout({ children }) {
           if (homepageRes.ok) {
             const homepageData = await homepageRes.json();
             if (homepageData.meta_title) {
-              document.title = `${homepageData.meta_title} | AutoInsurance.org`;
+              document.title = homepageData.meta_title;
             }
           }
         } catch (e) {
@@ -145,14 +147,14 @@ export default function ClientLayout({ children }) {
   return (
     <>
       <Navbar />
-      {/* Top padding equal to navbar height (h-16 = 64px) and layout normalization */}
-      <div className="pt-16 min-h-screen flex flex-col">
+      {pathname !== '/' ? (<div className="h-20 sm:h-16 lg:h-16" aria-hidden="true"></div>) : null}
+      <div className="min-h-screen flex flex-col">
         <main className="flex-1">{children}</main>
         {/* Global spacer above footer for pleasant breathing room */}
         <div className="h-8 sm:h-10 lg:h-12" aria-hidden="true"></div>
         <FloatingQuoteButton />
         <BackToTop />
-        <Footer />
+        <FooterWithBlueForm />
       </div>
     </>
   );

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#234a97"/>
+      <stop offset="100%" stop-color="#2b6cb0"/>
+    </linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4a4a4a"/>
+      <stop offset="100%" stop-color="#2f2f2f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky/background -->
+  <rect x="0" y="0" width="1440" height="900" fill="url(#sky)"/>
+
+  <!-- Mountains silhouettes -->
+  <path d="M0 600 L200 520 L360 590 L520 500 L700 600 L900 520 L1100 600 L1300 540 L1440 600 L1440 900 L0 900 Z" fill="#203b7a" opacity="0.35"/>
+  <path d="M0 650 L180 570 L300 640 L480 560 L640 650 L860 580 L1040 650 L1240 600 L1440 650 L1440 900 L0 900 Z" fill="#1b356d" opacity="0.35"/>
+
+  <!-- Road -->
+  <path d="M720 900 C690 760 670 680 640 620 C600 540 560 500 480 460 C390 420 300 410 0 400 L0 900 Z" fill="url(#road)" opacity="0.9"/>
+  <path d="M720 900 C750 760 770 680 800 620 C840 540 880 500 960 460 C1050 420 1140 410 1440 400 L1440 900 Z" fill="url(#road)" opacity="0.9"/>
+
+  <!-- Center line -->
+  <g stroke="#fdfdfd" stroke-width="10" stroke-linecap="round" opacity="0.85">
+    <line x1="720" y1="900" x2="720" y2="820"/>
+    <line x1="720" y1="780" x2="720" y2="720"/>
+    <line x1="720" y1="680" x2="720" y2="640"/>
+    <line x1="720" y1="600" x2="720" y2="560"/>
+  </g>
+
+  <!-- Subtle vignette -->
+  <rect x="0" y="0" width="1440" height="900" fill="#000" opacity="0.08"/>
+</svg>

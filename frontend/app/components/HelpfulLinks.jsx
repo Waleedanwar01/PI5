@@ -10,7 +10,7 @@ export default function HelpfulLinks({ links = [], title = "Helpful Links", atta
     <section className={sectionClasses} aria-labelledby="helpful-links-heading">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-5">
-          <h2 id="helpful-links-heading" className="text-xl md:text-2xl font-semibold text-orange-700">{title}</h2>
+          <h2 id="helpful-links-heading" className="text-xl md:text-2xl font-semibold text-blue-600">{title}</h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {safeLinks.map((l, idx) => {
@@ -20,11 +20,11 @@ export default function HelpfulLinks({ links = [], title = "Helpful Links", atta
               <SmartLink
                 key={`${String(l.page_slug || label || '')}-${idx}`}
                 href={href}
-                className="group h-full rounded-xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-orange-700"
+                className="group h-full rounded-xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-600"
               >
                 <div className="flex items-start justify-between">
                   <span className="text-gray-900 text-sm md:text-base font-medium">{label}</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-orange-700 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
                     <path d="M13.5 4.5l6 6-6 6m6-6H4.5" />
                   </svg>
                 </div>

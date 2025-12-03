@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Table Test</title>
+    <style>
+        /* Base table styles for rich-html content */
+        .rich-html table { 
+          width: 100%; 
+          border-collapse: collapse; 
+          margin: 1rem 0; 
+          min-width: 500px;
+          display: table;
+        }
+        .rich-html th, .rich-html td { 
+          border: 1px solid #e5e7eb; 
+          padding: 0.75rem; 
+          text-align: left;
+        }
+        .rich-html th { 
+          background-color: #f9fafb; 
+          font-weight: 600; 
+        }
+
+        /* Container for tables - enables horizontal scroll */
+        .rich-html {
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        /* Table responsiveness for mobile */
+        @media (max-width: 768px) {
+          .rich-html {
+            margin: 1rem -1rem;
+            padding: 0 1rem;
+          }
+          
+          .rich-html table {
+            min-width: 400px;
+            font-size: 0.875rem;
+          }
+          
+          .rich-html table th,
+          .rich-html table td {
+            padding: 0.5rem;
+            font-size: 0.8125rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .rich-html {
+            margin: 0.75rem -0.5rem;
+            padding: 0 0.5rem;
+          }
+          
+          .rich-html table {
+            min-width: 320px;
+            font-size: 0.8125rem;
+          }
+          
+          .rich-html table th,
+          .rich-html table td {
+            padding: 0.375rem;
+            font-size: 0.75rem;
+          }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .info {
+            background: #f3f4f6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Responsive Table Test</h1>
+    
+    <div class="info">
+        <p><strong>Test Instructions:</strong></p>
+        <ul>
+            <li>On desktop (>768px), table should display normally with headers</li>
+            <li>On mobile (<768px), table should stack vertically with labels</li>
+            <li>Horizontal scroll should work if table is wider than screen</li>
+        </ul>
+    </div>
+
+    <h2>Insurance Companies Comparison</h2>
+    
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Coverage Type</th>
+                    <th>Monthly Premium</th>
+                    <th>Deductible</th>
+                    <th>Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Allstate</td>
+                    <td>Full Coverage</td>
+                    <td>$150</td>
+                    <td>$500</td>
+                    <td>4.2/5</td>
+                </tr>
+                <tr>
+                    <td>Geico</td>
+                    <td>Liability Only</td>
+                    <td>$120</td>
+                    <td>$1000</td>
+                    <td>4.5/5</td>
+                </tr>
+                <tr>
+                    <td>State Farm</td>
+                    <td>Full Coverage</td>
+                    <td>$140</td>
+                    <td>$750</td>
+                    <td>4.3/5</td>
+                </tr>
+                <tr>
+                    <td>Progressive</td>
+                    <td>Collision Only</td>
+                    <td>$135</td>
+                    <td>$600</td>
+                    <td>4.1/5</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Simulate the ResponsiveHTML component behavior
+        document.addEventListener('DOMContentLoaded', function() {
+            const tables = document.querySelectorAll('table.ai-table');
+            tables.forEach((table) => {
+                // Collect header labels
+                const labels = [];
+                const theadTr = table.querySelector('thead tr');
+                if (theadTr) {
+                    theadTr.querySelectorAll('th, td').forEach((cell) => {
+                        labels.push((cell.textContent || '').trim());
+                    });
+                } else {
+                    const firstTr = table.querySelector('tr');
+                    if (firstTr) {
+                        firstTr.querySelectorAll('th, td').forEach((cell) => {
+                            labels.push((cell.textContent || '').trim());
+                        });
+                    }
+                }
+                
+                // Assign data-label to each cell for mobile display
+                const rows = table.querySelectorAll('tbody tr');
+                const targetRows = rows.length ? rows : table.querySelectorAll('tr');
+                targetRows.forEach((tr) => {
+                    const cells = tr.querySelectorAll('td');
+                    let idx = 0;
+                    cells.forEach((td) => {
+                        if (!td.getAttribute('data-label')) {
+                            td.setAttribute('data-label', labels[idx] || '');
+                        }
+                        idx += 1;
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

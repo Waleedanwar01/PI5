@@ -556,17 +556,37 @@ def contact_submit(request):
 # Quotes API
 @never_cache
 def quotes(request):
-    """Return insurance company quotes based on ZIP code"""
+    """Return insurance company quotes filtered by ZIP code coverage"""
     try:
         from .models import InsuranceCompany
         
-        zip_code = request.GET.get('zip', '')
+        raw_zip = request.GET.get('zip', '')
+        zip_code = ''.join(ch for ch in str(raw_zip) if ch.isdigit())[:5]
         
-        # Get all published insurance companies
-        companies = InsuranceCompany.objects.filter(published=True).order_by('-rating', 'name')
+        companies_qs = InsuranceCompany.objects.filter(published=True).order_by('-rating', 'name')
+        
+        filtered_companies = []
+        if len(zip_code) == 5:
+            for company in companies_qs:
+                try:
+                    covs = list(getattr(company, 'coverages').all())
+                except Exception:
+                    covs = []
+                matches = False
+                for cov in covs:
+                    try:
+                        if cov.matches_zip(zip_code):
+                            matches = True
+                            break
+                    except Exception:
+                        continue
+                if matches:
+                    filtered_companies.append(company)
+        else:
+            filtered_companies = list(companies_qs)
         
         companies_data = []
-        for company in companies:
+        for company in filtered_companies:
             companies_data.append({
                 'id': company.id,
                 'name': company.name,
@@ -585,8 +605,7 @@ def quotes(request):
             'zip': zip_code,
             'count': len(companies_data),
         })
-    except Exception as e:
-        # Return empty list if InsuranceCompany model doesn't exist or other error
+    except Exception:
         return JsonResponse({
             'ok': True,
             'companies': [],

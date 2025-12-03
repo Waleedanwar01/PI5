@@ -1,0 +1,678 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+
+.test {
+  @apply bg-blue-500 text-white p-4;
+}
+
+/* CKEditor-rendered content: neutral palette, strong headings, responsive media */
+.rich-html {
+  color: #1f2937; /* gray-800 */
+}
+.rich-html h1 { font-size: 2.25rem; line-height: 2.5rem; font-weight: 800; color: #111827; margin-top: 1.75rem; margin-bottom: 1rem; }
+.rich-html h2 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; color: #111827; margin-top: 1.5rem; margin-bottom: 0.875rem; }
+.rich-html h3 { font-size: 1.5rem; line-height: 2rem; font-weight: 600; color: #1f2937; margin-top: 1.25rem; margin-bottom: 0.75rem; }
+.rich-html h4 { font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; color: #1f2937; margin-top: 1rem; margin-bottom: 0.5rem; }
+.rich-html h5 { font-size: 1.125rem; line-height: 1.75rem; font-weight: 500; color: #374151; margin-top: 0.75rem; margin-bottom: 0.5rem; }
+.rich-html h6 { font-size: 1rem; line-height: 1.5rem; font-weight: 500; color: #374151; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+
+.rich-html p { font-size: 1rem; line-height: 1.75rem; color: #1f2937; margin: 0.75rem 0; }
+.rich-html ul { list-style-type: disc; padding-left: 1.25rem; margin: 0.75rem 0; }
+.rich-html ol { list-style-type: decimal; padding-left: 1.25rem; margin: 0.75rem 0; }
+.rich-html li { margin: 0.25rem 0; }
+.rich-html a { color: #b45309; text-decoration: underline; text-underline-offset: 3px; }
+.rich-html blockquote { border-left: 4px solid #e5e7eb; padding-left: 1rem; color: #4b5563; margin: 1rem 0; }
+
+.rich-html img { max-width: 100%; height: auto; border-radius: 0.5rem; display: block; margin: 1rem auto; }
+.rich-html video { max-width: 100%; height: auto; border-radius: 0.5rem; display: block; margin: 1rem auto; }
+.rich-html iframe { width: 100%; aspect-ratio: 16 / 9; border: 1px solid #e5e7eb; border-radius: 0.5rem; }
+
+/* Compact Mobile Tables - Full Width Fit */
+
+/* Remove excessive margins and padding */
+.rich-html {
+  margin: 0.5rem 0;
+  padding: 0;
+}
+
+/* Compact tables */
+.rich-html table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  max-width: 100%;
+}
+
+.rich-html table th,
+.rich-html table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.4rem 0.3rem;
+  text-align: left;
+  font-size: 0.8125rem;
+}
+
+.rich-html table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* Mobile optimized - full width, minimal padding */
+@media (max-width: 768px) {
+  .rich-html {
+    margin: 0.25rem 0;
+    padding: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .rich-html table {
+    width: auto;
+    min-width: 100%;
+    margin: 0;
+    font-size: 0.8rem;
+  }
+  
+  .rich-html table th,
+  .rich-html table td {
+    padding: 0.3rem 0.25rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  
+  .rich-html table th {
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .rich-html table th,
+  .rich-html table td {
+    padding: 0.25rem 0.2rem;
+    font-size: 0.7rem;
+  }
+  
+  .rich-html table th {
+    font-size: 0.75rem;
+  }
+}
+
+/* Responsive table styles */
+.ai-table-wrap {
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  background: white;
+  max-width: 100%;
+  position: relative;
+}
+
+.ai-table-wrap::after {
+  content: '';
+  display: block;
+  height: 1px;
+  width: 100%;
+}
+
+.ai-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+  table-layout: auto;
+}
+
+.ai-table th,
+.ai-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.ai-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+/* Mobile responsive tables with horizontal scroll */
+@media (max-width: 768px) {
+  .ai-table-wrap {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f3f4f6;
+    margin: 1rem -1rem;
+    padding: 0 1rem;
+    border-radius: 0;
+  }
+  
+  /* Custom scrollbar for webkit browsers */
+  .ai-table-wrap::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .ai-table-wrap::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 3px;
+  }
+  
+  .ai-table-wrap::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+  }
+  
+  .ai-table-wrap::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+  
+  .ai-table {
+    min-width: 400px;
+    width: auto;
+    font-size: 0.875rem;
+  }
+  
+  .ai-table th,
+  .ai-table td {
+    padding: 0.5rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    max-width: 200px;
+  }
+  
+  .ai-table th {
+    font-weight: 600;
+    background-color: #f9fafb;
+  }
+  
+  .ai-table td {
+    border-color: #e5e7eb;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .ai-table-wrap {
+    margin: 0.75rem -0.5rem;
+    padding: 0 0.5rem;
+  }
+  
+  .ai-table {
+    min-width: 320px;
+    font-size: 0.8125rem;
+  }
+  
+  .ai-table th,
+  .ai-table td {
+    padding: 0.375rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Enhanced mobile responsiveness for navbar and hero */
+@media (max-width: 768px) {
+  /* Improve navbar mobile menu */
+  .mobile-menu-overlay {
+    backdrop-filter: blur(8px);
+  }
+  /* Smooth open animation for mobile menu overlay */
+  .mobile-menu {
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 200ms ease, transform 200ms ease;
+  }
+  .mobile-menu.open {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Collapsible mobile dropdown container */
+  .mobile-dropdown {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 300ms ease, opacity 300ms ease;
+  }
+  .mobile-dropdown.open {
+    max-height: 800px; /* ample for most lists */
+    opacity: 1;
+  }
+  
+  /* Better hero form mobile layout */
+  .hero-form {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .hero-form input {
+    border-radius: 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .hero-form button {
+    border-radius: 0;
+    width: 100%;
+  }
+  
+  /* Responsive typography */
+  .hero-title {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+  }
+  
+  .hero-form input {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .hero-form button {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Improved dropdown responsiveness */
+@media (max-width: 768px) {
+  .dropdown-menu {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: white;
+    z-index: 50;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+  
+  .dropdown-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+/* Better button hover states */
+@media (hover: hover) {
+  .btn-orange:hover {
+    background-color: #9a3412;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+  }
+  
+  .nav-link:hover {
+    background-color: transparent;
+  }
+}
+
+/* GSAP Animation Classes */
+.dropdown-menu {
+  transform-origin: top center;
+  will-change: transform, opacity, max-height;
+}
+
+.nav-link {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #f97316;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Simple hover effects for dropdown links */
+.dropdown-menu a:hover {
+  background-color: rgba(249, 115, 22, 0.05);
+  border-radius: 0.375rem;
+}
+
+/* GSAP Animation Styles */
+.dropdown-menu {
+  overflow: hidden;
+  will-change: height, opacity, transform;
+}
+
+.mobile-menu-overlay {
+  will-change: transform, opacity, scale;
+}
+
+/* Ensure GSAP animations work smoothly */
+* {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.gsap-container {
+  will-change: transform, opacity;
+}
+
+/* ----------- Global Styles ----------- */
+
+/* Apply Public Sans globally */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: "Public Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+/* Enable smooth text */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* OPTIONAL: You can set default weight */
+.body {
+  font-weight: 400;
+}
+
+/* Add your global resets if needed */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ----------- Theme Variables (defaults, overridden by ClientLayout) ----------- */
+:root {
+  /* Base accent and hover colors (hex). ClientLayout updates these at runtime */
+  --ai-orange-700: #c2410c; /* default accent */
+  --ai-orange-hover: #9a3412; /* default hover accent */
+
+  /* RGB for alpha utilities */
+  --ai-orange-rgb: 194, 65, 12; /* matches #c2410c */
+
+  /* Light variants used in subtle backgrounds and borders */
+  --ai-orange-50: #fcf4f0;
+  --ai-orange-100: #f8e8df;
+  --ai-orange-200: #f3dccf;
+  --ai-orange-300: #e7bda8;
+  --ai-orange-400: #d99e80;
+  --ai-orange-500: #cc7f59;
+
+  /* Gradient endpoints (fallbacks tied to accent) */
+  --ai-gradient-from: var(--ai-orange-700);
+  --ai-gradient-to: var(--ai-orange-hover);
+}
+
+html{
+  scroll-behavior: smooth;
+}
+
+/* ----------- Responsive Tables (Homepage, Articles) ----------- */
+/* Add horizontal scrollbar when tables overflow on small screens */
+.prose table,
+.rich-html table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
+}
+
+/* Prevent cells from squishing too much on narrow viewports */
+@media (max-width: 640px) {
+  .prose table th,
+  .prose table td,
+  .rich-html table th,
+  .rich-html table td {
+    white-space: nowrap;
+  }
+}
+
+/* Subtle bottom-half underline on hover for nav items */
+.nav-hover { position: relative; }
+.nav-hover::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 50%; /* half-width underline */
+  height: 2px;
+  background: rgba(209, 213, 219, 1); /* gray-300 */
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+.nav-hover:hover::after,
+.nav-hover:focus-visible::after { opacity: 1; }
+
+/* Smooth overlay for mobile menu open */
+.mobile-menu-overlay { transition: opacity 250ms ease; }
+
+/* Center small-width tables on large screens */
+@media (min-width: 1024px) {
+  .prose table,
+  .rich-html table {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-x: visible;
+  }
+}
+
+/* Ocean Wave Animations */
+@keyframes wave-slow {
+  0%, 100% {
+    transform: translateX(0) translateY(0) scaleX(1);
+  }
+  25% {
+    transform: translateX(-10px) translateY(2px) scaleX(1.02);
+  }
+  50% {
+    transform: translateX(-20px) translateY(0) scaleX(1);
+  }
+  75% {
+    transform: translateX(-10px) translateY(-2px) scaleX(0.98);
+  }
+}
+
+@keyframes wave-gentle {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+    opacity: 0.6;
+  }
+}
+
+@keyframes wave-float {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-6px) scale(1.02);
+    opacity: 0.7;
+  }
+}
+
+@keyframes wave-flow {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100vw);
+  }
+}
+
+/* Apply wave animations */
+.wave-slow {
+  animation: wave-slow 8s ease-in-out infinite;
+}
+
+.wave-gentle {
+  animation: wave-gentle 6s ease-in-out infinite;
+}
+
+.wave-float {
+  animation: wave-float 4s ease-in-out infinite;
+}
+
+.wave-flow {
+  animation: wave-flow 15s linear infinite;
+}
+
+/* Responsive wave adjustments */
+@media (max-width: 768px) {
+  .wave-slow {
+    animation-duration: 12s; /* Slower on mobile */
+  }
+  
+  .wave-gentle {
+    animation-duration: 8s;
+  }
+}
+
+/* Ocean wave decorative elements */
+.ocean-wave-pattern {
+  background-image: 
+    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+  background-size: 100px 100px, 150px 150px, 200px 200px;
+  background-position: 0 0, 50px 50px, 100px 0;
+  animation: wave-float 20s ease-in-out infinite;
+}
+
+/* Glowing ocean effect */
+.ocean-glow {
+  box-shadow: 
+    0 0 20px rgba(59, 130, 246, 0.3),
+    0 0 40px rgba(59, 130, 246, 0.2),
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Wave shimmer effect */
+@keyframes wave-shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.wave-shimmer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: wave-shimmer 3s infinite;
+}
+
+/* Car Movement Animations */
+@keyframes car-move-0 {
+  0% { 
+    transform: translateX(-100px); 
+  }
+  100% { 
+    transform: translateX(calc(100vw + 100px)); 
+  }
+}
+
+@keyframes car-move-1 {
+  0% { 
+    transform: translateX(-150px); 
+  }
+  100% { 
+    transform: translateX(calc(100vw + 150px)); 
+  }
+}
+
+@keyframes car-move-2 {
+  0% { 
+    transform: translateX(-200px); 
+  }
+  100% { 
+    transform: translateX(calc(100vw + 200px)); 
+  }
+}
+
+/* Vehicle floating animation */
+@keyframes vehicle-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-4px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-4px) rotate(-1deg);
+  }
+}
+
+/* Apply car animations */
+.car-animation-0 {
+  animation: car-move-0 15s linear infinite;
+}
+
+.car-animation-1 {
+  animation: car-move-1 18s linear infinite;
+}
+
+.car-animation-2 {
+  animation: car-move-2 12s linear infinite;
+}
+
+.vehicle-float {
+  animation: vehicle-float 3s ease-in-out infinite;
+}
