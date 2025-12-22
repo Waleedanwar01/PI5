@@ -1,3 +1,9 @@
 # Only exclude env files as requested
 backend/.env
 frontend/.env
+
+# Ignore root level utility scripts and configs
+/*.py
+/*.json
+/*.yaml
+/*.yml
