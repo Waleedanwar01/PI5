@@ -11,6 +11,18 @@ const nextConfig = {
     unoptimized: true,
     remotePatterns: [
       {
+        protocol: 'https',
+        hostname: 'pi5-y8gd.onrender.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.autoinsurance.org',
+        port: '',
+        pathname: '/**',
+      },
+      {
         protocol: 'http',
         hostname: 'localhost',
         port: '8000',

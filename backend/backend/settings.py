@@ -342,10 +342,16 @@ EDITOR_JS_CONFIGS = {
 # Allow override via env (comma-separated URLs). Default to local dev.
 _csrf_origins = os.getenv(
     'DJANGO_CSRF_TRUSTED_ORIGINS',
-    'http://localhost:8000,http://127.0.0.1:8000'
+    'http://localhost:8000,http://127.0.0.1:8000,https://pi5-y8gd.onrender.com'
 )
 CSRF_TRUSTED_ORIGINS = [o.strip()
                         for o in _csrf_origins.split(',') if o.strip()]
+
+# CORS Configuration
+# Allow all origins for now to enable Vercel frontend to communicate with Render backend
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 
 
 # Minimal Jazzmin branding (optional)

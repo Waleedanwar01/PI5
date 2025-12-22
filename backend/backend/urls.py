@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import include
+from django.urls import include, re_path
+from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +27,10 @@ urlpatterns = [
     path('ckeditor5/', include('django_ckeditor_5.urls')),
     path('editorjs/', include('django_editorjs_fields.urls')),
     path('api/', include('content.urls')),
+    # Force serve media files in production (Render)
+    re_path(r'^media/(?P<path>.*)$', serve, {
+        'document_root': settings.MEDIA_ROOT,
+    }),
 ]
 
 if settings.DEBUG:
