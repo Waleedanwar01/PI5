@@ -7,7 +7,8 @@
 
 // Get backend API base URL
 export function getApiBase() {
-  return process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+  // Default to production URL if env var is missing (for Vercel without env setup)
+  return process.env.NEXT_PUBLIC_API_BASE || 'https://pi5-y8gd.onrender.com';
 }
 
 // Get media/assets base URL

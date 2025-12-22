@@ -38,6 +38,16 @@ ALLOWED_HOSTS = [h.strip()
                  for h in _allowed_hosts.split(',') if h.strip()] or ['*']
 
 
+# Security settings for Render/Production
+# This is crucial for correct URL generation (https) behind a proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+
+
 # Application definition
 
 INSTALLED_APPS = [

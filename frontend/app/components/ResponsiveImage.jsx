@@ -1,7 +1,8 @@
 "use client";
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getMediaUrl } from '../lib/config.js';
 
 export default function ResponsiveImage({ src, alt = '', className = '', maxHeight = 480, priority = false }) {
   const [imgSrc, setImgSrc] = useState(src ? getMediaUrl(src) : '');
