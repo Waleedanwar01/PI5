@@ -14,5 +14,8 @@ urlpatterns = [
     path('pages-with-categories/', views.pages_with_categories, name='pages_with_categories'),
     path('contact/submit/', views.contact_submit, name='contact_submit'),
     path('quotes/', views.quotes, name='quotes'),
+    path('main-page/<slug:slug>/', views.main_page_detail, name='main_page_detail'),
     path('page/<slug:slug>/', views.page_detail, name='page_detail'),
+    path('team-member/<slug:slug>/', views.team_member_detail, name='team_member_detail'),
+    path('demo/', views.demo_page, name='demo_page'),
 ]

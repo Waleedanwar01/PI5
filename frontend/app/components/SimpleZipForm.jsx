@@ -28,40 +28,41 @@ export default function SimpleZipForm() {
   return (
     <div className="relative">
       <form noValidate onSubmit={handleSubmit} className="w-full">
-        <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+        <div className="flex flex-col sm:flex-row gap-2 max-w-lg mx-auto">
           
           {/* ZIP Input */}
-          <div className="relative flex-1">
-            <div className="relative group">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500 z-10" />
-              <input
-                type="text"
-                name="zip"
-                value={zip}
-                inputMode="numeric"
-                onChange={(e) => setZip(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                placeholder="Enter ZIP code"
-                maxLength={5}
-                required
-                disabled={isLoading}
-                className="w-full pl-10 pr-4 py-3 text-base rounded-lg border border-white/20 bg-white/10 backdrop-blur-sm text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all duration-300"
-              />
-            </div>
+          <div className="relative flex-1 group">
+            <div className="absolute inset-0 bg-white rounded-none shadow-sm transition-shadow duration-300 group-hover:shadow-md"></div>
+            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 z-10" />
+            <input
+              type="text"
+              name="zip"
+              value={zip}
+              inputMode="numeric"
+              onChange={(e) => setZip(e.target.value.replace(/\D/g, '').slice(0, 5))}
+              placeholder="Enter ZIP Code"
+              maxLength={5}
+              required
+              disabled={isLoading}
+              className="relative w-full pl-12 pr-4 py-3 text-base rounded-none border border-slate-200 bg-transparent text-slate-900 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all duration-300 h-[60px]"
+            />
           </div>
           
           {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading || zip.length !== 5}
-            className={`px-6 py-3 rounded-lg text-base font-semibold text-blue-800 bg-white border border-white/20 shadow-lg transition-all duration-300 hover:bg-blue-50 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed ${isLoading ? 'cursor-not-allowed' : 'hover:scale-105'}`}
+            className={`relative px-8 py-3 rounded-none text-base font-bold text-white bg-sky-600 hover:bg-sky-700 border-0 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none uppercase tracking-wide h-[60px] flex items-center justify-center whitespace-nowrap shadow-md ${isLoading ? 'cursor-not-allowed' : ''}`}
           >
             {isLoading ? (
               <div className="flex items-center justify-center gap-2">
-                <div className="animate-spin w-4 h-4 border-2 border-blue-800 border-t-transparent rounded-full"></div>
+                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
                 <span>Loading...</span>
               </div>
             ) : (
-              'Get Quotes'
+              <>
+                GET QUOTES <span className="ml-2">→</span>
+              </>
             )}
           </button>
         </div>

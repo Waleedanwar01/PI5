@@ -11,14 +11,31 @@ export async function generateMetadata({ params }) {
   if (!slug) return { title: 'Article' };
   try {
     const blog = await fetchBlog(slug);
-    if (!blog) return { title: `Article: ${String(slug || '')}` };
     
-    // Use the exact blog title for SEO
-    const title = blog.title || `Article: ${String(slug || '')}`;
-    const description = blog.summary || '';
+    // Fetch Brand Name
+    let brandName = '';
+    try {
+        const base = await getApiBase();
+        const scRes = await fetch(`${base}/api/site-config/`, { cache: 'no-store' });
+        if (scRes.ok) {
+             const sc = await scRes.json();
+             if (sc.brand_name) brandName = sc.brand_name.trim();
+        }
+    } catch (e) {
+        console.error('Error fetching site config:', e);
+    }
+    const defaultBrand = brandName || 'Car Insurance Comparison';
+
+    if (!blog) return { title: `Article: ${String(slug || '')} | ${defaultBrand}` };
+    
+    // Use meta_title if available, otherwise Title | Brand
+    let title = blog.meta_title;
+    if (!title) {
+        title = `${blog.title || 'Article'} | ${defaultBrand}`;
+    }
+
+    const description = blog.meta_description || blog.summary || '';
     const images = blog.hero_image ? [{ url: blog.hero_image }] : [];
-    
-    console.log('Generated metadata for blog:', { title, description, slug });
     
     return {
       title,

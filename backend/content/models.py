@@ -6,6 +6,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 from django_ckeditor_5.fields import CKEditor5Field
 from ckeditor.fields import RichTextField
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django_editorjs_fields.fields import EditorJsJSONField
 from django.utils.text import slugify
 
@@ -16,6 +17,11 @@ class MainPage(models.Model):
     order = models.PositiveIntegerField(default=0)
     show_in_header = models.BooleanField(default=True)
     has_dropdown = models.BooleanField(default=True)
+
+    # Meta SEO fields
+    meta_title = models.CharField(max_length=255, blank=True, default='')
+    meta_description = models.TextField(blank=True, default='')
+    meta_keywords = models.TextField(blank=True, default='')
 
     class Meta:
         ordering = ["order", "name"]
@@ -36,6 +42,11 @@ class Category(models.Model):
     slug = models.SlugField(max_length=140)
     parent_page = models.ForeignKey(MainPage, on_delete=models.CASCADE, related_name="categories")
 
+    # Meta SEO fields
+    meta_title = models.CharField(max_length=255, blank=True, default='')
+    meta_description = models.TextField(blank=True, default='')
+    meta_keywords = models.TextField(blank=True, default='')
+
     # Inline blog fields (manage blog content directly on the Category)
     blog_published = models.BooleanField(default=False)
     blog_title = models.CharField(max_length=200, blank=True, null=True)
@@ -55,6 +66,8 @@ class Category(models.Model):
     class Meta:
         unique_together = ("parent_page", "slug")
         ordering = ["name"]
+        verbose_name = "Category & Blogs"
+        verbose_name_plural = "Category & Blogs"
 
     def __str__(self):
         return f"{self.name} — {self.parent_page.name}"
@@ -68,6 +81,9 @@ class Category(models.Model):
 class Blog(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True)
+    meta_title = models.CharField(max_length=255, blank=True, default='')
+    meta_description = models.TextField(blank=True, default='')
+    meta_keywords = models.TextField(blank=True, default='')
     summary = models.TextField(blank=True, null=True)
     content = RichTextUploadingField('Content', blank=True, null=True)
     hero_image = models.ImageField(upload_to="blog/", blank=True, null=True)
@@ -505,7 +521,9 @@ class Page(models.Model):
     meta_keywords = models.TextField(blank=True, default='')
     hero_image = models.ImageField(upload_to='pages/hero/', blank=True, null=True)
     # Optional main content (rich) using CKEditor upload field (supports images/videos)
-    content = RichTextUploadingField('Content', blank=True, null=True)
+    content = RichTextUploadingField('Top Content (CKEditor 1)', blank=True, null=True)
+    # Second content section for bottom of page
+    content_bottom = RichTextUploadingField('Bottom Content (CKEditor 2)', blank=True, null=True)
     published = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -635,11 +653,30 @@ class PageSection(models.Model):
 
 # ==== Quotes & Companies (State/ZIP coverage) ====
 
+US_STATES = [
+    ('AL', 'Alabama'), ('AK', 'Alaska'), ('AZ', 'Arizona'), ('AR', 'Arkansas'),
+    ('CA', 'California'), ('CO', 'Colorado'), ('CT', 'Connecticut'), ('DE', 'Delaware'),
+    ('DC', 'District of Columbia'), ('FL', 'Florida'), ('GA', 'Georgia'), ('HI', 'Hawaii'),
+    ('ID', 'Idaho'), ('IL', 'Illinois'), ('IN', 'Indiana'), ('IA', 'Iowa'),
+    ('KS', 'Kansas'), ('KY', 'Kentucky'), ('LA', 'Louisiana'), ('ME', 'Maine'),
+    ('MD', 'Maryland'), ('MA', 'Massachusetts'), ('MI', 'Michigan'), ('MN', 'Minnesota'),
+    ('MS', 'Mississippi'), ('MO', 'Missouri'), ('MT', 'Montana'), ('NE', 'Nebraska'),
+    ('NV', 'Nevada'), ('NH', 'New Hampshire'), ('NJ', 'New Jersey'), ('NM', 'New Mexico'),
+    ('NY', 'New York'), ('NC', 'North Carolina'), ('ND', 'North Dakota'), ('OH', 'Ohio'),
+    ('OK', 'Oklahoma'), ('OR', 'Oregon'), ('PA', 'Pennsylvania'), ('RI', 'Rhode Island'),
+    ('SC', 'South Carolina'), ('SD', 'South Dakota'), ('TN', 'Tennessee'), ('TX', 'Texas'),
+    ('UT', 'Utah'), ('VT', 'Vermont'), ('VA', 'Virginia'), ('WA', 'Washington'),
+    ('WV', 'West Virginia'), ('WI', 'Wisconsin'), ('WY', 'Wyoming')
+]
+
 class InsuranceCompany(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True)
     logo = models.ImageField(upload_to="companies/logos/", blank=True, null=True)
     rating = models.DecimalField(max_digits=3, decimal_places=1, blank=True, null=True, help_text="e.g., 4.5 out of 5")
+    headline = models.CharField(max_length=255, blank=True, default='', help_text="Marketing headline (e.g., 'New Hampshire Drivers Can Save...')")
+    features = models.TextField(blank=True, default='', help_text="Bullet points (one per line)")
+    cta_text = models.CharField(max_length=50, blank=True, default='View My Quote', help_text="Button text")
     short_description = models.TextField(blank=True, default='')
     short_url = models.URLField(blank=True, default='', help_text="Display link or promo URL")
     domain_url = models.URLField(blank=True, default='', help_text="Company domain (homepage)")
@@ -672,7 +709,7 @@ class InsuranceCoverage(models.Model):
     Any condition matching will include the company in quotes results.
     """
     company = models.ForeignKey(InsuranceCompany, on_delete=models.CASCADE, related_name='coverages')
-    state_code = models.CharField(max_length=2, help_text="US state code, e.g., NY")
+    state_code = models.CharField(max_length=2, choices=US_STATES, help_text="Select State")
     covers_entire_state = models.BooleanField(default=False)
     zip_range_start = models.PositiveIntegerField(blank=True, null=True)
     zip_range_end = models.PositiveIntegerField(blank=True, null=True)
@@ -735,3 +772,69 @@ class InsuranceCoverage(models.Model):
                 elif q.isdigit() and int(q) == z:
                     return True
         return False
+
+
+class PressLogo(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.FileField(
+        upload_to='press_logos/',
+        validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'svg', 'webp'])],
+        help_text="Upload logo image (JPG, PNG, SVG, WebP supported)"
+    )
+    order = models.PositiveIntegerField(default=0)
+    published = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.name
+
+class TeamMember(models.Model):
+    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='team_members', blank=True, null=True, help_text="Select the page where this team member should appear (e.g. About Us).")
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=220, unique=True, blank=True)
+    meta_title = models.CharField(max_length=255, blank=True, default='')
+    meta_description = models.TextField(blank=True, default='')
+    meta_keywords = models.TextField(blank=True, default='')
+    role = models.CharField(max_length=200)
+    department = models.CharField(max_length=200, blank=True, default='')
+    image = models.ImageField(upload_to="team/", blank=True, null=True)
+    linkedin_url = models.URLField(blank=True, default='')
+    twitter_url = models.URLField(blank=True, default='')
+    facebook_url = models.URLField(blank=True, default='')
+    email = models.EmailField(blank=True, default='')
+    description = RichTextUploadingField('Bio/Description', blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
+    published = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["order", "name"]
+        verbose_name = "Team Member"
+        verbose_name_plural = "Team Members"
+
+    def __str__(self):
+        return f"{self.name} ({self.role})"
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+
+class PressItem(models.Model):
+    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='press_items', help_text="Page where this press item appears")
+    title = models.CharField(max_length=255)
+    link = models.URLField(blank=True, default='')
+    logo = models.ImageField(upload_to="press/", blank=True, null=True)
+    date = models.DateField(blank=True, null=True, help_text="Date of the press release/article")
+    order = models.PositiveIntegerField(default=0)
+    published = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["order", "-date"]
+        verbose_name = "Press Item"
+        verbose_name_plural = "Press Items"
+
+    def __str__(self):
+        return self.title

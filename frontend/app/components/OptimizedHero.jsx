@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import SectionRenderer from "./SectionRenderer.jsx";
+import { getApiBase } from "../lib/config.js";
 
 export default function OptimizedHero() {
   const [submitted, setSubmitted] = useState(false);
@@ -100,7 +101,7 @@ export default function OptimizedHero() {
 
         const json = await response.json();
         const meta = json?.meta || {};
-        const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+        const API_BASE = getApiBase();
         
         // Process hero image - ensure it's properly displayed
         let heroImagePath = meta.hero_image || json?.hero_image || null;

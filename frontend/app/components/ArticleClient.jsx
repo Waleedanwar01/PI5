@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Fragment } from "react";
 import ZipForm from "@/app/components/ZipForm.jsx";
 import Link from "next/link";
 import ResponsiveImage from "@/app/components/ResponsiveImage.jsx";
 import SocialIcons from "@/app/components/SocialIcons.jsx";
+import { getApiBase } from "../lib/config.js";
 
 // Create URL-friendly slugs
 function slugify(text) {
@@ -43,6 +44,10 @@ export default function ArticleClient({ slug }) {
   const articleRef = useRef(null);
   const [related, setRelated] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
+  const [toc, setToc] = useState([]);
+  const [activeHeading, setActiveHeading] = useState(null);
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+  const [isMobileTocOpen, setIsMobileTocOpen] = useState(false);
 
   /* ----------------------------------------------------------------------
      LOAD BLOG CONTENT
@@ -64,7 +69,7 @@ export default function ArticleClient({ slug }) {
         let res;
         try {
           // Call Django backend API directly instead of Next.js API route
-          res = await fetch(`http://localhost:8000/api/blogs/${encodeURIComponent(String(raw))}/`, { 
+          res = await fetch(`${getApiBase()}/api/blogs/${encodeURIComponent(String(raw))}/`, { 
             cache: "no-store",
             redirect: "follow"
           });
@@ -77,7 +82,10 @@ export default function ArticleClient({ slug }) {
 
         if (res.ok) {
           const json = await res.json();
-          if (!cancelled) setBlog(json.blog ?? null);
+          if (!cancelled) {
+             setBlog(json.blog ?? null);
+             setRelated(json.blog?.related_blogs ?? []);
+           }
         } else {
           // If not found, keep blog as null to render not-found view
           if (!cancelled) setBlog(null);
@@ -164,7 +172,105 @@ export default function ArticleClient({ slug }) {
       table.replaceWith(wrapper);
       wrapper.appendChild(clone);
     });
-  }, [blog]);
+
+    // Function to process headings and generate TOC
+    const processHeadings = () => {
+      const headings = Array.from(root.querySelectorAll("h2, h3"));
+      const usedIds = new Set();
+      const items = headings.map((el, index) => {
+        const text = el.textContent.trim();
+        let base = slugify(text);
+        if (!base) base = `section-${index + 1}`;
+        
+        let id = `content-${base}`;
+        let counter = 1;
+        while (usedIds.has(id)) {
+          id = `content-${base}-${counter++}`;
+        }
+        
+        usedIds.add(id);
+        el.id = id;
+        // Ensure scroll lands correctly below fixed header
+        el.style.scrollMarginTop = "140px";
+        return { id, level: el.tagName.toLowerCase(), text };
+      });
+      
+      setToc(prev => {
+        const isSame = prev.length === items.length && 
+                       prev.every((item, i) => item.id === items[i].id && item.text === items[i].text);
+        return isSame ? prev : items;
+      });
+    };
+
+    // Run initially
+    processHeadings();
+
+    // Run again after a short delay to ensure DOM is fully ready/hydrated
+    const timer = setTimeout(processHeadings, 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [blog, related, isLiked]);
+
+  /* ----------------------------------------------------------------------
+     SCROLL SPY
+  ---------------------------------------------------------------------- */
+  useEffect(() => {
+    if (toc.length === 0) return;
+
+    const updateActiveHeading = () => {
+      const headerOffset = 150; // Matched to scrollMarginTop (140px) + tolerance
+      let current = null;
+      for (let i = toc.length - 1; i >= 0; i--) {
+        const heading = toc[i];
+        const element = document.getElementById(heading.id);
+        if (!element) continue;
+        
+        const rect = element.getBoundingClientRect();
+        if (rect.top <= headerOffset + 20) {
+          current = heading.id;
+          break;
+        }
+      }
+      setActiveHeading(current);
+    };
+
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          updateActiveHeading();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    updateActiveHeading();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [toc]);
+
+  const handleTocClick = (e, headingId) => {
+    e.preventDefault();
+    const element = document.getElementById(headingId);
+    if (!element) return;
+    
+    // Update active state immediately
+    setActiveHeading(headingId);
+    
+    // Update URL hash safely
+    if (history.pushState) {
+      history.pushState(null, null, `#${headingId}`);
+    }
+
+    // Use scrollIntoView which respects scrollMarginTop set in processHeadings
+    element.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   /* ----------------------------------------------------------------------
      RELATED ARTICLES
@@ -181,22 +287,38 @@ export default function ArticleClient({ slug }) {
 
     async function loadRelated() {
       const parent = String(blog.parent_page || '').trim();
-      const url = parent
-        ? `/api/blogs?category=${encodeURIComponent(blog.category)}&page=${encodeURIComponent(parent)}`
+      const url = parent 
+        ? `/api/blogs?category=${encodeURIComponent(blog.category)}&parent_page=${encodeURIComponent(parent)}`
         : `/api/blogs?category=${encodeURIComponent(blog.category)}`;
-      const res = await fetch(`http://localhost:8000${url}`, { 
+      const res = await fetch(`${getApiBase()}${url}`, { 
         cache: "no-store",
         redirect: "follow"
       });
-      if (!res.ok) return;
+      
+      let list = [];
+      if (res.ok) {
+        const json = await res.json();
+        list = Array.isArray(json.blogs) ? json.blogs : [];
+      }
 
-      const json = await res.json();
-      const list = Array.isArray(json.blogs) ? json.blogs : [];
+      // Backend already filters by parent_page and category, so we just need to exclude the current blog
+      let filtered = list.filter((x) => x.slug !== blog.slug);
 
-      const filtered = list.filter((x) => {
-        const samePage = parent ? String(x.parent_page || '').trim().toLowerCase() === parent.toLowerCase() : true;
-        return samePage && x.slug !== blog.slug;
-      });
+      // Fallback: If no related articles found, fetch recent posts
+      if (filtered.length === 0) {
+        try {
+          const fallbackRes = await fetch(`${getApiBase()}/api/blogs?limit=4`, { 
+            cache: "no-store" 
+          });
+          if (fallbackRes.ok) {
+            const fallbackJson = await fallbackRes.json();
+            const fallbackList = Array.isArray(fallbackJson.blogs) ? fallbackJson.blogs : [];
+            filtered = fallbackList.filter((x) => x.slug !== blog.slug);
+          }
+        } catch (e) {
+          console.error("Fallback fetch error:", e);
+        }
+      }
 
       setRelated(filtered.slice(0, 3));
     }
@@ -209,7 +331,7 @@ export default function ArticleClient({ slug }) {
   ---------------------------------------------------------------------- */
   if (loading) {
     return (
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-6xl mx-auto px-8 sm:px-12 lg:px-16 py-8">
         {/* Hero Skeleton */}
         <div className="animate-pulse mb-12">
           <div className="text-center max-w-4xl mx-auto">
@@ -245,7 +367,7 @@ export default function ArticleClient({ slug }) {
   ---------------------------------------------------------------------- */
   if (!blog) {
     return (
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <main className="max-w-4xl mx-auto px-8 sm:px-12 lg:px-16 py-20">
         <div className="text-center">
           <div className="bg-white rounded-2xl p-12 shadow-lg border">
             <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -255,7 +377,7 @@ export default function ArticleClient({ slug }) {
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Article not found</h1>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">The article you're looking for doesn't exist or has been moved to a different location.</p>
-            <Link href="/articles" className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-700 text-white font-medium rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            <Link href="/articles" className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
               Browse Articles
               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -307,12 +429,33 @@ export default function ArticleClient({ slug }) {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 leading-tight mb-8 tracking-tight">
             {blog.title}
           </h1>
+
+          {/* Zip Form - Added below heading as requested */}
+          <div className="max-w-xl mx-auto mb-10">
+            <ZipForm />
+          </div>
           
-          {/* Summary/Description */}
+          {/* Summary/Description - Reduced size & Read More */}
           {blog.summary && (
-            <p className="text-xl sm:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed mb-10 font-light">
-              {blog.summary}
-            </p>
+            <div className="max-w-4xl mx-auto mb-10 text-left md:text-center">
+               <div className={`relative ${!isSummaryExpanded ? 'max-h-[4.5em] overflow-hidden' : ''} transition-all duration-300`}>
+                <p className={`text-base sm:text-lg text-gray-600 leading-relaxed font-light ${!isSummaryExpanded ? 'line-clamp-3' : ''}`}>
+                  {blog.summary}
+                </p>
+                {!isSummaryExpanded && (
+                  <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent"></div>
+                )}
+               </div>
+               <button 
+                onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+                className="mt-2 text-sm font-semibold text-blue-600 hover:text-blue-800 focus:outline-none flex items-center justify-center mx-auto gap-1"
+               >
+                 {isSummaryExpanded ? 'Read Less' : 'Read More'}
+                 <svg className={`w-4 h-4 transform transition-transform ${isSummaryExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                 </svg>
+               </button>
+            </div>
           )}
           
           {/* Enhanced Meta Information */}
@@ -399,226 +542,218 @@ export default function ArticleClient({ slug }) {
           </div>
         </div>
       </section>
-{/* MAIN CONTENT AREA */}
-<div className="max-w-4xl mx-auto">
-  {/* Enhanced Article Content */}
-  <article
-    ref={articleRef}
-    className="prose prose-lg md:prose-xl max-w-none prose-headings:tracking-tight prose-h1:text-gray-900 prose-h2:text-gray-900 prose-p:leading-relaxed prose-p:text-gray-800 prose-a:text-gray-600 hover:prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-img:rounded-2xl prose-img:shadow-lg prose-code:bg-gray-100 prose-code:text-gray-800 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-blockquote:border-l-4 prose-blockquote:border-blue-300 prose-blockquote:pl-6 prose-blockquote:text-gray-700 prose-hr:border-blue-200"
-  >
-      <div className="rich-html leading-relaxed text-gray-800">
-        <div className="space-y-6" dangerouslySetInnerHTML={{ __html: blog.content_html }} />
-      </div>
-  </article>
-
-  {/* Like Button */}
-  <div className="flex items-center justify-center mt-12 mb-8">
-    <button
-      onClick={() => setIsLiked(!isLiked)}
-      className={`flex items-center gap-3 px-6 py-3 rounded-full font-medium transition-all duration-200 ${
-        isLiked
-          ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-      }`}
-    >
-      <svg className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-      </svg>
-      {isLiked ? 'Liked!' : 'Like this article'}
-    </button>
-  </div>
-</div>
-
-
-      {/* SECTION 4: ENHANCED AUTHOR & REVIEWER SECTION */}
-      {(blog.author || blog.author_image || blog.reviewer || blog.reviewer_image) && (
-        <section className="mt-20 mb-16">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mb-4 shadow-lg">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+{/* MAIN CONTENT AREA WITH TOC SIDEBAR */}
+      <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 grid grid-cols-1 lg:grid-cols-12 gap-12">
+        
+        {/* TOC Sidebar - Sticky */}
+        {toc.length > 0 && (
+          <Fragment>
+            {/* Mobile TOC - Collapsible */}
+            <div className="lg:hidden col-span-1 mb-8 border border-gray-200 rounded-xl bg-gray-50 overflow-hidden">
+              <button 
+                onClick={() => setIsMobileTocOpen(!isMobileTocOpen)}
+                className="w-full flex items-center justify-between p-4 font-bold text-gray-900 bg-white"
+              >
+                <span className="flex items-center gap-2">
+                   <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                   </svg>
+                   On this page
+                </span>
+                <svg 
+                  className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${isMobileTocOpen ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              <div className={`transition-all duration-300 ease-in-out ${isMobileTocOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
+                <ul className="p-4 space-y-2 overflow-y-auto custom-scrollbar max-h-96 border-t border-gray-100">
+                  {toc.map((item) => (
+                     <li key={item.id}>
+                       <a 
+                         href={`#${item.id}`}
+                         onClick={(e) => {
+                            handleTocClick(e, item.id);
+                            setIsMobileTocOpen(false); 
+                         }}
+                         className={`block py-2 text-sm border-l-2 pl-3 ${
+                           activeHeading === item.id 
+                            ? 'border-blue-600 text-blue-700 font-semibold bg-blue-50' 
+                            : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                         } ${item.level === 'h3' ? 'ml-4' : ''} rounded-r`}
+                       >
+                         {item.text}
+                       </a>
+                     </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Expert Review & Authorship</h3>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">Learn more about the qualified professionals behind this content</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            
-            {/* Enhanced Author Section */}
-            {(blog.author || blog.author_image) && (
-              <div className="group">
-                <div className="bg-gradient-to-br from-blue-50 via-white to-blue-100/30 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-blue-200 relative overflow-hidden">
-                  {/* Background decoration */}
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-blue-200/50 to-transparent rounded-full transform translate-x-10 -translate-y-10"></div>
+
+            {/* Desktop Sidebar */}
+            <aside className="hidden lg:block lg:col-span-3">
+              <div className="sticky top-32 max-h-[calc(100vh-140px)] overflow-y-auto pr-4 custom-scrollbar">
+                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4 border-b pb-2 flex items-center gap-2">
+                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                  </svg>
+                  On this page
+                </h3>
+                <div className="relative">
+                  {/* Vertical Guide Line */}
+                  <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gray-100"></div>
                   
-                  <div className="text-center relative z-10">
-                    <div className="relative mb-6">
-                      {blog.author_image ? (
-                        <img
-                          src={blog.author_image}
-                          className="h-28 w-28 rounded-full object-cover border-4 border-blue-300 mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105"
-                          alt="Author"
+                  <ul className="space-y-0">
+                    {toc.map((item) => (
+                      <li key={item.id} className="relative">
+                        <a
+                          href={`#${item.id}`}
+                          onClick={(e) => handleTocClick(e, item.id)}
+                          className={`block transition-all duration-300 border-l-[3px] py-2 pl-4 text-sm leading-snug hover:pl-5 ${
+                            activeHeading === item.id
+                              ? "border-blue-600 text-blue-700 font-bold bg-gradient-to-r from-blue-50 to-transparent"
+                              : "border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300"
+                          } ${item.level === 'h3' ? 'ml-4 text-xs opacity-90' : ''}`}
+                        >
+                          {item.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </aside>
+          </Fragment>
+        )}
+
+        {/* Article Content */}
+        <div className={`${toc.length > 0 ? "lg:col-span-9" : "lg:col-span-12"} w-full`}>
+            {/* Enhanced Article Content */}
+            <article
+                ref={articleRef}
+                className="prose prose-lg md:prose-xl max-w-none prose-headings:tracking-tight prose-h1:text-gray-900 prose-h2:text-gray-900 prose-p:leading-relaxed prose-p:text-gray-800 prose-a:text-gray-600 hover:prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-img:rounded-2xl prose-img:shadow-lg prose-code:bg-gray-100 prose-code:text-gray-800 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-blockquote:border-l-4 prose-blockquote:border-blue-300 prose-blockquote:pl-6 prose-blockquote:text-gray-700 prose-hr:border-blue-200"
+            >
+                <div className="rich-html leading-relaxed text-gray-800">
+                    <div className="space-y-6" dangerouslySetInnerHTML={{ __html: blog.content_html }} />
+                </div>
+            </article>
+
+            {/* Like Button */}
+            <div className="flex items-center justify-center mt-12 mb-8">
+                <button
+                onClick={() => setIsLiked(!isLiked)}
+                className={`flex items-center gap-3 px-6 py-3 rounded-full font-medium transition-all duration-200 ${
+                    isLiked
+                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                >
+                <svg className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {isLiked ? 'Liked!' : 'Like this article'}
+                </button>
+            </div>
+        </div>
+      </div>
+
+
+      {/* SECTION 4: AUTHOR & REVIEWER SECTION (Unified & Responsive) */}
+      {(blog.author || blog.author_image || blog.reviewer || blog.reviewer_image) && (
+        <section className="mt-16 mb-12 max-w-5xl mx-auto px-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3 border-b border-gray-100 pb-4">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              Expert Authorship
+            </h3>
+            
+            <div className={`grid grid-cols-1 ${blog.author && blog.author === blog.reviewer ? 'max-w-2xl mx-auto' : 'md:grid-cols-2'} gap-8 md:gap-12`}>
+              {/* Author Section */}
+              {(blog.author || blog.author_image) && (
+                <div className={`flex flex-col sm:flex-row items-start gap-5 ${blog.author && blog.author === blog.reviewer ? 'w-full' : ''}`}>
+                  <div className="flex-shrink-0">
+                     {blog.author_image ? (
+                        <img 
+                          src={blog.author_image} 
+                          alt={blog.author}
+                          className="w-16 h-16 rounded-full object-cover border-2 border-blue-100 shadow-sm"
                         />
-                      ) : (
-                        <div className="h-28 w-28 rounded-full bg-gradient-to-r from-blue-300 to-blue-400 flex items-center justify-center mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300">
-                          <svg className="w-14 h-14 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
+                     ) : (
+                        <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 font-bold text-xl border-2 border-blue-100">
+                          {blog.author ? blog.author.charAt(0) : 'A'}
                         </div>
-                      )}
-                      <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                      </div>
+                     )}
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-900 leading-tight mb-1">{blog.author}</h4>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                        <div className="inline-flex items-center text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full">
+                        Content Writer
+                        </div>
+                        {blog.author && blog.author === blog.reviewer && (
+                        <div className="inline-flex items-center text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">
+                            Expert Reviewer
+                        </div>
+                        )}
                     </div>
-                    
-                    <div className="mb-4">
-                      <h4 className="font-bold text-gray-900 text-xl mb-3">{blog.author ?? "Unknown Author"}</h4>
-                      <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-200 to-blue-300 rounded-full shadow-sm">
-                        <svg className="w-4 h-4 mr-2 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span className="text-sm font-bold text-blue-800">Content Writer</span>
-                      </div>
-                    </div>
-                    
                     {blog.author_description && (
-                      <p className="text-gray-700 leading-relaxed mb-4">{blog.author_description}</p>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {blog.author_description}
+                      </p>
                     )}
-                    
-                    <div className="mt-6 pt-6 border-t border-blue-200">
-                      <div className="flex items-center justify-center gap-6 text-sm">
-                        <div className="flex items-center gap-2 text-blue-700">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span className="font-medium">Expert Writer</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-blue-700">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span className="font-medium">SEO Optimized</span>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-            
-            {/* Enhanced Reviewer Section */}
-            {(blog.reviewer || blog.reviewer_image) && (
-              <div className="group">
-                <div className="bg-gradient-to-br from-indigo-50 via-white to-indigo-100/30 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border-2 border-indigo-200 relative overflow-hidden">
-                  {/* Background decoration */}
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-indigo-200/50 to-transparent rounded-full transform translate-x-10 -translate-y-10"></div>
-                  
-                  <div className="text-center relative z-10">
-                    <div className="relative mb-6">
-                      {blog.reviewer_image ? (
-                        <img
-                          src={blog.reviewer_image}
-                          className="h-28 w-28 rounded-full object-cover border-4 border-indigo-300 mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105"
-                          alt="Reviewer"
+              )}
+
+              {/* Reviewer Section */}
+              {!(blog.author && blog.author === blog.reviewer) && (blog.reviewer || blog.reviewer_image) && (
+                <div className="flex flex-col sm:flex-row items-start gap-5 pt-8 md:pt-0 md:border-l md:border-gray-100 md:pl-8 border-t border-gray-100 md:border-t-0">
+                  <div className="flex-shrink-0">
+                     {blog.reviewer_image ? (
+                        <img 
+                          src={blog.reviewer_image} 
+                          alt={blog.reviewer}
+                          className="w-16 h-16 rounded-full object-cover border-2 border-indigo-100 shadow-sm"
                         />
-                      ) : (
-                        <div className="h-28 w-28 rounded-full bg-gradient-to-r from-indigo-300 to-indigo-400 flex items-center justify-center mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300">
-                          <svg className="w-14 h-14 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
+                     ) : (
+                        <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 font-bold text-xl border-2 border-indigo-100">
+                          {blog.reviewer ? blog.reviewer.charAt(0) : 'R'}
                         </div>
-                      )}
-                      <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
+                     )}
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-900 leading-tight mb-1">{blog.reviewer}</h4>
+                    <div className="inline-flex items-center text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full mb-2">
+                      Expert Reviewer
                     </div>
-                    
-                    <div className="mb-4">
-                      <h4 className="font-bold text-gray-900 text-xl mb-3">{blog.reviewer ?? "Unknown Reviewer"}</h4>
-                      <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-200 to-indigo-300 rounded-full shadow-sm">
-                        <svg className="w-4 h-4 mr-2 text-indigo-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="text-sm font-bold text-indigo-800">Expert Reviewer</span>
-                      </div>
-                    </div>
-                    
                     {blog.reviewer_description && (
-                      <p className="text-gray-700 leading-relaxed mb-4">{blog.reviewer_description}</p>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        {blog.reviewer_description}
+                      </p>
                     )}
-                    
-                    <div className="mt-6 pt-6 border-t border-indigo-200">
-                      <div className="flex items-center justify-center gap-6 text-sm">
-                        <div className="flex items-center gap-2 text-indigo-700">
-                          <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                          <span className="font-medium">Quality Assured</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-indigo-700">
-                          <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                          <span className="font-medium">Fact-Checked</span>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Trust badge */}
-          <div className="text-center mt-12">
-            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-full shadow-sm">
-              <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              <span className="text-sm font-semibold text-emerald-800">Verified & Trusted Content</span>
+              )}
+            </div>
+            
+            {/* Trust Badge Small */}
+            <div className="mt-8 pt-6 border-t border-gray-100 flex items-center justify-center gap-2 text-sm text-emerald-700 font-medium">
+               <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+               </svg>
+               Fact-Checked & Verified Content
             </div>
           </div>
         </section>
       )}
-
-{/* WRITTEN BY & REVIEWED BY SECTION */}
-<section className="mt-16 mb-12">
-  <div className="max-w-4xl mx-auto">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      
-      {/* Written by this blog */}
-      {blog.author && (
-        <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-200">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-            </div>
-            <div>
-              <h4 className="font-bold text-blue-800 text-lg">Written by</h4>
-              <p className="text-blue-700 font-semibold">{blog.author}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Reviewed by this blog */}
-      {blog.reviewer && (
-        <div className="bg-gradient-to-r from-indigo-50 to-indigo-100 rounded-2xl p-6 border-2 border-indigo-200">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <h4 className="font-bold text-indigo-800 text-lg">Reviewed by</h4>
-              <p className="text-indigo-700 font-semibold">{blog.reviewer}</p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-</section>
 
       {/* Enhanced Related Articles Section */}
       {related.length > 0 && (
@@ -671,21 +806,12 @@ export default function ArticleClient({ slug }) {
                       </div>
                     </div>
                   ) : (
-                    <div className="aspect-video bg-gradient-to-br from-blue-100 via-blue-50 to-indigo-100 flex items-center justify-center relative overflow-hidden">
-                      <div className="absolute inset-0 bg-gradient-to-t from-blue-200/30 to-transparent"></div>
-                      <svg className="w-16 h-16 text-blue-400 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
-                      
-                      {/* Category Badge */}
-                      {it.category && (
-                        <div className="absolute top-4 left-4">
-                          <span className="px-3 py-1.5 text-xs font-bold rounded-full bg-blue-600 bg-opacity-95 text-white backdrop-blur-sm shadow-lg">
-                            {it.category}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                    <img
+                      src={`https://picsum.photos/seed/${it.slug}/600/400`}
+                      alt={it.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 hover:opacity-100"
+                      loading="lazy"
+                    />
                   )}
                 </div>
 

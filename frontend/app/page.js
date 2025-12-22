@@ -1,5 +1,6 @@
 import React from "react";
 import HeroWithNavbar from "./components/HeroWithNavbar.jsx";
+import HowItWorks from "./components/HowItWorks.jsx";
 import WhyChooseSection from "./components/WhyChooseSection.jsx";
 // FeaturedIn removed per request
 import SectionRenderer from "./components/SectionRenderer.jsx";
@@ -17,10 +18,10 @@ export async function generateMetadata() {
     
     if (response.ok) {
       const data = await response.json();
-      if (data?.meta_title) {
+      if (data?.meta?.meta_title) {
         return {
-          title: data.meta_title,
-          description: data.meta_description || '',
+          title: data.meta.meta_title,
+          description: data.meta.meta_description || '',
         };
       }
     }
@@ -52,75 +53,70 @@ export async function generateMetadata() {
   };
 }
 
-export default function HomePage() {
-  // Render without server-side data to avoid route-level loading issues
-  const sections = [];
-  const lowerType = (t) => String(t || '').toLowerCase();
-  const baseContentSections = sections.filter((s) => 
-    lowerType(s.type) !== 'featured' && 
-    !['video','embed'].includes(lowerType(s.type)) &&
-    String(s.title || '').toLowerCase() !== 'featured in' &&
-    !String(s.title || '').toLowerCase().includes('insurance guide')
-  );
+export default async function HomePage() {
+  // Fetch homepage data server-side
+  let sections = [];
+  let homepageContent = "";
+  let meta = {};
+  let pressLogos = [];
 
-  // Remove specific homepage sections per your request
-  const UNWANTED_PHRASES = [
-    'Featured In',
-    'Why Choose Us',
-    'insurance guides',
-    'coverage basics',
-    'rate factors',
-    'savings tips',
-    'Embedded Video',
-    'Video Embed',
-    'Featured Video',
-    'Sample iframe via Editor Blocks',
-    'Get up to speed quickly.',
-    'transparent, accurate, and easy to compare.',
-    'we make shopping for auto insurance simpler.'
-  ].map((s) => s.toLowerCase());
+  try {
+    const base = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+    const res = await fetch(`${base}/api/homepage/`, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      sections = data.sections || [];
+      homepageContent = data.meta?.content || "";
+      meta = data.meta || {};
+      pressLogos = data.press_logos || [];
+    }
+  } catch (error) {
+    console.error("Error fetching homepage sections:", error);
+  }
 
-  const removeUnwantedHomepageContent = (secs) => {
-    return (Array.isArray(secs) ? secs : []).filter((s) => {
-      const blob = [
-        s.title,
-        s.subtitle,
-        s.body,
-        s.col1_rich,
-        s.col2_rich,
-        s.col3_rich,
-        s.col4_rich,
-        s.col5_rich,
-      ]
-        .filter(Boolean)
-        .map((v) => String(v).toLowerCase())
-        .join(' ');
-      return !UNWANTED_PHRASES.some((ph) => blob.includes(ph));
-    });
-  };
-
-  const contentSections = removeUnwantedHomepageContent(baseContentSections);
+  // Filter out unwanted sections
+  const contentSections = sections.filter(section => {
+    const titleLc = String(section.title || '').toLowerCase();
+    const subtitleLc = String(section.subtitle || '').toLowerCase();
+    
+    // Remove Why Choose Us, Featured In, and Insurance Guides
+    return !titleLc.includes('featured in') && 
+           !titleLc.includes('insurance guides') &&
+           !titleLc.includes('why choose us') &&
+           !subtitleLc.includes('transparent, accurate, and easy to compare') &&
+           !subtitleLc.includes('get up to speed quickly');
+  });
 
   return (
-    <main className="min-h-screen bg-white text-gray-900">
+    <main className="min-h-screen bg-white text-slate-600">
       {/* Hero with Integrated Navbar */}
-      <HeroWithNavbar />
+      <HeroWithNavbar initialPressLogos={pressLogos} />
 
-      {/* Why Choose Us Section */}
-      <WhyChooseSection />
+      {/* How It Works Section (Static, responsive, animated car) */}
+      <HowItWorks />
 
-      {/* Removed Featured In and videos below per request */}
+      {/* CKEditor (DB-driven) content rendered Server-Side */}
+      {homepageContent && (
+        <div className="mx-auto max-w-7xl px-8 sm:px-12 lg:px-16 py-8">
+            <div className="prose prose-sm md:prose-base max-w-none prose-headings:text-slate-900 prose-p:text-slate-600 prose-a:text-sky-600 hover:prose-a:text-sky-700 prose-img:rounded-xl prose-img:shadow-lg leading-snug">
+              <div 
+                className="text-left"
+                dangerouslySetInnerHTML={{ __html: homepageContent }}
+              />
+            </div>
+        </div>
+      )}
 
-      {/* CKEditor (DB-driven) content sections */}
+      {/* Dynamic Sections */}
       {contentSections.length ? (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-8 py-12 sm:py-16">
           <SectionRenderer sections={contentSections} />
         </div>
       ) : null}
 
-      {/* Articles at the bottom */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
-        <ClientHomepage />
+      {/* Articles at the bottom - Client Component */}
+      <div className="pb-16">
+        <ClientHomepage initialMeta={meta} />
       </div>
     </main>
   );

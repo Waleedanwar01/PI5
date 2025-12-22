@@ -64,10 +64,10 @@ export default function ArticleFilters() {
   };
 
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-orange-50 dark:from-neutral-800 dark:to-neutral-700 rounded-2xl shadow-xl border border-blue-200 dark:border-neutral-600 p-8 mb-8">
+    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-neutral-800 dark:to-neutral-700 rounded-2xl shadow-xl border border-blue-200 dark:border-neutral-600 p-8 mb-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-blue-500 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
@@ -118,7 +118,7 @@ export default function ArticleFilters() {
             id="state-filter"
             value={currentState}
             onChange={(e) => updateFilter('state', e.target.value)}
-            className="block w-full px-4 py-3 border-2 border-gray-200 dark:border-neutral-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-sm font-medium transition-all duration-200 hover:border-orange-300 dark:hover:border-orange-500"
+            className="block w-full px-4 py-3 border-2 border-gray-200 dark:border-neutral-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-sm font-medium transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-500"
             disabled={loading}
           >
             <option value="">All States</option>
@@ -139,7 +139,7 @@ export default function ArticleFilters() {
             id="company-filter"
             value={currentCompany}
             onChange={(e) => updateFilter('company', e.target.value)}
-            className="block w-full px-4 py-3 border-2 border-gray-200 dark:border-neutral-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-sm font-medium transition-all duration-200 hover:border-green-300 dark:hover:border-green-500"
+            className="block w-full px-4 py-3 border-2 border-gray-200 dark:border-neutral-600 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-sm font-medium transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-500"
             disabled={loading}
           >
             <option value="">All Companies</option>
@@ -153,9 +153,8 @@ export default function ArticleFilters() {
       </div>
       
       {/* Active Filters Display */}
-      {/* Active Filters Display */}
       {(currentCategory || currentState || currentCompany) && (
-        <div className="mt-6 pt-6 border-t-2 border-gradient-to-r from-blue-200 to-orange-200 dark:border-neutral-600">
+        <div className="mt-6 pt-6 border-t-2 border-gradient-to-r from-blue-200 to-indigo-200 dark:border-neutral-600">
           <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -177,7 +176,7 @@ export default function ArticleFilters() {
               </span>
             )}
             {currentState && (
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md hover:shadow-lg transition-all duration-200">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md hover:shadow-lg transition-all duration-200">
                 🗺️ {states.find(s => s.slug === currentState)?.name || currentState}
                 <button
                   onClick={() => updateFilter('state', '')}
@@ -190,7 +189,7 @@ export default function ArticleFilters() {
               </span>
             )}
             {currentCompany && (
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md hover:shadow-lg transition-all duration-200">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md hover:shadow-lg transition-all duration-200">
                 🏢 {companies.find(c => c.slug === currentCompany)?.name || currentCompany}
                 <button
                   onClick={() => updateFilter('company', '')}
@@ -209,11 +208,11 @@ export default function ArticleFilters() {
         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-neutral-700">
           <div className="flex flex-wrap gap-2">
             {currentCategory && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 Category: {categories.find(c => c.slug === currentCategory)?.name || currentCategory}
                 <button
                   onClick={() => updateFilter('category', '')}
-                  className="ml-2 text-orange-600 hover:text-orange-800"
+                  className="ml-2 text-blue-600 hover:text-blue-800"
                 >
                   ×
                 </button>
@@ -231,11 +230,11 @@ export default function ArticleFilters() {
               </span>
             )}
             {currentCompany && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 Company: {companies.find(c => c.slug === currentCompany)?.name || currentCompany}
                 <button
                   onClick={() => updateFilter('company', '')}
-                  className="ml-2 text-green-600 hover:text-green-800"
+                  className="ml-2 text-blue-600 hover:text-blue-800"
                 >
                   ×
                 </button>

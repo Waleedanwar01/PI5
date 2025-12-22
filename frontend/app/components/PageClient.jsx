@@ -4,9 +4,11 @@ import React from 'react';
 import PageHero from './PageHero.jsx';
 import SectionRenderer from './SectionRenderer.jsx';
 import HelpfulLinks from './HelpfulLinks.jsx';
+import TeamGrid from './TeamGrid.jsx';
+import PressBox from './PressBox.jsx';
 
 export default function PageClient({ slug }) {
-  const [data, setData] = React.useState({ sections: [], meta: {} });
+  const [data, setData] = React.useState({ sections: [], team_members: [], press_items: [], meta: {} });
   const [footerMenu, setFooterMenu] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
 
@@ -16,15 +18,45 @@ export default function PageClient({ slug }) {
       setLoading(true);
       try {
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 4000);
-        const res = await fetch(`/api/page/${encodeURIComponent(slug)}`, { cache: 'no-store', signal: controller.signal });
-        clearTimeout(timer);
+        const timer = setTimeout(() => controller.abort(), 15000);
+        
+        // Try fetching Page first
+        let res = await fetch(`/api/page/${encodeURIComponent(slug)}`, { cache: 'no-store', signal: controller.signal });
+        
+        let found = false;
         if (res.ok) {
           const json = await res.json();
-          if (!cancelled) setData(json || { sections: [], meta: {} });
-        } else {
-          if (!cancelled) setData({ sections: [], meta: {} });
+          // Check if we got a valid page (usually has sections or meta)
+          if (json && (json.sections?.length > 0 || json.meta?.title)) {
+             if (!cancelled) setData(json);
+             found = true;
+          }
         }
+        
+        // If not found, try fetching MainPage
+        if (!found) {
+            const resMain = await fetch(`/api/main-page/${encodeURIComponent(slug)}`, { cache: 'no-store', signal: controller.signal });
+            if (resMain.ok) {
+                const jsonMain = await resMain.json();
+                if (jsonMain && jsonMain.page) {
+                    // Map MainPage to Page structure
+                    const mappedData = {
+                        meta: {
+                            title: jsonMain.page.name,
+                            meta_title: jsonMain.page.meta_title,
+                            meta_description: jsonMain.page.meta_description,
+                            meta_keywords: jsonMain.page.meta_keywords,
+                        },
+                        sections: []
+                    };
+                    if (!cancelled) setData(mappedData);
+                    found = true;
+                }
+            }
+        }
+
+        if (!found && !cancelled) setData({ sections: [], meta: {} });
+        clearTimeout(timer);
       } catch (_) {
         if (!cancelled) setData({ sections: [], meta: {} });
       } finally {
@@ -37,20 +69,31 @@ export default function PageClient({ slug }) {
 
   // Dynamic page title update
   React.useEffect(() => {
-    const metaTitle = (data?.meta?.title || slug || 'Page').trim();
+    // Prioritize meta_title if available, then title, then slug
+    const metaTitle = (data?.meta?.meta_title || data?.meta?.title || slug || 'Page').trim();
     if (metaTitle) {
       document.title = metaTitle;
       
       // Update meta description if available
-      const metaDescription = data?.meta?.description;
+      const metaDescription = data?.meta?.meta_description || data?.meta?.description;
       if (metaDescription) {
         const metaDesc = document.querySelector('meta[name="description"]');
         if (metaDesc) {
           metaDesc.setAttribute('content', metaDescription);
         }
+        const ogDesc = document.querySelector('meta[property="og:description"]');
+        if (ogDesc) {
+          ogDesc.setAttribute('content', metaDescription);
+        }
+      }
+
+      // Update og:title
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) {
+        ogTitle.setAttribute('content', metaTitle);
       }
     }
-  }, [data?.meta?.title, data?.meta?.description, slug]);
+  }, [data?.meta?.meta_title, data?.meta?.title, data?.meta?.meta_description, data?.meta?.description, slug]);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -83,25 +126,111 @@ export default function PageClient({ slug }) {
     );
   }
 
-  const sections = Array.isArray(data.sections) ? data.sections : [];
   const meta = data?.meta || {};
-  const metaTitle = (meta.title || slug || 'Page').trim();
+  let sections = Array.isArray(data.sections) ? [...data.sections] : [];
+
+  // Filter out unwanted sections (What We Do, Our Services)
+  sections = sections.filter(section => {
+    const title = (section.title || '').toLowerCase();
+    return title !== 'what we do' && title !== 'our services';
+  });
+
+  const displayTitle = (meta.title || slug || 'Page').trim();
   const metaSubtitle = (meta.description || '').trim();
   const metaHeroImage = meta.hero_image || null;
 
   const slugLc = String(slug || '').toLowerCase();
   const companyLinks = Array.isArray(footerMenu?.company) ? footerMenu.company : [];
   const legalLinks = Array.isArray(footerMenu?.legal) ? footerMenu.legal : [];
-  const helpfulLinks = [...companyLinks, ...legalLinks].filter((l) => String(l.page_slug || '').toLowerCase() !== slugLc);
+  // Fix: API returns 'slug', not 'page_slug'
+  const helpfulLinks = [...companyLinks, ...legalLinks].filter((l) => String(l.slug || '').toLowerCase() !== slugLc);
 
   // Detect footer pages (company/legal) – show hero then content
-  const allFooterSlugs = [...companyLinks, ...legalLinks].map((i) => String(i.page_slug || '').toLowerCase());
+  const allFooterSlugs = [...companyLinks, ...legalLinks].map((i) => String(i.slug || '').toLowerCase());
   const isFooterPage = allFooterSlugs.includes(slugLc);
+
+  // Filter out redundant sections (e.g. sections that just repeat the title)
+  const filteredSections = sections.filter(s => {
+     const cleanBody = (s.body || '').replace(/<[^>]*>/g, '').replace(/\s+/g, '').toLowerCase();
+     const cleanTitle = (s.title || '').replace(/\s+/g, '').toLowerCase();
+     const cleanDisplay = (displayTitle || '').replace(/\s+/g, '').toLowerCase();
+     const cleanTarget = 'privacypolicy';
+     
+     // If body is empty or just repeats the title/Privacy Policy, hide it
+     if (!cleanBody || cleanBody === cleanTitle || cleanBody === cleanDisplay || cleanBody === cleanTarget) {
+         return false;
+     }
+     
+     return true;
+  });
+
+  // Fallback fake images for company/legal pages if no hero image is provided
+  // Using reliable Unsplash Source placeholders
+  const fakeImages = [
+    'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80', // Office
+    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80', // Building
+    'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80', // Finance/Papers
+    'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80', // Handshake
+    'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80'  // Desk
+  ];
+  
+  // Deterministic selection based on slug length to keep it consistent per page
+  const fakeImage = fakeImages[slug.length % fakeImages.length];
+
+  const finalHeroImage = metaHeroImage || fakeImage;
+
+  // For Privacy Policy, hide the subtitle if it's redundant (same as title) or generic
+  const displaySubtitle = slugLc === 'privacy-policy' ? null : metaSubtitle;
 
   return (
     <>
-      <PageHero title={metaTitle} subtitle={metaSubtitle} imageUrl={metaHeroImage} variant="dark" />
-      <SectionRenderer sections={sections} />
+      <PageHero 
+        title={displayTitle} 
+        subtitle={displaySubtitle} 
+        imageUrl={finalHeroImage} 
+        variant="dark"
+        align="left"
+      />
+      
+      <div className="bg-white min-h-screen">
+        {/* Main Content (Top) */}
+        {meta.content && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div 
+              className="prose prose-lg max-w-none prose-indigo"
+              dangerouslySetInnerHTML={{ __html: meta.content }}
+            />
+          </section>
+        )}
+
+        {/* Existing Sections */}
+        {filteredSections.length > 0 && (
+          <div className="space-y-16 py-10">
+            <SectionRenderer sections={filteredSections} cleanMode={isFooterPage} />
+          </div>
+        )}
+
+        {/* Main Content (Bottom) */}
+        {meta.content_bottom && (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div 
+              className="prose prose-lg max-w-none prose-indigo"
+              dangerouslySetInnerHTML={{ __html: meta.content_bottom }}
+            />
+          </section>
+        )}
+
+        {/* 2. Team Members */}
+        {data.team_members && data.team_members.length > 0 && (
+          <TeamGrid members={data.team_members} />
+        )}
+
+        {/* 3. Press Box */}
+        {data.press_items && data.press_items.length > 0 && (
+            <PressBox items={data.press_items} />
+        )}
+      </div>
+      
       {isFooterPage ? <HelpfulLinks links={helpfulLinks} attachToFooter /> : null}
     </>
   );

@@ -19,10 +19,10 @@ const HeroSection = () => {
     }).catch(() => {});
   }, []);
   return (
-    <section className="relative w-full bg-gradient-to-br from-gray-50 via-white to-orange-50/20 py-16 md:py-24">
+    <section className="relative w-full bg-gradient-to-br from-gray-50 via-white to-sky-50/20 py-16 md:py-24">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-sky-200/30 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200/30 rounded-full blur-3xl"></div>
       </div>
 
@@ -37,7 +37,7 @@ const HeroSection = () => {
                 {heroTitle ? (
                   heroTitle
                 ) : (
-                  <>Auto insurance made <span className="text-orange-600">clear.</span></>
+                  <>Auto insurance made <span className="text-sky-600">clear.</span></>
                 )}
               </h1>
               {tagline && (
@@ -66,12 +66,12 @@ const HeroSection = () => {
                     type="text"
                     name="zip"
                     placeholder="Enter ZIP Code"
-                    className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-200/50 focus:outline-none transition-all duration-200 bg-white shadow-sm"
+                    className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none transition-all duration-200 bg-white shadow-sm"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 text-lg whitespace-nowrap"
+                  className="bg-sky-600 hover:bg-sky-700 text-white font-bold px-8 py-4 rounded-none shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 text-lg whitespace-nowrap uppercase tracking-wide"
                 >
                   Get Quotes
                 </button>

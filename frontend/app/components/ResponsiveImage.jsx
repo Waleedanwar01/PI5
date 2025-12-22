@@ -18,7 +18,8 @@ export default function ResponsiveImage({ src, alt = '', className = '', maxHeig
   // Prefer Next.js Image for supported remote patterns; otherwise use <img>
   const canOptimize = imgSrc.startsWith('http://localhost:8000') ||
                       imgSrc.startsWith('http://127.0.0.1:8000') ||
-                      imgSrc.startsWith('https://www.autoinsurance.org');
+                      imgSrc.startsWith('https://www.autoinsurance.org') ||
+                      (process.env.NEXT_PUBLIC_API_BASE && imgSrc.startsWith(process.env.NEXT_PUBLIC_API_BASE));
 
   if (isEmpty) {
     return (

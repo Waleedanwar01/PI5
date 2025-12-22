@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import SectionRenderer from "./SectionRenderer.jsx";
+import { getApiBase } from "../lib/config.js";
 
 export default function HeroWithForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -40,7 +41,7 @@ export default function HeroWithForm() {
       .then((r) => r.json())
       .then((json) => {
         const meta = json?.meta || {};
-        const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+        const API_BASE = getApiBase();
         // Fix hero image path to include API base URL
         let heroImagePath = meta.hero_image || null;
         if (heroImagePath && heroImagePath.startsWith('/media/')) {

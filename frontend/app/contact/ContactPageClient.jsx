@@ -1,162 +1,129 @@
 "use client";
 import { useEffect, useState } from 'react';
 import SmartLink from '../components/SmartLink.jsx';
+import ContactForm from '../components/ContactForm.jsx';
+import PageHero from '../components/PageHero.jsx';
+import HelpfulLinks from '../components/HelpfulLinks.jsx';
 
 export default function ContactPageClient() {
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
-  const [status, setStatus] = useState({ ok: false, error: '', sent: false });
-  const [loading, setLoading] = useState(false);
-  const [cfg, setCfg] = useState({ brand_name: 'Car Insurance Comparison', email: '', phone_number: '(800) 308-0987', company_address: '' });
+  const [cfg, setCfg] = useState({ 
+    brand_name: 'Car Insurance Comparison', 
+    email: '', 
+    phone_number: '(800) 308-0987', 
+    company_address: '',
+    footer_menu: { company: [], legal: [] }
+  });
 
   useEffect(() => {
-    fetch('/api/site-config/', { cache: 'no-store' })
-      .then(r => r.json())
-      .then(data => {
-        setCfg({
-          brand_name: data.brand_name || 'Car Insurance Comparison',
-          email: data.email || '',
-          phone_number: data.phone_number || '(800) 308-0987',
-          company_address: data.company_address || '',
-        });
-      })
-      .catch(() => {});
+    Promise.all([
+      fetch('/api/site-config/', { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
+      fetch('/api/menu/footer/', { cache: 'no-store' }).then(r => r.json()).catch(() => ({ company: [], legal: [] }))
+    ]).then(([config, footer]) => {
+      setCfg({
+        brand_name: config.brand_name || 'Car Insurance Comparison',
+        email: config.email || '',
+        phone_number: config.phone_number || '(800) 308-0987',
+        company_address: config.company_address || '',
+        footer_menu: footer
+      });
+    });
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setStatus({ ok: false, error: '', sent: false });
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const json = await res.json();
-      if (res.ok && json.ok) {
-        setStatus({ ok: true, error: '', sent: true });
-        setForm({ name: '', email: '', subject: '', message: '' });
-      } else {
-        setStatus({ ok: false, error: json.error || 'Submission failed', sent: false });
-      }
-    } catch (err) {
-      setStatus({ ok: false, error: 'Network error', sent: false });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const helpfulLinks = [
+    ...(Array.isArray(cfg.footer_menu?.company) ? cfg.footer_menu.company : []),
+    ...(Array.isArray(cfg.footer_menu?.legal) ? cfg.footer_menu.legal : [])
+  ];
 
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900">
-        <div className="absolute inset-0 opacity-30" style={{backgroundImage:'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 40%), radial-gradient(circle at 80% 0%, rgba(255,255,255,0.06), transparent 40%)'}}></div>
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight">Contact {cfg.brand_name}</h1>
-          <p className="mt-4 max-w-3xl text-sm sm:text-base md:text-lg text-gray-300">
-            We are not an insurance company or an insurance agency but rather an independent consumer information website offering insurance quote comparisons.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <SmartLink href={`tel:${(cfg.phone_number || '').replace(/\s+/g,'')}`} className="inline-flex items-center rounded-md bg-orange-700 hover:bg-orange-800 text-white px-5 py-2.5 font-semibold shadow-sm">Call {cfg.phone_number}</SmartLink>
-            <SmartLink href={cfg.email ? `mailto:${cfg.email}` : '#contact-form'} className="inline-flex items-center rounded-md border border-gray-600 text-white hover:border-white hover:bg-white/10 px-5 py-2.5 font-semibold">Email Us</SmartLink>
-          </div>
-        </div>
-      </section>
-
-      {/* Breadcrumbs */}
-      <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-gray-600">
-        <SmartLink href="/" className="hover:text-gray-900">Home</SmartLink>
-        <span className="mx-2">/</span>
-        <span>Contact Us</span>
-      </nav>
+      <PageHero 
+        title={`Contact ${cfg.brand_name}`}
+        subtitle="We are not an insurance company or an insurance agency but rather an independent consumer information website offering insurance quote comparisons."
+        imageUrl="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80"
+        variant="dark"
+        align="left"
+      />
 
       {/* Content + Form */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <section className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16 pb-16 pt-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Info Card */}
-          <div className="lg:col-span-1">
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-900">Who We Are</h2>
-              <p className="mt-2 text-gray-700">
+          <div className="lg:col-span-1 order-2 lg:order-1">
+            <div className="bg-white rounded-none shadow-sm border border-slate-200 p-8 h-full">
+              <h2 className="text-xl font-bold text-slate-900 uppercase tracking-wide mb-6">Who We Are</h2>
+              <p className="text-slate-600 leading-relaxed mb-8">
                 We are not an insurance company or an insurance agency but rather an independent consumer information website offering insurance quote comparisons.
               </p>
-              <div className="mt-6 space-y-4 text-gray-700">
-                <div>
-                  <p className="font-semibold">By Mail:</p>
-                  <p>{cfg.company_address || '7901 4th St. N #19799 St. Petersburg, FL 33702'}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Speak to a Live Agent And Get Insurance Quotes:</p>
-                  <p>
-                    Call <SmartLink href={`tel:${(cfg.phone_number || '').replace(/\s+/g,'')}`} className="text-blue-600 hover:underline">{cfg.phone_number}</SmartLink>
-                  </p>
-                </div>
-                {cfg.email ? (
-                  <div>
-                    <p className="font-semibold">Support Email:</p>
-        <p><SmartLink href={`mailto:${cfg.email}`} className="text-blue-600 hover:underline">{cfg.email}</SmartLink></p>
+              
+              <div className="space-y-8">
+                <div className="border-t border-slate-100 pt-6">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0 mt-1">
+                      <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">By Mail</p>
+                      <p className="text-slate-600">{cfg.company_address || '7901 4th St. N #19799 St. Petersburg, FL 33702'}</p>
+                    </div>
                   </div>
-                ) : null}
+                </div>
+
+                <div className="border-t border-slate-100 pt-6">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0 mt-1">
+                      <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Speak to a Live Agent</p>
+                      <p>
+                        <SmartLink href={`tel:${(cfg.phone_number || '').replace(/\s+/g,'')}`} className="text-blue-600 hover:text-blue-700 font-bold text-lg block transition-colors">
+                          {cfg.phone_number}
+                        </SmartLink>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {cfg.email && (
+                  <div className="border-t border-slate-100 pt-6">
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0 mt-1">
+                        <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div className="ml-4">
+                        <p className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Support Email</p>
+                        <p>
+                          <SmartLink href={`mailto:${cfg.email}`} className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
+                            {cfg.email}
+                          </SmartLink>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           {/* Form Card */}
-          <div className="lg:col-span-2">
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-900">Reach Us Via Email</h2>
-              <p className="mt-2 text-gray-700">Use the contact form below to reach website support or request an insurance expert as a source.</p>
-              <form id="contact-form" onSubmit={handleSubmit} className="mt-6 space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Your Name (required)</label>
-                    <input type="text" name="name" value={form.name} onChange={handleChange} required className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-gray-900 focus:outline-none" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Your Email (required)</label>
-                    <input type="email" name="email" value={form.email} onChange={handleChange} required className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-gray-900 focus:outline-none" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Subject</label>
-                  <input type="text" name="subject" value={form.subject} onChange={handleChange} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-gray-900 focus:outline-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Your Message</label>
-                  <textarea name="message" value={form.message} onChange={handleChange} required rows={5} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-gray-900 focus:outline-none"></textarea>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button type="submit" disabled={loading} className="px-5 py-2.5 rounded-md bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50">{loading ? 'Sending...' : 'Send Message'}</button>
-                  {status.sent && <span className="text-green-700 text-sm">Thank you! Your message has been sent.</span>}
-                  {status.error && <span className="text-red-600 text-sm">{status.error}</span>}
-                </div>
-              </form>
-            </div>
+          <div className="lg:col-span-2 order-1 lg:order-2">
+             <div id="contact-form">
+               <ContactForm />
+             </div>
           </div>
         </div>
 
+
         {/* Helpful Links */}
-        <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-gray-200 pt-6">
-          {[
-            { label: 'About', href: '/about' },
-            { label: 'Careers', href: '/careers' },
-            { label: 'Editorial Guidelines', href: '/editorial-guidelines' },
-            { label: 'Advertiser Disclosure', href: '/advertiser-disclosure' },
-            { label: 'Contact Us', href: '/contact' },
-            { label: 'Privacy Policy', href: '/privacy-policy' },
-            { label: 'Terms & Conditions', href: '/terms' },
-            { label: 'CCPA', href: '/ccpa' },
-          ].map((l) => (
-            <SmartLink key={l.label} href={l.href} className="text-gray-700 text-sm hover:text-gray-900">
-              {l.label}
-            </SmartLink>
-          ))}
-        </div>
+        <HelpfulLinks links={helpfulLinks} attachToFooter />
       </section>
     </div>
   );

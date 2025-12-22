@@ -1,26 +1,29 @@
 import React from "react";
 import Image from "next/image";
+import SmartImage from "./SmartImage.jsx";
 
-const logos = [
-  { src: "/next.svg", alt: "Next.js" },
-  { src: "/vercel.svg", alt: "Vercel" },
-  { label: "Forbes" },
-  { src: "/globe.svg", alt: "Globe" },
-  { src: "/window.svg", alt: "Window" },
-];
+export default function FeaturedIn({ logos }) {
+  if (!logos || logos.length === 0) return null;
 
-export default function FeaturedIn() {
   return (
-    <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <h2 className="text-center text-sm font-semibold text-gray-600 tracking-wider">Featured In</h2>
-        <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 items-center">
+    <section className="bg-white border-b border-gray-100">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+        <p className="text-center text-sm font-semibold text-gray-500 uppercase tracking-widest mb-8">
+          Featured In
+        </p>
+        <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
           {logos.map((logo, idx) => (
-            <div key={logo.alt || logo.label || idx} className="flex items-center justify-center rounded-lg border border-gray-200 bg-gray-50 p-4">
-              {logo.src ? (
-                <Image src={logo.src} alt={logo.alt || "Logo"} width={100} height={32} className="object-contain" />
+            <div key={idx} className="flex items-center justify-center h-12 w-32 relative">
+              {logo.image ? (
+                <SmartImage 
+                    src={logo.image} 
+                    alt={logo.name || "Press Logo"} 
+                    className="object-contain max-h-10 max-w-full"
+                    width={120}
+                    height={40}
+                />
               ) : (
-                <span className="text-base font-semibold text-gray-800">{logo.label}</span>
+                <span className="text-lg font-bold text-gray-400">{logo.name}</span>
               )}
             </div>
           ))}

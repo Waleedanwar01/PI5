@@ -1,8 +1,9 @@
 from django.contrib import admin
+from django.db import models
 from django.utils.html import format_html
 from django import forms
 from adminsortable2.admin import SortableInlineAdminMixin, SortableAdminBase
-from .models import MainPage, Category, Blog, SiteConfig, HomePage, HomePageSection, VideoPlacement, ContactMessage, Page, PageSection, InsuranceCompany, InsuranceCoverage
+from .models import MainPage, Category, Blog, SiteConfig, HomePage, HomePageSection, VideoPlacement, ContactMessage, Page, PageSection, InsuranceCompany, InsuranceCoverage, PressLogo, TeamMember, PressItem
 import re
 
 
@@ -11,6 +12,15 @@ class MainPageAdmin(admin.ModelAdmin):
     list_display = ("name", "slug", "order", "show_in_header", "has_dropdown")
     list_editable = ("order", "show_in_header", "has_dropdown")
     search_fields = ("name", "slug")
+    fieldsets = (
+        (None, {
+            'fields': ("name", "slug", "order", "show_in_header", "has_dropdown")
+        }),
+        ("SEO / Meta", {
+            'fields': ("meta_title", "meta_description", "meta_keywords"),
+            'classes': ("collapse",),
+        }),
+    )
 
 
 @admin.register(Category)
@@ -24,20 +34,24 @@ class CategoryAdmin(admin.ModelAdmin):
         (None, {
             'fields': ("name", "slug", "parent_page")
         }),
+        ("SEO / Meta", {
+            'fields': ("meta_title", "meta_description", "meta_keywords"),
+            'classes': ("collapse",),
+        }),
         ("Blog Content", {
             'classes': ("collapse",),
             'fields': ("blog_published", "blog_title", "blog_summary", "blog_content"),
-            'description': "Category ke neeche directly blog likhne ke liye editor (alag Blog section ki zaroorat nahi)."
+            'description': "Editor to write blog content directly under the Category (no need for a separate Blog section)."
         }),
         ("Author Information", {
             'classes': ("collapse",),
             'fields': ("blog_author_name", "blog_author_image", "blog_author_description"),
-            'description': "Blog ke liye author ki details (naam, tasveer, chhota description)."
+            'description': "Author details for the blog (name, image, short description)."
         }),
         ("Reviewer Information", {
             'classes': ("collapse",),
             'fields': ("blog_reviewer_name", "blog_reviewer_image", "blog_reviewer_description"),
-            'description': "Blog ke liye reviewer ki details (naam, tasveer, chhota description)."
+            'description': "Reviewer details for the blog (name, image, short description)."
         }),
     )
 
@@ -104,6 +118,27 @@ class BlogAdmin(admin.ModelAdmin):
     readonly_fields = ("slug",)
     # Use regular selects for reliable client-side filtering
     # autocomplete_fields = ("parent_page",)
+
+    fieldsets = (
+        (None, {
+            'fields': ("title", "slug", "parent_page", "category", "published")
+        }),
+        ("SEO / Meta", {
+            'fields': ("meta_title", "meta_description", "meta_keywords"),
+            'classes': ("collapse",),
+        }),
+        ("Content", {
+            'fields': ("summary", "content", "footer_address"),
+        }),
+        ("Author Information", {
+            'classes': ("collapse",),
+            'fields': ("author_name", "author_image", "author_description"),
+        }),
+        ("Reviewer Information", {
+            'classes': ("collapse",),
+            'fields': ("reviewer_name", "reviewer_image", "reviewer_description"),
+        }),
+    )
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -453,6 +488,33 @@ class PageSectionInline(SortableInlineAdminMixin, admin.StackedInline):
     sortable = 'order'
 
 
+class TeamMemberInline(SortableInlineAdminMixin, admin.StackedInline):
+    model = TeamMember
+    extra = 0
+    fields = (
+        ("name", "role"),
+        ("department", "linkedin_url"),
+        ("twitter_url", "facebook_url", "email"),
+        "image",
+        "description",
+        ("published", "order")
+    )
+    verbose_name = "Team Member"
+    verbose_name_plural = "Team Members (Add to this page)"
+    description = "Add team members directly to this page. Drag and drop to reorder."
+
+class PressItemInline(SortableInlineAdminMixin, admin.StackedInline):
+    model = PressItem
+    extra = 0
+    fields = (
+        ("title", "date"),
+        ("link", "logo"),
+        ("published", "order")
+    )
+    verbose_name = "Press Item"
+    verbose_name_plural = "Press Box (Add to this page)"
+    description = "Add press releases/articles. Drag and drop to reorder."
+
 @admin.register(Page)
 class PageAdmin(SortableAdminBase, admin.ModelAdmin):
     list_display = ("title", "slug", "page_type", "show_in_footer", "footer_order", "published", "updated_at")
@@ -473,110 +535,84 @@ class PageAdmin(SortableAdminBase, admin.ModelAdmin):
         ("Hero", {
             'fields': ("hero_image",)
         }),
-        ("Optional Content", {
+        ("Top Content (CKEditor 1)", {
             'fields': ("content",)
+        }),
+        ("Bottom Content (CKEditor 2)", {
+            'fields': ("content_bottom",)
         }),
         ("System", {
             'fields': ("created_at", "updated_at")
         }),
     )
-    inlines = [PageSectionInline]
+    inlines = [TeamMemberInline, PressItemInline]
     prepopulated_fields = {"slug": ("title",)}
 
 
 # ==== Insurance Companies & Coverage ====
 
-# Simple US states list for admin multi-select
-US_STATES = [
-    'AL','AK','AZ','AR','CA','CO','CT','DC','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY'
-]
-
 class InsuranceCoverageInline(admin.TabularInline):
     model = InsuranceCoverage
     extra = 0
-    fields = ("state_code", "covers_entire_state", "zip_range_start", "zip_range_end", "zip_codes_text", "notes")
-    show_change_link = False
+    # Reduce fields to minimize horizontal scrolling
+    fields = ('state_code', 'covers_entire_state', 'zip_codes_text')
+    verbose_name = "State Coverage"
+    verbose_name_plural = "State Coverages"
+    
+    # Make text areas smaller to fit in the table row better
+    formfield_overrides = {
+        models.TextField: {'widget': forms.Textarea(attrs={'rows': 2, 'cols': 30, 'style': 'resize:vertical;'})},
+    }
 
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == 'zip_codes_text':
+            kwargs['help_text'] = 'List specific ZIPs (e.g. 10001, 10002) or ranges (e.g. 20000-20050)'
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
 
 @admin.register(InsuranceCompany)
 class InsuranceCompanyAdmin(admin.ModelAdmin):
-    class InsuranceCompanyCoverageForm(forms.ModelForm):
-        states_multi = forms.MultipleChoiceField(
-            choices=[(s, s) for s in US_STATES],
-            required=False,
-            help_text="Select states for statewide coverage (adds/updates coverages)."
-        )
-        nationwide_all = forms.BooleanField(
-            required=False,
-            help_text="If checked, company will be marked statewide in all states."
-        )
-
-        class Meta:
-            from .models import InsuranceCompany as IC
-            model = IC
-            fields = '__all__'
-
-    list_display = ("name", "rating", "published", "updated_at")
-    list_filter = ("published",)
-    search_fields = ("name", "short_description")
-    readonly_fields = ("updated_at",)
+    list_display = ('name', 'active_states_count', 'published', 'updated_at')
+    list_filter = ('published', 'updated_at', 'coverages__state_code')
+    search_fields = ('name', 'short_description', 'headline')
+    inlines = [InsuranceCoverageInline]
     fieldsets = (
         (None, {
-            'fields': ("name", "slug", "logo", "rating", "published")
+            'fields': ('name', 'slug', 'logo', 'published', 'rating')
+        }),
+        ("Marketing Content", {
+            'fields': ('headline', 'features', 'cta_text', 'short_description')
         }),
         ("Links", {
-            'fields': ("short_url", "domain_url", "landing_url", "contact_url")
+            'fields': ('landing_url', 'domain_url', 'short_url', 'contact_url')
         }),
-        ("Description", {
-            'fields': ("short_description",)
-        }),
-        ("Coverage Shortcut", {
-            'fields': ("states_multi", "nationwide_all"),
-            'description': "Quick method: select states here to add/update statewide coverage. Selecting 'All states' will mark coverage in all states."
-        }),
-        ("System", {
-            'fields': ("updated_at",)
-        })
     )
-    prepopulated_fields = {"slug": ("name",)}
-    form = InsuranceCompanyCoverageForm
-    inlines = [InsuranceCoverageInline]
 
-    def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-        try:
-            states = form.cleaned_data.get('states_multi') or []
-            nationwide = bool(form.cleaned_data.get('nationwide_all'))
-        except Exception:
-            states, nationwide = [], False
-
-        # If nationwide, override with all states
-        if nationwide:
-            states = US_STATES
-
-        # Create or update statewide coverages for selected states
-        created_or_updated = 0
-        for st in states:
-            try:
-                cov, _created = InsuranceCoverage.objects.get_or_create(company=obj, state_code=st)
-                cov.covers_entire_state = True
-                cov.zip_range_start = None
-                cov.zip_range_end = None
-                cov.zip_codes_text = ''
-                cov.save()
-                created_or_updated += 1
-            except Exception:
-                continue
-
-        if created_or_updated:
-            try:
-                self.message_user(request, f"Statewide coverage updated for {created_or_updated} state(s).")
-            except Exception:
-                pass
-
+    def active_states_count(self, obj):
+        return obj.coverages.count()
+    active_states_count.short_description = "Active States"
 
 @admin.register(InsuranceCoverage)
 class InsuranceCoverageAdmin(admin.ModelAdmin):
-    list_display = ("company", "state_code", "covers_entire_state", "zip_range_start", "zip_range_end")
-    list_filter = ("state_code", "covers_entire_state")
-    search_fields = ("company__name", "state_code", "zip_codes_text")
+    list_display = ('company', 'state_code', 'covers_entire_state', 'zip_codes_preview')
+    list_filter = ('state_code', 'covers_entire_state', 'company')
+    search_fields = ('company__name', 'state_code', 'zip_codes_text')
+    ordering = ('state_code', 'company')
+    
+    def zip_codes_preview(self, obj):
+        text = obj.zip_codes_text or ''
+        return text[:50] + '...' if len(text) > 50 else text
+    zip_codes_preview.short_description = "Zip Codes"
+
+@admin.register(PressLogo)
+class PressLogoAdmin(SortableAdminBase, admin.ModelAdmin):
+    list_display = ('name', 'order', 'published')
+    list_editable = ('order', 'published')
+    list_filter = ('published',)
+    search_fields = ('name',)
+
+@admin.register(TeamMember)
+class TeamMemberAdmin(SortableAdminBase, admin.ModelAdmin):
+    list_display = ("name", "role", "department", "page", "order", "published")
+    list_editable = ("order", "published")
+    list_filter = ("page", "published", "department")
+    search_fields = ("name", "role", "department", "description")

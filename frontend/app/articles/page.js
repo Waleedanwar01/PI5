@@ -1,16 +1,28 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import SearchBar from '../components/SearchBar';
-// Footer is provided by global ClientLayout; avoid duplicate render here
 
-export const metadata = {
-  title: 'Insurance Articles',
-};
+export async function generateMetadata() {
+  let brandName = 'Car Insurance Comparison';
+  try {
+    const base = process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000';
+    const scRes = await fetch(`${base}/api/site-config/`, { cache: 'no-store' });
+    if (scRes.ok) {
+        const sc = await scRes.json();
+        if (sc.brand_name) brandName = sc.brand_name.trim();
+    }
+  } catch (e) {
+    console.error('Error fetching site config:', e);
+  }
+  return {
+    title: `Insurance Articles | ${brandName}`,
+  };
+}
 
 export const dynamic = 'force-dynamic';
 
 export default async function ArticlesPage({ searchParams }) {
-  const pageSize = 12;
+  const pageSize = 24;
   const page = Math.max(1, Number(searchParams?.page) || 1);
   const h = headers();
   const host = (typeof h.get === 'function' ? (h.get('host') || 'localhost:3000') : 'localhost:3000').trim();
@@ -74,7 +86,7 @@ export default async function ArticlesPage({ searchParams }) {
 
     const initialUrl = `${base}/api/blogs?${apiParams.toString()}`;
     const [catJson, blogsJson] = await Promise.all([
-      safeFetchJson(`${base}/api/categories/`, { timeout: 3000 }),
+      safeFetchJson(`${base}/api/categories/all/`, { timeout: 3000 }),
       safeFetchJson(initialUrl, { timeout: 5000 }),
     ]);
 
@@ -131,16 +143,16 @@ export default async function ArticlesPage({ searchParams }) {
   const pages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <main className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Enhanced Header Section */}
+        {/* Header Section - Sharp Design */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full mb-6 shadow-xl">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-600 mb-6 shadow-md">
             <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
             </svg>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 tracking-tight">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight uppercase">
             {searchQuery ? `Search Results` : 'Insurance Articles'}
           </h1>
           {searchQuery && (
@@ -148,7 +160,7 @@ export default async function ArticlesPage({ searchParams }) {
               for "{searchQuery}"
             </p>
           )}
-          <p className="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed font-light">
             {searchQuery
               ? `Found ${total} article${total !== 1 ? 's' : ''} matching your search`
               : 'Expert insights, comprehensive guides, and tips to help you understand auto insurance better'
@@ -157,23 +169,23 @@ export default async function ArticlesPage({ searchParams }) {
         </div>
 
         {/* Search Bar Component */}
-        <SearchBar />
+        <div className="mb-10">
+            <SearchBar />
+        </div>
 
-        {/* Enhanced Category Filter Chips */}
+        {/* Category Filter Chips - Sharp Design */}
         {categories.length > 0 && (
           <div className="mb-10">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
+            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2 uppercase tracking-wider text-sm">
+              <span className="w-4 h-4 bg-blue-600 inline-block"></span>
               Filter by Category
             </h3>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/articles?${new URLSearchParams(spNoCat).toString()}`}
-                className={`${!categorySlug ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:shadow-md'} px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 transform hover:scale-105`}
+                className={`${!categorySlug ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100 hover:border-gray-400'} px-5 py-2 border text-sm font-bold uppercase tracking-wide transition-all duration-200`}
               >
-                All Articles
+                All
               </Link>
               {categories.map((cat) => {
                 const q = { ...safeSearchParams, category: String(cat.slug || ''), page: '1' };
@@ -182,7 +194,7 @@ export default async function ArticlesPage({ searchParams }) {
                   <Link
                     key={String(cat.slug || cat.name)}
                     href={`/articles?${new URLSearchParams(q).toString()}`}
-                    className={`${active ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-300 hover:shadow-md'} px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200 transform hover:scale-105`}
+                    className={`${active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100 hover:border-gray-400'} px-5 py-2 border text-sm font-bold uppercase tracking-wide transition-all duration-200`}
                   >
                     {cat.name}
                   </Link>
@@ -192,197 +204,146 @@ export default async function ArticlesPage({ searchParams }) {
           </div>
         )}
 
-        {/* Enhanced Status/Count */}
-        <div className="mb-10 bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+        {/* Status/Count - Sharp Design */}
+        <div className="mb-10 bg-white border border-gray-200 p-6 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="text-base md:text-lg text-gray-700">
               {error ? (
                 <span className="text-red-600 flex items-center gap-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {error}
+                  <span className="font-bold">Error:</span> {error}
                 </span>
               ) : total > 0 ? (
                 <span className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
+                  <span className="w-2 h-2 bg-green-500"></span>
                   <span>
                     Showing <strong className="text-gray-900">{start + 1}</strong>–<strong className="text-gray-900">{end}</strong> of <strong className="text-gray-900">{total}</strong> articles
                   </span>
                 </span>
               ) : (
                 <span className="flex items-center gap-2 text-gray-500">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                  </svg>
                   No articles found.
                 </span>
               )}
             </div>
             {totalPages > 1 && (
-              <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded-lg">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
+              <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 px-3 py-2 border border-gray-200">
                 Page {currentPage} of {totalPages}
               </div>
             )}
           </div>
         </div>
 
-        {/* Enhanced Articles Grid */}
+        {/* Articles Grid - Sharp Design (Zero Radius) */}
         {pageItems.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {pageItems.map((it) => (
               <article
                 key={String(it.slug || '')}
-                className="group bg-white rounded-2xl shadow-lg border border-gray-200 hover:shadow-2xl hover:border-blue-200 transition-all duration-300 overflow-hidden transform hover:-translate-y-2"
+                className="group bg-white border border-gray-200 hover:border-blue-400 hover:shadow-xl transition-all duration-300 flex flex-col h-full"
               >
-                {/* Enhanced Article Image */}
-                {it.hero_image ? (
-                  <div className="aspect-video overflow-hidden relative">
-                    <img
-                      src={it.hero_image}
-                      alt={it.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                {/* Article Image - Sharp */}
+                <Link href={`/articles/${encodeURIComponent(String(it.slug || ''))}`} className="block relative aspect-video overflow-hidden bg-gray-100">
+                    {it.hero_image ? (
+                      <img
+                        src={it.hero_image}
+                        alt={it.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <img
+                        src={`https://picsum.photos/seed/${it.slug}/600/400`}
+                        alt={it.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 hover:opacity-100"
+                        loading="lazy"
+                      />
+                    )}
                     {it.category && (
-                      <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1 text-xs font-bold rounded-full bg-white bg-opacity-90 text-blue-800 backdrop-blur-sm shadow-lg">
+                      <div className="absolute top-0 left-0">
+                        <span className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider bg-blue-600 text-white">
                           {it.category}
                         </span>
                       </div>
                     )}
-                  </div>
-                ) : (
-                  <div className="aspect-video overflow-hidden relative">
-                    <img
-                      src={`https://picsum.photos/seed/${encodeURIComponent(String(it.slug || it.title || 'article'))}-${Math.floor(Date.now()/60000)}/800/450`}
-                      alt={it.title || 'Article'}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    {it.category && (
-                      <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1 text-xs font-bold rounded-full bg-white bg-opacity-90 text-blue-800 backdrop-blur-sm shadow-lg">
-                          {it.category}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
+                </Link>
 
-                {/* Enhanced Article Content */}
-                <div className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
+                {/* Article Content - Sharp */}
+                <div className="p-6 flex flex-col flex-grow">
+                  <div className="flex items-center gap-3 mb-4 text-xs font-medium text-gray-500 uppercase tracking-wide">
                     {it.created_at && formatDate(it.created_at) && (
-                      <time className="text-sm text-gray-500 flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <time className="flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         {formatDate(it.created_at)}
                       </time>
                     )}
-                    <span className="flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      {Math.ceil((it.summary?.length || 0) / 200) + 3} min read
-                    </span>
                   </div>
                   
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors line-clamp-2 leading-tight">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors leading-tight">
                     <Link href={`/articles/${encodeURIComponent(String(it.slug || ''))}`}>
                       {it.title}
                     </Link>
                   </h3>
 
                   {it.summary && (
-                    <p className="text-gray-600 mb-5 line-clamp-3 leading-relaxed">
+                    <p className="text-gray-600 mb-5 line-clamp-3 leading-relaxed text-sm flex-grow">
                       {it.summary}
                     </p>
                   )}
 
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <div className="pt-4 mt-auto border-t border-gray-100 flex items-center justify-between">
                     <Link
                       href={`/articles/${encodeURIComponent(String(it.slug || ''))}`}
-                      className="inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-800 transition-colors group/link bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg"
+                      className="inline-flex items-center text-sm font-bold text-blue-600 hover:text-blue-800 uppercase tracking-wide group/link"
                     >
                       Read article
-                      <svg className="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 ml-1 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
                     </Link>
-                    
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-xs text-gray-500 font-medium">Featured</span>
-                    </div>
                   </div>
                 </div>
               </article>
             ))}
           </div>
         ) : !error && (
-          <div className="text-center py-20">
-            <div className="inline-block mb-6">
-              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
-                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
+          <div className="text-center py-20 border border-gray-200 bg-white">
             <h3 className="text-2xl font-bold text-gray-700 mb-2">No articles found</h3>
             <p className="text-gray-500 mb-6">Try adjusting your search query</p>
             <Link
               href="/articles"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold uppercase tracking-wide hover:bg-blue-700 transition-colors"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
               View all articles
             </Link>
           </div>
         )}
 
-        {/* Enhanced Pagination */}
+        {/* Pagination - Sharp Design */}
         {totalPages > 1 && pageItems.length > 0 && (
           <nav className="mt-12 flex items-center justify-center gap-2" aria-label="Pagination">
             {currentPage > 1 ? (
               <Link
                 href={`/articles?${new URLSearchParams({ ...safeSearchParams, page: String(currentPage - 1) }).toString()}`}
-                className="inline-flex items-center px-3.5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-bold uppercase tracking-wide bg-white"
               >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
               Previous
               </Link>
             ) : (
               <button
                 disabled
-                className="inline-flex items-center px-3.5 py-2 rounded-lg border border-gray-200 text-gray-400 bg-gray-50 text-sm font-medium opacity-60 cursor-not-allowed"
+                className="inline-flex items-center px-4 py-2 border border-gray-200 text-gray-400 bg-gray-50 text-sm font-bold uppercase tracking-wide opacity-60 cursor-not-allowed"
               >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
                 Previous
               </button>
             )}
             
--------
             {startPage > 1 && (
               <>
                 <Link
                   href={`/articles?${new URLSearchParams({ ...safeSearchParams, page: '1' }).toString()}`}
-                  className="px-3.5 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 text-sm font-bold text-gray-700 hover:bg-gray-50 bg-white"
                 >
                   1
                 </Link>
@@ -394,10 +355,10 @@ export default async function ArticlesPage({ searchParams }) {
               <Link
                 key={p}
                 href={`/articles?${new URLSearchParams({ ...safeSearchParams, page: String(p) }).toString()}`}
-                className={`px-3.5 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                className={`px-4 py-2 border text-sm font-bold transition-colors ${
                   p === currentPage
-                    ? 'bg-orange-600 border-orange-600 text-white'
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    ? 'bg-blue-600 border-blue-600 text-white'
+                    : 'border-gray-300 text-gray-700 hover:bg-gray-50 bg-white'
                 }`}
               >
                 {p}
@@ -409,40 +370,31 @@ export default async function ArticlesPage({ searchParams }) {
                 {endPage < totalPages - 1 && <span className="px-2 text-gray-400 font-bold">...</span>}
                 <Link
                   href={`/articles?${new URLSearchParams({ ...safeSearchParams, page: String(totalPages) }).toString()}`}
-                  className="px-3.5 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 text-sm font-bold text-gray-700 hover:bg-gray-50 bg-white"
                 >
                   {totalPages}
                 </Link>
               </>
             )}
-            
--------
+
             {currentPage < totalPages ? (
               <Link
                 href={`/articles?${new URLSearchParams({ ...safeSearchParams, page: String(currentPage + 1) }).toString()}`}
-                className="inline-flex items-center px-3.5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-bold uppercase tracking-wide bg-white"
               >
                 Next
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
               </Link>
             ) : (
               <button
                 disabled
-                className="inline-flex items-center px-3.5 py-2 rounded-lg border border-gray-200 text-gray-400 bg-gray-50 text-sm font-medium opacity-60 cursor-not-allowed"
+                className="inline-flex items-center px-4 py-2 border border-gray-200 text-gray-400 bg-gray-50 text-sm font-bold uppercase tracking-wide opacity-60 cursor-not-allowed"
               >
                 Next
-                <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
               </button>
             )}
           </nav>
         )}
       </div>
-      
-      {/* Footer provided by layout */}
     </main>
   );
 }

@@ -7,7 +7,7 @@
 
 // Get backend API base URL
 export function getApiBase() {
-  return process.env.NEXT_PUBLIC_API_BASE;
+  return process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
 }
 
 // Get media/assets base URL
@@ -38,6 +38,12 @@ export function getApiUrl(path) {
 
 // Build full media URL
 export function getMediaUrl(path) {
+  if (!path) return null;
+  // If path is already absolute, return it as is
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+  
   const base = getMediaBase();
   return base ? `${base}${path.startsWith('/') ? path : '/' + path}` : path;
 }
@@ -52,3 +58,18 @@ export function getDynamicApiBase(headers) {
     return getApiBase();
   }
 }
+
+// Centralized API Endpoints
+export const API_ENDPOINTS = {
+  BLOGS: '/api/blogs/',
+  CATEGORIES: '/api/categories/',
+  SITE_CONFIG: '/api/site-config/',
+  MAIN_PAGES: '/api/main-pages/',
+  MENU_HEADER: '/api/menu/header/',
+  MENU_FOOTER: '/api/menu/footer/',
+  CONTACT: '/api/contact/',
+  QUOTES: '/api/quotes/',
+  FOOTER_ADDRESS: '/api/footer-address/',
+  HOMEPAGE: '/api/homepage/',
+  PAGES_WITH_CATEGORIES: '/api/pages-with-categories/',
+};

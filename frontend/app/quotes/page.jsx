@@ -1,4 +1,6 @@
-import FilterBar from './FilterBar.jsx';
+import React from 'react';
+import { getApiBase } from '../lib/config.js';
+
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ searchParams }) {
@@ -13,7 +15,7 @@ export async function generateMetadata({ searchParams }) {
     const brand = (cfg?.brand_name || 'Car Insurance Comparison').trim();
     const titleZip = zip || 'Your Area';
     return {
-      title: `Auto Insurance Quotes in ${titleZip} | ${brand}`,
+      title: `${titleZip} Quotes - ${brand}`,
       description: `Compare auto insurance rates in ${titleZip}. Get quotes from top insurers and save today with ${brand}.`,
     };
   } catch {
@@ -31,14 +33,14 @@ async function fetchQuotes(searchParams) {
   
   // Prefer Next.js API proxy first (fast local call)
   try {
-    const proxyUrl = `/api/quotes${qs.toString() ? `?${qs.toString()}` : ''}`;
+    const proxyUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/quotes${qs.toString() ? `?${qs.toString()}` : ''}`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 3000);
     const res = await fetch(proxyUrl, { cache: 'no-store', signal: controller.signal });
     clearTimeout(timer);
     const json = await res.json().catch(() => ({}));
     const arr = Array.isArray(json?.companies) ? json.companies : [];
-    if (json?.ok === true && arr.length >= 0) {
+    if (json?.ok === true) {
       return { ...json, _source: 'proxy' };
     }
   } catch (e) {
@@ -47,7 +49,7 @@ async function fetchQuotes(searchParams) {
 
   // If proxy fails, try a single backend base (env)
   try {
-    const base = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+    const base = getApiBase();
     const url = `${base}/api/quotes${qs.toString() ? `?${qs.toString()}` : ''}`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 3000);
@@ -55,7 +57,7 @@ async function fetchQuotes(searchParams) {
     clearTimeout(timer);
     const json = await res.json().catch(() => ({}));
     const arr = Array.isArray(json?.companies) ? json.companies : [];
-    if (json?.ok === true && arr.length >= 0) {
+    if (json?.ok === true) {
       return { ...json, _source: 'backend-direct-env' };
     }
   } catch (e) {
@@ -70,11 +72,13 @@ export default async function QuotesPage({ searchParams }) {
   const zip = String(searchParams?.zip || data?.zip || '').slice(0, 5);
   const companies = Array.isArray(data?.companies) ? data.companies : [];
   const ok = data?.ok === true;
-  const source = data?._source || 'proxy';
 
+  // Filter Logic (Client-side Fallback)
   function filterCompaniesByZip(list, zipCode) {
     const z = String(zipCode || '').replace(/\D/g, '').slice(0, 5);
-    if (z.length !== 5) return list;
+    if (z.length !== 5) return list; // If invalid ZIP, show all (or handle as error)
+    
+    // Helper to check range strings "10000-20000"
     const within = (range) => {
       const s = String(range || '').trim();
       if (!s) return false;
@@ -86,131 +90,122 @@ export default async function QuotesPage({ searchParams }) {
       if (Number.isNaN(a) || Number.isNaN(b) || Number.isNaN(v)) return false;
       return v >= Math.min(a, b) && v <= Math.max(a, b);
     };
+
     const matches = (c) => {
       if (!c || typeof c !== 'object') return false;
-      if (Array.isArray(c.zip_ranges) && c.zip_ranges.some(within)) return true;
-      if (Array.isArray(c.coverage_zip_ranges) && c.coverage_zip_ranges.some(within)) return true;
-      const prefixes = c.zip_prefixes || c.coverage_zip_prefixes;
-      if (Array.isArray(prefixes) && prefixes.some((p) => String(z).startsWith(String(p || '').trim()))) return true;
-      const zips = c.supported_zips || c.coverage_zips || c.zips;
-      if (Array.isArray(zips) && zips.some((v) => String(v || '').trim() === z)) return true;
-      return false;
+      // Backend should handle filtering, but if we get a raw list, check coverages
+      // Note: The backend 'quotes' view already filters by ZIP if provided.
+      // So this client-side filter is mostly a backup if the API returns everything.
+      return true; 
     };
-    const filtered = list.filter(matches);
-    return filtered.length > 0 ? filtered : list;
+    
+    // If backend already filtered, we trust it.
+    // If companies array is empty, it means backend found nothing or error.
+    return list;
   }
 
   const filteredCompanies = filterCompaniesByZip(companies, zip);
-  const topCompany = filteredCompanies.length > 0 ? filteredCompanies[0] : null;
-  const otherCompanies = filteredCompanies.slice(1);
 
   return (
-    <div className="min-h-[60vh] bg-white pb-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
-        {/* Page title */}
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-          The Best Auto Insurance Rates for {zip || '—'}
-        </h1>
-        <p className="mt-2 text-gray-600">Companies found: {filteredCompanies.length}</p>
-
-        {/* Top filter bar (client component) */}
-        <div className="mt-6">
-          <FilterBar zip={zip} />
-        </div>
-
-        {/* Highlight card for top company */}
-        {topCompany ? (
-          <div className="mt-8 rounded-2xl sm:rounded-3xl border border-orange-200 bg-orange-50 p-6 sm:p-8 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-              <div className="flex-1">
-                <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-100 to-orange-200 px-4 py-2 text-orange-800 text-sm font-semibold shadow-sm">
-                  <span aria-hidden>👑</span>
-                  Top Pick
-                </div>
-                <h2 className="mt-4 text-xl sm:text-2xl font-bold text-gray-900">
-                  Drivers who save by switching to {topCompany.name}
-                </h2>
-                <p className="mt-2 text-gray-700">
-                  Fast, easy quotes and trusted service. Compare rates and see how much you can save.
-                </p>
-                <ul className="mt-4 space-y-2 text-sm text-gray-700 list-disc pl-5">
-                  <li>Customized quote in minutes</li>
-                  <li>24/7 claims support</li>
-                  <li>Millions of drivers trust {topCompany.name}</li>
-                </ul>
-              </div>
-              <div className="flex-shrink-0">
-                {topCompany?.landing_url ? (
-                  <a
-                    href={topCompany.landing_url}
-                    target="_blank"
-                    rel="noopener"
-                    className="inline-flex items-center justify-center rounded-lg bg-orange-600 hover:bg-orange-700 text-white px-5 py-3 text-base font-semibold shadow-sm"
-                  >
-                    View My Quote
-                  </a>
-                ) : topCompany?.domain_url ? (
-                  <a
-                    href={topCompany.domain_url}
-                    target="_blank"
-                    rel="noopener"
-                    className="inline-flex items-center justify-center rounded-lg border border-gray-300 hover:border-gray-400 text-gray-900 px-5 py-3 text-base font-semibold shadow-sm"
-                  >
-                    Compare Rates
-                  </a>
-                ) : null}
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {/* Companies grid cards */}
-        <div className="mt-10">
+    <div className="min-h-screen bg-gray-100 py-8">
+      <div className="mx-auto max-w-5xl px-8 sm:px-12 lg:px-16">
+        
+        {/* Results List */}
+        <div className="space-y-6">
           {filteredCompanies.length === 0 ? (
-            <div className="rounded-xl border border-gray-200 p-6 text-gray-800">
-              No companies found for ZIP {zip || '—'}. Try a different ZIP.
-              {!ok && data?.error ? (
-                <p className="mt-2 text-xs text-red-600">Note: {String(data.error)}</p>
-              ) : null}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+              <h3 className="text-lg font-medium text-gray-900">No companies found in this area.</h3>
+              <p className="mt-2 text-gray-500">Try entering a different ZIP code.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {filteredCompanies.map((c, idx) => {
-                return (
-                  <div key={`${c.slug || c.name}-${idx}`} className="group relative rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-lg font-semibold text-gray-900">{c.name}</h3>
-                          {typeof c.rating === 'number' ? (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded bg-green-100 text-green-800 text-xs font-medium">{c.rating} ★</span>
-                          ) : null}
-                        </div>
-                        {c.short_description ? (
-                          <p className="mt-1 text-gray-700 text-sm">{c.short_description}</p>
-                        ) : null}
-                        <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
-                          {c.short_url ? (
-                            <a href={c.short_url} target="_blank" rel="noopener" className="text-blue-700 hover:underline">Promo</a>
-                          ) : null}
-                          {c.contact_url ? (
-                            <a href={c.contact_url} target="_blank" rel="noopener" className="text-blue-700 hover:underline">Support</a>
-                          ) : null}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {c.landing_url ? (
-                          <a href={c.landing_url} target="_blank" rel="noopener" className="btn inline-flex items-center justify-center bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 text-sm font-semibold">Get Quote</a>
-                        ) : null}
-                        {c.domain_url ? (
-                          <a href={c.domain_url} target="_blank" rel="noopener" className="btn inline-flex items-center justify-center border border-gray-300 hover:border-gray-400 text-gray-900 px-3 py-1.5 text-sm font-semibold">Website</a>
-                        ) : null}
-                      </div>
+            filteredCompanies.map((company, idx) => (
+              <div key={company.id || idx} className="relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-300">
+                
+                {/* Yellow Ribbon (Top Left) */}
+                <div className="absolute top-0 left-0 z-10">
+                    <div className="w-0 h-0 border-t-[70px] border-t-[#ffeb3b] border-r-[70px] border-r-transparent"></div>
+                    <div className="absolute top-2 left-2 text-white">
+                        <svg className="w-6 h-6 transform -rotate-45" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div className="flex flex-col md:flex-row p-6 items-center gap-6">
+                  
+                  {/* Logo Column */}
+                  <div className="w-full md:w-1/4 flex flex-col items-center justify-center">
+                    <div className="w-full border border-gray-200 rounded p-2 flex items-center justify-center h-24 bg-white">
+                        {company.logo ? (
+                            <img 
+                                src={company.logo} 
+                                alt={`${company.name} Logo`} 
+                                className="max-h-16 max-w-full object-contain"
+                            />
+                        ) : (
+                            <span className="text-gray-400 font-bold text-lg">{company.name}</span>
+                        )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
+
+                  {/* Content Column */}
+                  <div className="w-full md:w-1/2 text-left">
+                    <h2 className="text-xl font-bold text-gray-900 mb-2 leading-tight">
+                        {company.headline || `${company.name} offers great rates in ${zip || 'your area'}`}
+                    </h2>
+                    
+                    <ul className="space-y-1">
+                        {company.features ? (
+                            company.features.split('\n').map((feature, i) => (
+                                feature.trim() && (
+                                    <li key={i} className="flex items-start text-sm text-gray-800">
+                                        <span className="mr-2 text-black font-bold">•</span>
+                                        <span>{feature.trim()}</span>
+                                    </li>
+                                )
+                            ))
+                        ) : (
+                            // Fallback bullets
+                            <>
+                                <li className="flex items-start text-sm text-gray-800">
+                                    <span className="mr-2 text-black font-bold">•</span>
+                                    <span>Top rated and trusted providers in your area</span>
+                                </li>
+                                <li className="flex items-start text-sm text-gray-800">
+                                    <span className="mr-2 text-black font-bold">•</span>
+                                    <span>Easy, fast & 100% free comparison</span>
+                                </li>
+                                <li className="flex items-start text-sm text-gray-800">
+                                    <span className="mr-2 text-black font-bold">•</span>
+                                    <span>Get *REAL* quotes in minutes</span>
+                                </li>
+                                <li className="flex items-start text-sm text-gray-800">
+                                    <span className="mr-2 text-black font-bold">•</span>
+                                    <span>Click Here to Start Saving!</span>
+                                </li>
+                            </>
+                        )}
+                    </ul>
+                  </div>
+
+                  {/* CTA Column */}
+                  <div className="w-full md:w-1/4 flex flex-col items-center justify-center space-y-2">
+                    <a 
+                        href={company.landing_url || company.domain_url || '#'} 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded shadow-sm text-center transition-colors text-lg"
+                    >
+                        {company.cta_text || 'View My Quote'}
+                    </a>
+                    <span className="text-[10px] font-bold text-blue-600 tracking-widest uppercase">
+                        COMPARE RATES
+                    </span>
+                  </div>
+
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>

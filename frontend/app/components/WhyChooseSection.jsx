@@ -7,37 +7,31 @@ export default function WhyChooseSection() {
       icon: "🔍",
       title: "Smart Comparison",
       description: "Our AI-powered system compares rates from 50+ insurers in real-time",
-      color: "from-blue-500 to-cyan-500"
     },
     {
       icon: "💰", 
       title: "Maximum Savings",
       description: "Users save an average of $500+ annually on their car insurance",
-      color: "from-green-500 to-emerald-500"
     },
     {
       icon: "⚡",
       title: "Lightning Fast",
       description: "Get personalized quotes in under 2 minutes, not hours",
-      color: "from-yellow-500 to-orange-500"
     },
     {
       icon: "🛡️",
       title: "Trusted Coverage", 
       description: "Compare plans from top-rated, A+ rated insurance companies",
-      color: "from-purple-500 to-pink-500"
     },
     {
       icon: "📱",
       title: "Mobile Optimized",
       description: "Perfect experience on all devices - phone, tablet, or desktop",
-      color: "from-indigo-500 to-blue-500"
     },
     {
       icon: "🎯",
       title: "Personalized",
       description: "Tailored recommendations based on your specific needs and budget",
-      color: "from-red-500 to-pink-500"
     }
   ];
 
@@ -68,53 +62,47 @@ export default function WhyChooseSection() {
     }
   ];
 
-  return (
-    <section className="relative bg-gradient-to-b from-slate-50 to-white py-20 lg:py-32 overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full opacity-50 blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full opacity-50 blur-3xl"></div>
-      </div>
+  const scrollToHero = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
+  return (
+    <section className="bg-white py-16 lg:py-24 overflow-hidden">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-            Why <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Millions Choose</span> Us
+        <div className="text-left mb-12">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+            Why <span className="text-sky-600">Millions Choose</span> Us
           </h2>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-600 max-w-3xl leading-snug">
             We're not just another comparison site. We're your partner in finding the perfect car insurance coverage at the best price.
           </p>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+        {/* Features Grid - Clean & Simple */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-gray-200"
+              className="group relative bg-white rounded-none p-6 border border-slate-100 hover:border-slate-300 transition-all duration-300 text-left"
             >
-              {/* Icon with gradient background */}
-              <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r ${feature.color} mb-6 group-hover:scale-110 transition-transform duration-300`}>
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-none bg-slate-50 text-slate-900 mb-4 group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors duration-300">
                 <span className="text-2xl">{feature.icon}</span>
               </div>
               
-              <h3 className="text-xl font-bold text-gray-900 mb-3">
+              <h3 className="text-lg font-bold text-slate-900 mb-2">
                 {feature.title}
               </h3>
               
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-sm text-slate-600 leading-snug">
                 {feature.description}
               </p>
-
-              {/* Hover effect border */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
             </div>
           ))}
         </div>
 
         {/* Process Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 lg:p-12 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-900 to-slate-900 border border-slate-800 rounded-none p-6 lg:p-10 text-white relative overflow-hidden shadow-2xl">
           {/* Background pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute inset-0" style={{
@@ -124,40 +112,35 @@ export default function WhyChooseSection() {
           </div>
 
           <div className="relative">
-            <div className="text-center mb-12">
-              <h3 className="text-3xl sm:text-4xl font-bold mb-4">
+            <div className="text-left mb-8">
+              <h3 className="text-2xl sm:text-3xl font-bold mb-3">
                 Get Started in 4 Simple Steps
               </h3>
-              <p className="text-blue-100 text-lg max-w-2xl mx-auto">
+              <p className="text-slate-300 text-base max-w-2xl leading-snug">
                 Our streamlined process makes comparing car insurance quotes faster and easier than ever before.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {process.map((step, index) => (
-                <div key={index} className="text-center group">
+                <div key={index} className="text-left group relative">
                   {/* Step number and icon */}
-                  <div className="relative mb-6">
-                    <div className="w-20 h-20 mx-auto bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/30 group-hover:bg-white/30 transition-all duration-300">
-                      <span className="text-3xl mb-2 block">{step.icon}</span>
+                  <div className="relative mb-4 inline-block">
+                    <div className="w-16 h-16 bg-white/5 backdrop-blur-sm rounded-none flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-all duration-300">
+                      <span className="text-2xl mb-2 block">{step.icon}</span>
                     </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
+                    <div className="absolute -top-2 -right-2 w-7 h-7 bg-gradient-to-r from-sky-400 to-blue-500 rounded-none flex items-center justify-center text-xs font-bold text-white shadow-lg">
                       {step.step}
                     </div>
                   </div>
                   
-                  <h4 className="text-xl font-bold mb-3">
+                  <h4 className="text-lg font-bold mb-2 text-white">
                     {step.title}
                   </h4>
                   
-                  <p className="text-blue-100 leading-relaxed">
+                  <p className="text-slate-300 text-sm leading-snug">
                     {step.description}
                   </p>
-
-                  {/* Connector line */}
-                  {index < process.length - 1 && (
-                    <div className="hidden lg:block absolute top-10 left-full w-full h-0.5 bg-gradient-to-r from-white/30 to-transparent transform -translate-y-1/2"></div>
-                  )}
                 </div>
               ))}
             </div>
@@ -165,18 +148,25 @@ export default function WhyChooseSection() {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center mt-16">
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Ready to Save on Your Car Insurance?
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Join millions of drivers who have found better coverage at lower prices.
-            </p>
-            <button className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-              <span>🚀</span>
-              <span>Start Saving Now</span>
-            </button>
+        <div className="text-left mt-12">
+          <div className="bg-white rounded-none p-8 shadow-sm border border-slate-200 max-w-full hover:shadow-md transition-shadow duration-300">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-2">
+                    Ready to Save on Your Car Insurance?
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                    Join millions of drivers who have found better coverage at lower prices.
+                    </p>
+                </div>
+                <button 
+                  onClick={scrollToHero}
+                  className="inline-flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-8 rounded-none transition-all duration-300 shadow-sm hover:shadow-md whitespace-nowrap text-sm"
+                >
+                <span>🚀</span>
+                <span>Start Saving Now</span>
+                </button>
+            </div>
           </div>
         </div>
       </div>

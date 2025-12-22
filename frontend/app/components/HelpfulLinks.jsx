@@ -1,7 +1,7 @@
 import SmartLink from './SmartLink.jsx';
 
 export default function HelpfulLinks({ links = [], title = "Helpful Links", attachToFooter = false }) {
-  const safeLinks = Array.isArray(links) ? links.filter((l) => !!(l?.page_slug || l?.name)) : [];
+  const safeLinks = Array.isArray(links) ? links.filter((l) => !!(l?.slug || l?.page_slug || l?.name)) : [];
   if (safeLinks.length === 0) return null;
   const sectionClasses = attachToFooter
     ? "mt-10 mb-10 w-full border-t border-gray-200 pt-8"
@@ -14,11 +14,12 @@ export default function HelpfulLinks({ links = [], title = "Helpful Links", atta
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {safeLinks.map((l, idx) => {
-            const href = `/${encodeURIComponent(String(l.page_slug || ''))}`;
-            const label = String(l.name || l.page_slug || `Link ${idx + 1}`);
+            const slug = l.slug || l.page_slug;
+            const href = `/${encodeURIComponent(String(slug || ''))}`;
+            const label = String(l.name || slug || `Link ${idx + 1}`);
             return (
               <SmartLink
-                key={`${String(l.page_slug || label || '')}-${idx}`}
+                key={`${String(slug || label || '')}-${idx}`}
                 href={href}
                 className="group h-full rounded-xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-600"
               >

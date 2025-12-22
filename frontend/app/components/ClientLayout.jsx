@@ -147,7 +147,7 @@ export default function ClientLayout({ children }) {
   return (
     <>
       <Navbar />
-      {pathname !== '/' ? (<div className="h-20 sm:h-16 lg:h-16" aria-hidden="true"></div>) : null}
+      <div className="h-20 sm:h-16 lg:h-16" aria-hidden="true"></div>
       <div className="min-h-screen flex flex-col">
         <main className="flex-1">{children}</main>
         {/* Global spacer above footer for pleasant breathing room */}

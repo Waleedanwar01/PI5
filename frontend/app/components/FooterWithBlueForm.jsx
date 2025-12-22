@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import gsap from 'gsap';
-import { Twitter, Youtube, Facebook, Instagram, Linkedin, Globe } from "lucide-react";
+import { Twitter, Youtube, Facebook, Instagram, Linkedin, Globe, Shield } from "lucide-react";
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
 import { getMediaUrl } from '../lib/config.js';
-import SimpleZipForm from './SimpleZipForm.jsx';
 
 // Helper functions (resolveHref and FooterCopyright) remain the same.
 
@@ -54,6 +52,9 @@ const FooterWithBlueForm = () => {
                 if (bn) setBrandName(bn);
                 if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
                 if (data.logo_height) setLogoHeight(data.logo_height);
+
+                const aboutTxt = (data.footer_about_text || '').trim();
+                if (aboutTxt) setFooterText(aboutTxt);
 
                 const dsc = (data.footer_disclaimer || data.disclaimer || data.disclaimer_text || '').trim();
                 if (dsc) setDisclaimer(dsc);
@@ -116,52 +117,73 @@ const FooterWithBlueForm = () => {
 
     return (
         <footer className="bg-black text-gray-300 font-sans">
-            {/* Blue Dotted Form Section */}
-            <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 text-white overflow-hidden">
-                {/* Blue Dotted Background Pattern */}
-                <div className="absolute inset-0 opacity-30">
-                    <div 
-                        className="w-full h-full"
-                        style={{
-                            backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)`,
-                            backgroundSize: '20px 20px'
-                        }}
-                    ></div>
-                </div>
-
-                {/* Main Content */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 relative z-10">
-                    <div className="text-center mb-12">
-                        <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                            Get Your Free Quote Now
-                        </h3>
-                    </div>
+            {/* Dark Form Section matching screenshot */}
+            <div className="bg-[#1e293b] text-white py-12 border-t border-slate-800">
+                <div className="max-w-4xl mx-auto px-4 text-center">
+                    <h3 className="text-2xl md:text-3xl font-bold mb-3 text-white">
+                        Free Auto Insurance Comparison
+                    </h3>
+                    <p className="text-base md:text-lg text-slate-300 mb-8">
+                        Enter your ZIP code below to view companies that have cheap auto insurance rates.
+                    </p>
                     
-                    <div className="max-w-2xl mx-auto">
-                        <div className="relative">
-                            <SimpleZipForm />
+                    <form action="/quotes" method="GET" className="max-w-xl mx-auto mb-6">
+                        <div className="flex flex-col sm:flex-row shadow-lg">
+                            <div className="relative flex-grow">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <input
+                                    type="text"
+                                    name="zip"
+                                    placeholder="ZIP Code"
+                                    pattern="[0-9]*"
+                                    maxLength={5}
+                                    className="w-full pl-10 pr-4 py-3 md:py-4 text-gray-900 bg-white border-none focus:ring-2 focus:ring-orange-500 outline-none h-12 md:h-14"
+                                    required
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-3 md:py-4 px-8 whitespace-nowrap transition-colors flex items-center justify-center gap-2 h-12 md:h-14"
+                            >
+                                GET QUOTES
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
                         </div>
+                    </form>
+
+                    <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
+                        <Shield className="w-4 h-4" />
+                        <span>Secured with SHA-256 Encryption</span>
                     </div>
+
+                    {/* Dotted decoration at the bottom */}
+                    <div className="mt-8 mx-auto max-w-xs border-b-4 border-dotted border-black/40 h-1 w-full"></div>
                 </div>
             </div>
 
             {/* Original Footer Content */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 {/* Top panel: logo + description like the screenshot */}
-                <div className="bg-[#111] border border-neutral-800 p-6 md:p-8">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                        <div className="flex items-center gap-4">
-                            {logoUrl ? (
-                                <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto" />
-                            ) : null}
-                            <h2 className="text-white text-xl font-semibold">{brandName}</h2>
-                        </div>
-                        <p className="text-sm text-gray-300 max-w-3xl">
-                            {footerText}
-                        </p>
+            <div className="bg-[#111] border border-neutral-800 p-6 md:p-8">
+                <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-12 text-left w-full lg:justify-start">
+                    <div className="flex-shrink-0">
+                        {logoUrl ? (
+                            <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto" />
+                        ) : null}
                     </div>
+                    <p className="text-sm text-gray-300 leading-relaxed text-left flex-1">
+                        {footerText}
+                    </p>
+                </div>
 
-                    {/* Company + Legal sections */}
+                {/* Company + Legal sections */}
                     {(companyLinks?.length > 0 || legalLinks?.length > 0) && (
                         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8">
                             {companyLinks?.length > 0 && (
@@ -223,20 +245,20 @@ const FooterWithBlueForm = () => {
                 </div>
 
                 {/* Bottom bar: copyright + legal inline links */}
-                <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div className="flex items-center gap-3">
+                <div className="mt-6 border-t border-neutral-800 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex items-center gap-2 whitespace-normal sm:whitespace-nowrap">
                         {logoUrl ? (
-                            <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto" />
+                            <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto h-6" />
                         ) : null}
                         <FooterCopyright brandName={brandName} />
                     </div>
                     {legalLinks?.length > 0 && (
-                        <div className="flex items-center gap-4 text-xs">
+                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
                             {legalLinks.map((item, idx) => (
                                 <SmartLink
                                     key={`legal-inline-${idx}`}
                                     href={resolveHref(item)}
-                                    className="text-gray-300 hover:text-white"
+                                    className="text-gray-400 hover:text-white transition-colors"
                                 >
                                     {item.name}
                                 </SmartLink>
@@ -265,9 +287,11 @@ export default FooterWithBlueForm;
 
 function resolveHref(item) {
     if (item.href) return item.href;
-    if (item.page_slug) {
+    // Handle both page_slug (old) and slug (new API)
+    const slug = item.page_slug || item.slug;
+    if (slug) {
         const anchor = item.anchor_id ? `#${String(item.anchor_id)}` : "";
-        return `/${encodeURIComponent(String(item.page_slug || ''))}${anchor}`;
+        return `/${encodeURIComponent(String(slug))}${anchor}`;
     }
     return "#";
 }

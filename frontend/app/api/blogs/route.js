@@ -63,25 +63,7 @@ export async function GET(req) {
           msg = await res.text();
         } catch {}
       }
-      const cat = category || '';
-      const psNum = Number(pageSize) || 12;
-      const pNum = Number(page) || 1;
-      const count = psNum;
-      const blogs = Array.from({ length: count }, (_, i) => {
-        const idx = (pNum - 1) * psNum + i + 1;
-        const baseSlug = cat ? `${cat}-guide-${idx}` : `insurance-guide-${idx}`;
-        const baseTitle = cat ? `${String(cat).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} Insurance Guide ${idx}` : `Insurance Guide ${idx}`;
-        return {
-          slug: baseSlug,
-          title: baseTitle,
-          summary: 'Learn coverage types, discounts, and savings tips with an easy overview tailored to this category.',
-          hero_image: `https://picsum.photos/seed/${encodeURIComponent(baseSlug)}/800/450`,
-          created_at: new Date(Date.now() - i * 86400000).toISOString(),
-          category: cat || 'general',
-        };
-      });
-      const pagination = { total_count: blogs.length, page_size: psNum, current_page: pNum, total_pages: 1, has_next: false, has_previous: false };
-      return Response.json({ blogs, pagination, error: msg }, { status: 200 });
+      return Response.json({ blogs: [], pagination: null, error: msg }, { status: 200 });
     }
     const json = await res.json();
     
@@ -133,45 +115,14 @@ export async function GET(req) {
     }
     
     if (!blogs || blogs.length === 0) {
-      const cat = category || '';
+      blogs = [];
       const psNum = Number(pageSize) || 12;
       const pNum = Number(page) || 1;
-      const count = psNum;
-      blogs = Array.from({ length: count }, (_, i) => {
-        const idx = (pNum - 1) * psNum + i + 1;
-        const baseSlug = cat ? `${cat}-guide-${idx}` : `insurance-guide-${idx}`;
-        const baseTitle = cat ? `${String(cat).replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} Insurance Guide ${idx}` : `Insurance Guide ${idx}`;
-        return {
-          slug: baseSlug,
-          title: baseTitle,
-          summary: 'Learn coverage types, discounts, and savings tips with an easy overview tailored to this category.',
-          hero_image: `https://picsum.photos/seed/${encodeURIComponent(baseSlug)}/800/450`,
-          created_at: new Date(Date.now() - i * 86400000).toISOString(),
-          category: cat || 'general',
-        };
-      });
-      pagination = { total_count: blogs.length, page_size: psNum, current_page: pNum, total_pages: 1, has_next: false, has_previous: false };
+      pagination = { total_count: 0, page_size: psNum, current_page: pNum, total_pages: 0, has_next: false, has_previous: false };
     }
     return Response.json({ ...json, blogs, pagination });
   } catch (e) {
     console.error('blogs upstream error:', e?.message || e);
-    const psNum = 12;
-    const pNum = 1;
-    const count = psNum;
-    const blogs = Array.from({ length: count }, (_, i) => {
-      const idx = (pNum - 1) * psNum + i + 1;
-      const baseSlug = `insurance-guide-${idx}`;
-      const baseTitle = `Insurance Guide ${idx}`;
-      return {
-        slug: baseSlug,
-        title: baseTitle,
-        summary: 'Learn coverage types, discounts, and savings tips with an easy overview tailored to this category.',
-        hero_image: `https://picsum.photos/seed/${encodeURIComponent(baseSlug)}/800/450`,
-        created_at: new Date(Date.now() - i * 86400000).toISOString(),
-        category: 'general',
-      };
-    });
-    const pagination = { total_count: blogs.length, page_size: psNum, current_page: pNum, total_pages: 1, has_next: false, has_previous: false };
-    return Response.json({ blogs, pagination, error: e?.message || 'Blogs proxy failed' }, { status: 200 });
+    return Response.json({ blogs: [], pagination: null, error: e?.message || 'Blogs proxy failed' }, { status: 200 });
   }
 }

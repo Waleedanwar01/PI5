@@ -30,66 +30,51 @@ export default function ZipForm({ heading = 'Compare Quotes Now:' }) {
   };
 
   return (
-    <div>
-      {/* Simple Form Container */}
-      <div className="border border-gray-200 rounded-lg p-6">
+    <div className="w-full">
+      <form noValidate onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:bg-white sm:rounded-lg sm:shadow-lg sm:border sm:border-slate-200 sm:p-1">
         
-        {/* Simple Header */}
-        <div className="text-center mb-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            {heading}
-          </h2>
-          <p className="text-gray-600 text-sm">
-            Get free quotes from top insurers
-          </p>
-        </div>
-        
-        {/* Simple Form */}
-        <form noValidate onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            
-            {/* Simple ZIP Input */}
-            <div className="relative flex-1">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                name="zip"
-                value={zip}
-                inputMode="numeric"
-                aria-invalid={!!error}
-                onChange={(e) => setZip(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                placeholder="Enter ZIP code"
-                maxLength={5}
-                required
-                disabled={isLoading}
-                className={`w-full pl-10 pr-4 py-3 text-base rounded-lg border transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''} ${error ? 'border-red-300' : 'border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'}`}
-              />
-            </div>
-            
-            {/* Simple Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`px-6 py-3 rounded-lg text-base font-bold text-white transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'} bg-blue-600`}
-            >
-              {isLoading ? 'Getting Quotes...' : 'Get Quotes'}
-            </button>
+        {/* Simple ZIP Input */}
+        <div className="relative flex-grow group">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-500 transition-colors">
+            <MapPin className="w-5 h-5" />
           </div>
-        </form>
-        
-        {/* Simple Status Message */}
-        <div className="mt-4">
-          {error ? (
-            <div className="text-red-600 text-sm text-center">
-              {error}
-            </div>
-          ) : (
-            <div className="text-green-600 text-sm text-center">
-              Secure & Free
-            </div>
-          )}
+          <input
+            type="text"
+            name="zip"
+            value={zip}
+            inputMode="numeric"
+            aria-invalid={!!error}
+            onChange={(e) => setZip(e.target.value.replace(/\D/g, '').slice(0, 5))}
+            placeholder="Enter ZIP Code"
+            maxLength={5}
+            required
+            disabled={isLoading}
+            className={`w-full h-14 pl-12 pr-4 bg-white sm:bg-transparent rounded-lg sm:rounded-none border sm:border-none border-slate-200 text-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 sm:focus:ring-0 ${isLoading ? 'opacity-50' : ''} shadow-sm sm:shadow-none`}
+          />
         </div>
-      </div>
+        
+        {/* Simple Submit Button */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className={`h-14 sm:h-auto px-8 py-3 rounded-lg sm:rounded-md text-base sm:text-lg font-bold text-white transition-all duration-200 shadow-md sm:shadow-none hover:shadow-lg active:scale-95 whitespace-nowrap ${isLoading ? 'bg-slate-400 cursor-not-allowed' : 'bg-sky-600 hover:bg-sky-700'}`}
+        >
+          {isLoading ? '...' : 'Get Quotes'}
+        </button>
+      </form>
+      
+      {/* Simple Status Message */}
+      {error && (
+        <div className="mt-2 text-red-500 text-sm text-center font-medium bg-red-50 py-1 px-3 rounded">
+          {error}
+        </div>
+      )}
+      {!error && (
+        <p className="mt-2 text-center sm:text-left text-xs text-slate-500 flex items-center justify-center sm:justify-start gap-1.5 opacity-80">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Free & Secure
+        </p>
+      )}
     </div>
   );
 }

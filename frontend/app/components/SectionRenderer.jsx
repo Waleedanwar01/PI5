@@ -7,10 +7,10 @@ function SectionHeader({ title, subtitle, center = false }) {
   return (
     <header className={`mb-4 md:mb-6 ${center ? 'text-center' : ''}`}>
       {title ? (
-        <h2 className="text-2xl md:text-3xl font-bold tracking-tight leading-tight">{title}</h2>
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight leading-tight text-slate-900">{title}</h2>
       ) : null}
       {subtitle ? (
-        <p className={`mt-1 text-sm md:text-base text-gray-600 leading-relaxed ${center ? 'mx-auto' : ''}`}>{subtitle}</p>
+        <p className={`mt-1 text-sm md:text-base text-slate-500 leading-relaxed ${center ? 'mx-auto' : ''}`}>{subtitle}</p>
       ) : null}
     </header>
   );
@@ -20,7 +20,7 @@ function RichHTML({ html, className }) {
   if (!html) return null;
   
   return (
-    <div className={`rich-html max-w-none break-words leading-relaxed text-gray-800 ${className || ''}`}>
+    <div className={`rich-html max-w-none break-words leading-relaxed text-slate-600 ${className || ''}`}>
       <div dangerouslySetInnerHTML={{ __html: html }} />
     </div>
   );
@@ -38,18 +38,18 @@ function BlocksRenderer({ blocks, roundImages = false, imageSizePx }) {
         const type = b.type || b.block_type || '';
         const data = b.data || b.value || {};
         if (type === 'paragraph') {
-          return <p key={i} className="text-gray-800 leading-relaxed mb-4">{data.text}</p>;
+          return <p key={i} className="text-slate-600 leading-relaxed mb-4">{data.text}</p>;
         }
         if (type === 'header') {
           const level = data.level || 2;
           const Tag = `h${Math.min(Math.max(level, 1), 6)}`;
           const headerClasses = {
-            1: 'text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 mt-10',
-            2: 'text-3xl md:text-4xl font-bold text-gray-900 mb-5 mt-8',
-            3: 'text-2xl md:text-3xl font-semibold text-gray-800 mb-4 mt-6',
-            4: 'text-xl md:text-2xl font-semibold text-gray-800 mb-3 mt-5',
-            5: 'text-lg md:text-xl medium text-gray-700 mb-2 mt-4',
-            6: 'text-base md:text-lg medium text-gray-700 mb-1 mt-3',
+            1: 'text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 mt-10',
+            2: 'text-3xl md:text-4xl font-bold text-slate-900 mb-5 mt-8',
+            3: 'text-2xl md:text-3xl font-semibold text-slate-800 mb-4 mt-6',
+            4: 'text-xl md:text-2xl font-semibold text-slate-800 mb-3 mt-5',
+            5: 'text-lg md:text-xl medium text-slate-700 mb-2 mt-4',
+            6: 'text-base md:text-lg medium text-slate-700 mb-1 mt-3',
           };
           return <Tag key={i} className={headerClasses[level]}>{data.text}</Tag>;
         }
@@ -57,9 +57,9 @@ function BlocksRenderer({ blocks, roundImages = false, imageSizePx }) {
           const style = data.style || 'unordered';
           const items = Array.isArray(data.items) ? data.items : [];
           return style === 'ordered' ? (
-            <ol key={i} className="list-decimal pl-6 space-y-2 mb-4 text-gray-700">{items.map((it, idx) => <li key={idx}>{it}</li>)}</ol>
+            <ol key={i} className="list-decimal pl-6 space-y-2 mb-4 text-slate-600">{items.map((it, idx) => <li key={idx}>{it}</li>)}</ol>
           ) : (
-            <ul key={i} className="list-disc pl-6 space-y-2 mb-4 text-gray-700">{items.map((it, idx) => <li key={idx}>{it}</li>)}</ul>
+            <ul key={i} className="list-disc pl-6 space-y-2 mb-4 text-slate-600">{items.map((it, idx) => <li key={idx}>{it}</li>)}</ul>
           );
         }
         if (type === 'image') {
@@ -71,10 +71,10 @@ function BlocksRenderer({ blocks, roundImages = false, imageSizePx }) {
               <img
                 src={url}
                 alt={caption || 'Image'}
-                className={`${roundImages ? 'rounded-full object-cover w-[200px] h-[200px] mx-auto' : 'rounded-lg object-contain w-full h-auto'} border border-gray-200 shadow-sm`}
+                className={`${roundImages ? 'rounded-full object-cover w-[200px] h-[200px] mx-auto' : 'rounded-lg object-contain w-full h-auto'} border border-slate-200 shadow-sm`}
                 style={roundImages && imageSizePx ? { width: `${imageSizePx}px`, height: `${imageSizePx}px` } : undefined}
               />
-              {caption ? <figcaption className="text-sm text-gray-500 mt-2 text-center">{caption}</figcaption> : null}
+              {caption ? <figcaption className="text-sm text-slate-500 mt-2 text-center">{caption}</figcaption> : null}
             </figure>
           );
         }
@@ -82,7 +82,7 @@ function BlocksRenderer({ blocks, roundImages = false, imageSizePx }) {
           const url = data.url || data.file?.url;
           return (
             <div key={i} className="max-w-full mx-auto my-6">
-              <video src={url} controls className="w-full rounded-lg border border-gray-200 shadow-sm" />
+              <video src={url} controls className="w-full rounded-lg border border-slate-200 shadow-sm" />
             </div>
           );
         }
@@ -91,30 +91,30 @@ function BlocksRenderer({ blocks, roundImages = false, imageSizePx }) {
           const h = data.height || 360;
           return (
             <div key={i} className="aspect-video max-w-full mx-auto my-6">
-              <iframe src={url} title="Embedded content" className="w-full h-full rounded-lg border border-gray-200 shadow-sm" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+              <iframe src={url} title="Embedded content" className="w-full h-full rounded-lg border border-slate-200 shadow-sm" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
             </div>
           );
         }
         if (type === 'quote') {
-          return <blockquote key={i} className="border-l-4 border-gray-400 pl-4 py-2 my-6 italic text-gray-700 bg-gray-50 rounded-r-lg">{data.text}</blockquote>;
+          return <blockquote key={i} className="border-l-4 border-slate-300 pl-4 py-2 my-6 italic text-slate-600 bg-slate-50 rounded-r-lg">{data.text}</blockquote>;
         }
         if (type === 'code') {
-          return <pre key={i} className="bg-gray-100 rounded-lg p-3 overflow-auto my-6 text-sm"><code>{data.code}</code></pre>;
+          return <pre key={i} className="bg-slate-100 rounded-lg p-3 overflow-auto my-6 text-sm text-slate-800"><code>{data.code}</code></pre>;
         }
         // Fallback: show JSON
-        return <pre key={i} className="bg-gray-50 rounded-lg p-3 overflow-auto text-xs my-6">{JSON.stringify(b, null, 2)}</pre>;
+        return <pre key={i} className="bg-slate-100 rounded-lg p-3 overflow-auto text-xs my-6 text-slate-500">{JSON.stringify(b, null, 2)}</pre>;
       })}
     </div>
   );
 }
 
-export default function SectionRenderer({ sections, mediaBase, roundImages = false, imageSizePx, centerText = false }) {
+export default function SectionRenderer({ sections, mediaBase, roundImages = false, imageSizePx, centerText = false, cleanMode = false }) {
   if (!Array.isArray(sections) || sections.length === 0) {
     return (
       <div className="px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-6xl mx-auto">
-          <div className="rounded-lg border border-gray-200 p-4 md:p-6 bg-white">
-            <p className="text-gray-600 text-sm md:text-base">Content unavailable for this page. Please add page content in Admin.</p>
+          <div className="rounded-lg border border-slate-200 p-4 md:p-6 bg-white">
+            <p className="text-slate-500 text-sm md:text-base">Content unavailable for this page. Please add page content in Admin.</p>
           </div>
         </div>
       </div>
@@ -147,14 +147,27 @@ export default function SectionRenderer({ sections, mediaBase, roundImages = fal
 
           if (type === 'rich_text') {
             const centered = headerCenter;
+            // Clean Mode: Modern editorial style. 
+            // - prose-gray for neutral typography
+            // - max-w-4xl for comfortable reading width
+            // - prose-headings:font-bold for hierarchy
+            // - No shadows or borders, just clean content
+            const containerClasses = cleanMode 
+              ? `prose prose-lg prose-gray max-w-5xl mx-auto ${centered ? 'text-center' : 'text-left'} prose-headings:font-bold prose-a:text-blue-600 prose-img:rounded-xl`
+              : `prose prose-lg prose-slate max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-none shadow-xl ${centered ? 'text-center' : ''}`;
+            
             return (
-              <section id={id} key={id} style={{ ...bg }} className="py-6 md:py-8">
-                <SectionHeader title={s.title} subtitle={s.subtitle} center={headerCenter} />
-                <div className={`rounded-lg border border-gray-200 p-4 md:p-6 bg-white shadow-sm ${centered ? 'max-w-3xl mx-auto text-center' : ''}`} style={{ ...fg }}>
-                  <RichHTML html={s.body} className={`${centered ? 'mx-auto text-center' : ''} ${roundImages ? 'about-img-200' : ''}`} />
+              <section id={id} key={id} style={{ ...bg }} className={cleanMode ? "py-12 md:py-16 px-4" : "py-8 md:py-12"}>
+                {/* For clean mode, we often hide the section header if it duplicates the page hero */}
+                {!cleanMode && <SectionHeader title={s.title} subtitle={s.subtitle} center={headerCenter} />}
+                
+                <div className={containerClasses} style={{ ...fg }}>
+                  <RichHTML html={s.body} className={`${centered ? 'mx-auto' : ''} ${roundImages ? 'about-img-200' : ''}`} />
                   {s.editor_blocks ? <BlocksRenderer blocks={s.editor_blocks} roundImages={roundImages} imageSizePx={imageSizePx} /> : null}
                   {containsTable(s.body) ? (
-                    <StartButton text={ctaText} />
+                    <div className="mt-8 flex justify-center">
+                      <StartButton text={ctaText} />
+                    </div>
                   ) : null}
                 </div>
               </section>
@@ -167,7 +180,7 @@ export default function SectionRenderer({ sections, mediaBase, roundImages = fal
             return (
               <section id={id} key={id} style={{ ...bg }} className="py-6 md:py-8">
                 <SectionHeader title={s.title} subtitle={s.subtitle} center={headerCenter} />
-                <div className="aspect-video max-w-full mx-auto rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                <div className="aspect-video max-w-full mx-auto rounded-lg overflow-hidden border border-slate-200 shadow-sm">
                   <iframe
                     src={url}
                     title={s.title || 'Embedded video'}
@@ -194,10 +207,10 @@ export default function SectionRenderer({ sections, mediaBase, roundImages = fal
                 <SectionHeader title={s.title} subtitle={s.subtitle} center={headerCenter} />
                 <div className={`grid ${gridCls} gap-6`}>
                   {cols.map((c, i) => (
-                    <div key={`${id}-col-${i + 1}`} className="rounded-lg border border-gray-200 p-4 md:p-6 bg-white shadow-sm" style={{ ...fg }}>
+                    <div key={`${id}-col-${i + 1}`} className="rounded-lg border border-slate-200 p-4 md:p-6 bg-white shadow-sm" style={{ ...fg }}>
                       {(c.title || c.subtitle) ? (
                         <div className="mb-3">
-                          {c.title ? (<h3 className="text-xl md:text-2xl font-semibold">{c.title}</h3>) : null}
+                          {c.title ? (<h3 className="text-xl md:text-2xl font-semibold text-slate-900">{c.title}</h3>) : null}
                           {c.subtitle ? (<p className="text-sm text-gray-600">{c.subtitle}</p>) : null}
                         </div>
                       ) : null}
