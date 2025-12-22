@@ -37,9 +37,9 @@ export async function GET(req) {
     return Response.json({ ...json, zip }, { status: 200 });
   } catch (e) {
     const message = typeof e?.message === 'string' ? e.message : 'Proxy fetch failed';
-    // Fallback: try localhost if env/headers used 127.0.0.1 or different host
+    // Fallback: try production URL explicitly if env var failed
     try {
-      const altBase = 'http://localhost:8000';
+      const altBase = 'https://pi5-y8gd.onrender.com';
       const altUrl = `${altBase}/api/quotes${qs.toString() ? `?${qs.toString()}` : ''}`;
       const res2 = await fetch(altUrl, { cache: 'no-store' });
       const json2 = await res2.json();

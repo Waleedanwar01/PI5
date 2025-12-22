@@ -39,13 +39,24 @@ export function getApiUrl(path) {
 // Build full media URL
 export function getMediaUrl(path) {
   if (!path) return null;
-  // If path is already absolute, return it as is
+  
+  const productionBase = 'https://pi5-y8gd.onrender.com';
+  
+  // If path is already absolute
   if (path.startsWith('http://') || path.startsWith('https://')) {
+    // Replace localhost/127.0.0.1 with production base
+    if (path.includes('localhost:8000') || path.includes('127.0.0.1:8000')) {
+      return path.replace(/http:\/\/(localhost|127\.0\.0\.1):8000/, productionBase);
+    }
     return path;
   }
   
-  const base = getMediaBase();
-  return base ? `${base}${path.startsWith('/') ? path : '/' + path}` : path;
+  const base = getMediaBase() || productionBase;
+  // Ensure base doesn't end with slash if path starts with slash
+  const cleanBase = base.endsWith('/') ? base.slice(0, -1) : base;
+  const cleanPath = path.startsWith('/') ? path : '/' + path;
+  
+  return `${cleanBase}${cleanPath}`;
 }
 
 // Helper function to get API base from headers (for dynamic host detection)
