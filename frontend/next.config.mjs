@@ -7,9 +7,6 @@ const nextConfig = {
   output: 'standalone',
   trailingSlash: false,
   reactStrictMode: true,
-  env: {
-    NEXT_PUBLIC_API_BASE: 'http://localhost:8000',
-  },
   images: {
     unoptimized: true,
     remotePatterns: [
