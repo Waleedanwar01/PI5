@@ -25,6 +25,7 @@ export default function ResponsiveImage({ src, alt = '', className = '', maxHeig
   const canOptimize = imgSrc.startsWith('http://localhost:8000') ||
                       imgSrc.startsWith('http://127.0.0.1:8000') ||
                       imgSrc.startsWith('https://www.autoinsurance.org') ||
+                      imgSrc.startsWith('https://pi5-y8gd.onrender.com') ||
                       (process.env.NEXT_PUBLIC_API_BASE && imgSrc.startsWith(process.env.NEXT_PUBLIC_API_BASE));
 
   if (isEmpty) {

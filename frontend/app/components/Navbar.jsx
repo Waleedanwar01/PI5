@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, ChevronRight, Phone, X, Menu } from 'lucide-react';
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
-import { getMediaUrl } from '../lib/config.js';
+import { getMediaUrl, getApiBase } from '../lib/config.js';
 import { gsap } from 'gsap';
 
 export default function Navbar() {
