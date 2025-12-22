@@ -1,13 +1,21 @@
+import { getApiBase } from '../../lib/config.js';
+
 export async function POST(req) {
   const body = await req.text();
   const bases = [];
   const direct = process.env.NEXT_PUBLIC_CONTACT_SUBMIT_URL;
-  const envBase = process.env.NEXT_PUBLIC_API_BASE;
-  const altBase = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const apiBase = getApiBase();
+  
   if (direct) bases.push(direct);
-  if (envBase) bases.push(`${envBase}/api/contact/submit/`);
-  if (altBase) bases.push(`${altBase}/api/contact/submit/`);
-  bases.push(`http://localhost:8000/api/contact/submit/`);
+  if (apiBase) bases.push(`${apiBase}/api/contact/submit/`);
+  
+  // Also try explicit backend URL if different
+  const altBase = process.env.NEXT_PUBLIC_BACKEND_URL;
+  if (altBase && altBase !== apiBase) bases.push(`${altBase}/api/contact/submit/`);
+  
+  // Fallback to localhost is handled by getApiBase() default, but we can add explicit local check if needed
+  // or rely on getApiBase() returning localhost if env var missing.
+
   for (const url of bases) {
     try {
       const controller = new AbortController();
