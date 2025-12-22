@@ -139,6 +139,12 @@ export default function ArticleClient({ slug }) {
 
     // IMAGES - Enhanced styling
     root.querySelectorAll("img").forEach((img) => {
+      // Fix relative URLs
+      const src = img.getAttribute('src');
+      if (src && src.startsWith('/')) {
+        img.src = getMediaUrl(src);
+      }
+
       img.loading = "lazy";
       img.style.width = "100%";
       img.style.height = "auto";

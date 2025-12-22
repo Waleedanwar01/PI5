@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Twitter, Youtube, Facebook, Instagram, Linkedin, Globe, Shield } from "lucide-react";
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
-import { getMediaUrl } from '../lib/config.js';
+import { getMediaUrl, getApiBase } from '../lib/config.js';
 
 // Helper functions (resolveHref and FooterCopyright) remain the same.
 
@@ -100,7 +100,7 @@ const FooterWithBlueForm = () => {
 
     // Fetch footer links (Company, Legal) from admin
     useEffect(() => {
-        fetch('/api/menu/footer/', { cache: 'no-store' })
+        fetch(`${getApiBase()}/api/menu/footer/`, { cache: 'no-store' })
             .then(r => r.json())
             .then(data => {
                 const company = Array.isArray(data.company) ? data.company : [];

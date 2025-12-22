@@ -4,8 +4,13 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 export default function ResponsiveImage({ src, alt = '', className = '', maxHeight = 480, priority = false }) {
-  const [imgSrc, setImgSrc] = useState(src || '');
+  const [imgSrc, setImgSrc] = useState(src ? getMediaUrl(src) : '');
   const fallback = '/window.svg';
+
+  // Update state if prop changes
+  useEffect(() => {
+    setImgSrc(src ? getMediaUrl(src) : '');
+  }, [src]);
 
   // If src is empty, render fallback immediately
   const isEmpty = !imgSrc || typeof imgSrc !== 'string' || imgSrc.trim() === '';

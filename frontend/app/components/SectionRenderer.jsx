@@ -63,7 +63,8 @@ function BlocksRenderer({ blocks, roundImages = false, imageSizePx }) {
           );
         }
         if (type === 'image') {
-          const url = data.file?.url || data.url;
+          const rawUrl = data.file?.url || data.url;
+          const url = getMediaUrl(rawUrl);
           const caption = data.caption || '';
           return (
             <figure key={i} className="max-w-full mx-auto my-6">

@@ -64,7 +64,7 @@ export default function Navbar() {
         const fetchPagesData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('/api/pages-with-categories/?include_blogs=0', { cache: 'no-store' });
+                const response = await fetch(`${getApiBase()}/api/pages-with-categories/?include_blogs=0`, { cache: 'no-store' });
                 if (response.ok) {
                     const data = await response.json();
                     // Transform ALL pages data from database
