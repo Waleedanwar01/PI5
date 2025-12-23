@@ -532,7 +532,7 @@ export default function Navbar() {
                     {!loading && pagesData.map((p) => (
                         <li key={p.slug} className="border-b border-slate-100 last:border-0">
                              <div className="flex flex-col">
-                                 {(p.has_dropdown || p.dropdownItems.length > 0) ? (
+                                 {(p.has_dropdown || (p.dropdownItems && p.dropdownItems.length > 0)) ? (
                                     <>
                                         <button 
                                             onClick={() => handleMobileDropdownToggle(p.slug)}
@@ -545,7 +545,7 @@ export default function Navbar() {
                                         {/* Mobile Dropdown Items */}
                                         <div className={`pl-4 overflow-hidden transition-all duration-300 ${mobileOpenDropdown === p.slug ? 'max-h-screen opacity-100 mb-4' : 'max-h-0 opacity-0'}`}>
                                             <div className="grid grid-cols-1 gap-2 border-l-2 border-slate-200 pl-4">
-                                                {p.dropdownItems.slice(0, 8).map((item, idx) => (
+                                                {(p.dropdownItems || []).slice(0, 8).map((item, idx) => (
                                                     <SmartLink
                                                         key={idx}
                                                         href={`/articles/${item.slug}`}
@@ -555,7 +555,7 @@ export default function Navbar() {
                                                         {item.name}
                                                     </SmartLink>
                                                 ))}
-                                                {p.dropdownItems.length > 8 && (
+                                                {(p.dropdownItems || []).length > 8 && (
                                                     <SmartLink 
                                                         href={`/${p.slug}`}
                                                         className="block py-2 text-sm font-semibold text-sky-600"
