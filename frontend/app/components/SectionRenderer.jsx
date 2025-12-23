@@ -1,6 +1,7 @@
 import React from 'react';
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
+import { getMediaUrl } from '../lib/config.js';
 
 function SectionHeader({ title, subtitle, center = false }) {
   if (!title && !subtitle) return null;
@@ -16,12 +17,25 @@ function SectionHeader({ title, subtitle, center = false }) {
   );
 }
 
-function RichHTML({ html, className }) {
+export function RichHTML({ html, className }) {
   if (!html) return null;
   
+  // Fix relative image URLs and localhost URLs in the HTML string
+  const processedHtml = html.replace(
+    /src=["']([^"']+)["']/g, 
+    (match, src) => {
+      // If it's a relative path or localhost, use getMediaUrl
+      if (src.startsWith('/') || src.includes('localhost') || src.includes('127.0.0.1')) {
+        const newSrc = getMediaUrl(src);
+        return `src="${newSrc}"`;
+      }
+      return match;
+    }
+  );
+
   return (
     <div className={`rich-html max-w-none break-words leading-relaxed text-slate-600 ${className || ''}`}>
-      <div dangerouslySetInnerHTML={{ __html: html }} />
+      <div dangerouslySetInnerHTML={{ __html: processedHtml }} />
     </div>
   );
 }

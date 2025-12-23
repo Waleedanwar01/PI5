@@ -3,7 +3,7 @@ import HeroWithNavbar from "./components/HeroWithNavbar.jsx";
 import HowItWorks from "./components/HowItWorks.jsx";
 import WhyChooseSection from "./components/WhyChooseSection.jsx";
 // FeaturedIn removed per request
-import SectionRenderer from "./components/SectionRenderer.jsx";
+import SectionRenderer, { RichHTML } from "./components/SectionRenderer.jsx";
 import ClientHomepage from "./ClientHomepage.jsx";
 
 // Ensure this page is static at the server level; all dynamic
@@ -99,10 +99,7 @@ export default async function HomePage() {
       {homepageContent && (
         <div className="mx-auto max-w-7xl px-8 sm:px-12 lg:px-16 py-8">
             <div className="prose prose-sm md:prose-base max-w-none prose-headings:text-slate-900 prose-p:text-slate-600 prose-a:text-sky-600 hover:prose-a:text-sky-700 prose-img:rounded-xl prose-img:shadow-lg leading-snug">
-              <div 
-                className="text-left"
-                dangerouslySetInnerHTML={{ __html: homepageContent }}
-              />
+              <RichHTML html={homepageContent} />
             </div>
         </div>
       )}
@@ -110,7 +107,7 @@ export default async function HomePage() {
       {/* Dynamic Sections */}
       {contentSections.length ? (
         <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-8 py-12 sm:py-16">
-          <SectionRenderer sections={contentSections} />
+          <SectionRenderer sections={contentSections} mediaBase={process.env.NEXT_PUBLIC_API_BASE || 'http://127.0.0.1:8000'} />
         </div>
       ) : null}
 

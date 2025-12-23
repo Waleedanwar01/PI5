@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import SmartImage from './SmartImage';
 import PageHero from './PageHero';
+import { RichHTML } from './SectionRenderer.jsx';
 
 export default function TeamMemberClient({ slug }) {
   const [member, setMember] = React.useState(null);
@@ -104,10 +105,9 @@ export default function TeamMemberClient({ slug }) {
             
             <div className="md:w-2/3">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-4">Biography</h2>
-              <div 
-                className="prose prose-lg prose-blue max-w-none text-gray-600"
-                dangerouslySetInnerHTML={{ __html: member.description || '<p>No description available.</p>' }}
-              />
+              <div className="prose prose-lg prose-blue max-w-none text-gray-600">
+                <RichHTML html={member.description || '<p>No description available.</p>'} />
+              </div>
               
               {member.page_slug && (
                 <div className="mt-12 pt-8 border-t">

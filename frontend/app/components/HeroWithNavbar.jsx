@@ -134,7 +134,7 @@ export default function HeroWithNavbar({ initialPressLogos }) {
                         logo.image ? (
                           <img 
                             key={index} 
-                            src={logo.image} 
+                            src={getMediaUrl(logo.image)} 
                             alt={logo.name || 'Press Logo'} 
                             className="h-6 md:h-8 object-contain transition-opacity hover:opacity-100"
                             style={{ filter: 'grayscale(100%) brightness(0)' }} 

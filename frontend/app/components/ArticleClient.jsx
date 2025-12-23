@@ -5,7 +5,8 @@ import ZipForm from "@/app/components/ZipForm.jsx";
 import Link from "next/link";
 import ResponsiveImage from "@/app/components/ResponsiveImage.jsx";
 import SocialIcons from "@/app/components/SocialIcons.jsx";
-import { getApiBase } from "../lib/config.js";
+import { RichHTML } from "./SectionRenderer";
+import { getApiBase, getMediaUrl } from "../lib/config.js";
 
 // Create URL-friendly slugs
 function slugify(text) {
@@ -643,9 +644,10 @@ export default function ArticleClient({ slug }) {
                 ref={articleRef}
                 className="prose prose-lg md:prose-xl max-w-none prose-headings:tracking-tight prose-h1:text-gray-900 prose-h2:text-gray-900 prose-p:leading-relaxed prose-p:text-gray-800 prose-a:text-gray-600 hover:prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-img:rounded-2xl prose-img:shadow-lg prose-code:bg-gray-100 prose-code:text-gray-800 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-blockquote:border-l-4 prose-blockquote:border-blue-300 prose-blockquote:pl-6 prose-blockquote:text-gray-700 prose-hr:border-blue-200"
             >
-                <div className="rich-html leading-relaxed text-gray-800">
-                    <div className="space-y-6" dangerouslySetInnerHTML={{ __html: blog.content_html }} />
-                </div>
+                <RichHTML 
+                    html={blog.content_html} 
+                    className="leading-relaxed text-gray-800 space-y-6" 
+                />
             </article>
 
             {/* Like Button */}

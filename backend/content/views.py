@@ -525,7 +525,8 @@ def quotes(request):
         raw_zip = request.GET.get('zip', '')
         zip_code = ''.join(ch for ch in str(raw_zip) if ch.isdigit())[:5]
         
-        companies_qs = InsuranceCompany.objects.filter(published=True).order_by('-rating', 'name')
+        # Optimize query with prefetch_related to avoid N+1 problem
+        companies_qs = InsuranceCompany.objects.filter(published=True).prefetch_related('coverages').order_by('-rating', 'name')
         
         filtered_companies = []
         if len(zip_code) == 5:

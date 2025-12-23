@@ -45,7 +45,15 @@ export function getMediaUrl(path) {
   
   // If path is already absolute
   if (path.startsWith('http://') || path.startsWith('https://')) {
-    // Replace localhost/127.0.0.1 with production base
+    // PRESERVE LOCALHOST IN DEVELOPMENT:
+    // If we are running locally (client-side check), do not rewrite localhost URLs.
+    // This ensures local images load correctly during development.
+    if (typeof window !== 'undefined' && 
+       (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      return path;
+    }
+
+    // Replace localhost/127.0.0.1 with production base for production builds
     if (path.includes('localhost:8000') || path.includes('127.0.0.1:8000')) {
       return path.replace(/http:\/\/(localhost|127\.0\.0\.1):8000/, productionBase);
     }

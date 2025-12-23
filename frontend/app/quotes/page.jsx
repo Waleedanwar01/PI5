@@ -33,7 +33,7 @@ async function fetchQuotes(searchParams) {
   
   // Prefer Next.js API proxy first (fast local call)
   try {
-    const proxyUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/quotes${qs.toString() ? `?${qs.toString()}` : ''}`;
+    const proxyUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/quotes/${qs.toString() ? `?${qs.toString()}` : ''}`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 3000);
     const res = await fetch(proxyUrl, { cache: 'no-store', signal: controller.signal });
@@ -50,7 +50,7 @@ async function fetchQuotes(searchParams) {
   // If proxy fails, try a single backend base (env)
   try {
     const base = getApiBase();
-    const url = `${base}/api/quotes${qs.toString() ? `?${qs.toString()}` : ''}`;
+    const url = `${base}/api/quotes/${qs.toString() ? `?${qs.toString()}` : ''}`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 3000);
     const res = await fetch(url, { cache: 'no-store', signal: controller.signal });

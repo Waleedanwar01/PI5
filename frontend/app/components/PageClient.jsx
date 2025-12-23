@@ -2,10 +2,11 @@
 
 import React from 'react';
 import PageHero from './PageHero.jsx';
-import SectionRenderer from './SectionRenderer.jsx';
+import SectionRenderer, { RichHTML } from './SectionRenderer.jsx';
 import HelpfulLinks from './HelpfulLinks.jsx';
 import TeamGrid from './TeamGrid.jsx';
 import PressBox from './PressBox.jsx';
+import { getMediaBase } from '../lib/config.js';
 
 export default function PageClient({ slug }) {
   const [data, setData] = React.useState({ sections: [], team_members: [], press_items: [], meta: {} });
@@ -196,27 +197,25 @@ export default function PageClient({ slug }) {
         {/* Main Content (Top) */}
         {meta.content && (
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div 
-              className="prose prose-lg max-w-none prose-indigo"
-              dangerouslySetInnerHTML={{ __html: meta.content }}
-            />
+            <div className="prose prose-lg max-w-none prose-indigo">
+              <RichHTML html={meta.content} />
+            </div>
           </section>
         )}
 
         {/* Existing Sections */}
         {filteredSections.length > 0 && (
           <div className="space-y-16 py-10">
-            <SectionRenderer sections={filteredSections} cleanMode={isFooterPage} />
+            <SectionRenderer sections={filteredSections} cleanMode={isFooterPage} mediaBase={getMediaBase()} />
           </div>
         )}
 
         {/* Main Content (Bottom) */}
         {meta.content_bottom && (
           <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div 
-              className="prose prose-lg max-w-none prose-indigo"
-              dangerouslySetInnerHTML={{ __html: meta.content_bottom }}
-            />
+            <div className="prose prose-lg max-w-none prose-indigo">
+              <RichHTML html={meta.content_bottom} />
+            </div>
           </section>
         )}
 

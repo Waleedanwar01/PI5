@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { getMediaUrl } from '../lib/config.js';
 
 export default function SmartImage({
   src,
@@ -13,11 +14,12 @@ export default function SmartImage({
   style,
   ...rest
 }) {
+  const finalSrc = getMediaUrl(src);
   const hasDims = Number.isFinite(width) && Number.isFinite(height);
   if (fill) {
     return (
       <Image
-        src={src}
+        src={finalSrc}
         alt={alt}
         fill
         sizes={sizes}
@@ -33,7 +35,7 @@ export default function SmartImage({
   const h = hasDims ? height : 600;
   return (
     <Image
-      src={src}
+      src={finalSrc}
       alt={alt}
       width={w}
       height={h}

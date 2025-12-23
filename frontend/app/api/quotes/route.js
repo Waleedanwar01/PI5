@@ -40,7 +40,7 @@ export async function GET(req) {
     // Fallback: try production URL explicitly if env var failed
     try {
       const altBase = 'https://pi5-y8gd.onrender.com';
-      const altUrl = `${altBase}/api/quotes${qs.toString() ? `?${qs.toString()}` : ''}`;
+      const altUrl = `${altBase}/api/quotes/${qs.toString() ? `?${qs.toString()}` : ''}`;
       const res2 = await fetch(altUrl, { cache: 'no-store' });
       const json2 = await res2.json();
       return Response.json({ ...json2, zip }, { status: 200 });
