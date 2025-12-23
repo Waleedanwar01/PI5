@@ -581,7 +581,7 @@ export default function Navbar() {
                                  )}
                              </div>
                         </li>
-                    ))}
+                    )))}
                     </ul>
                 </div>
                  

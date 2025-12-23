@@ -535,6 +535,13 @@ def quotes(request):
                     covs = list(getattr(company, 'coverages').all())
                 except Exception:
                     covs = []
+                
+                # Fallback: If company has NO specific coverage rules (no InsuranceCoverage objects),
+                # treat it as "National" and show it for all ZIPs.
+                if not covs:
+                    filtered_companies.append(company)
+                    continue
+
                 matches = False
                 for cov in covs:
                     try:
@@ -545,6 +552,12 @@ def quotes(request):
                         continue
                 if matches:
                     filtered_companies.append(company)
+            
+            # Soft Fail / Fallback:
+            # If strict ZIP filtering returns NO results, show all companies
+            # so the user doesn't see a blank page.
+            if not filtered_companies:
+                filtered_companies = list(companies_qs)
         else:
             filtered_companies = list(companies_qs)
         
