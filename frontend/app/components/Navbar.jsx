@@ -603,3 +603,4 @@ export default function Navbar() {
         </>
     );
 }
+// Force rebuild for syntax check
