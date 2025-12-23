@@ -60,7 +60,8 @@ export function getMediaUrl(path) {
     // This ensures local images load correctly during development.
     if (typeof window !== 'undefined' && 
        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-      return path;
+      // Force 127.0.0.1 to avoid IPv6 issues with localhost on Windows
+      return path.replace('localhost', '127.0.0.1');
     }
 
     // Replace localhost/127.0.0.1 with production base for production builds
