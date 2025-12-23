@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { getMediaUrl } from '../lib/config.js';
+import SkeletonLoader from './SkeletonLoader.jsx';
 
 export default function SmartImage({
   src,
@@ -22,14 +23,14 @@ export default function SmartImage({
   if (fill) {
     return (
       <div className={`relative ${className}`} style={style}>
-        {!loaded && <div className="absolute inset-0 animate-pulse bg-slate-200" />}
+        {!loaded && <SkeletonLoader className="absolute inset-0 w-full h-full rounded-none" />}
         <Image
           src={finalSrc}
           alt={alt}
           fill
           sizes={sizes}
           priority={priority}
-          className={className}
+          className={`${className} transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
           onLoadingComplete={() => setLoaded(true)}
           placeholder={priority ? undefined : 'blur'}
           blurDataURL={priority ? undefined : blurDataURL}
@@ -42,7 +43,7 @@ export default function SmartImage({
   const h = hasDims ? height : 600;
   return (
     <div className={`relative ${className}`} style={style}>
-      {!loaded && <div className="absolute inset-0 animate-pulse bg-slate-200" />}
+      {!loaded && <SkeletonLoader className="absolute inset-0 w-full h-full rounded-none" />}
       <Image
         src={finalSrc}
         alt={alt}
@@ -50,7 +51,7 @@ export default function SmartImage({
         height={h}
         sizes={sizes}
         priority={priority}
-        className={className}
+        className={`${className} transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoadingComplete={() => setLoaded(true)}
         placeholder={priority ? undefined : 'blur'}
         blurDataURL={priority ? undefined : blurDataURL}

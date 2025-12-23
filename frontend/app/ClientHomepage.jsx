@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import FeaturedIn from './components/FeaturedIn.jsx';
+import SkeletonLoader from './components/SkeletonLoader.jsx';
 
 export default function ClientHomepage({ initialMeta }) {
   const [articles, setArticles] = useState([]);

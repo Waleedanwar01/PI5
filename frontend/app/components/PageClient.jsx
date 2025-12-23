@@ -8,6 +8,8 @@ import TeamGrid from './TeamGrid.jsx';
 import PressBox from './PressBox.jsx';
 import { getMediaBase } from '../lib/config.js';
 
+import SkeletonLoader from './SkeletonLoader.jsx';
+
 export default function PageClient({ slug }) {
   const [data, setData] = React.useState({ sections: [], team_members: [], press_items: [], meta: {} });
   const [footerMenu, setFooterMenu] = React.useState(null);
@@ -113,15 +115,15 @@ export default function PageClient({ slug }) {
   if (loading) {
     return (
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="animate-pulse mb-8">
-          <div className="h-8 bg-gray-200 rounded w-2/3 mb-3"></div>
-          <div className="h-5 bg-gray-200 rounded w-1/3"></div>
+        <div className="mb-8">
+          <SkeletonLoader className="h-8 w-2/3 mb-3" />
+          <SkeletonLoader className="h-5 w-1/3" />
         </div>
-        <div className="h-64 bg-gray-200 rounded-2xl"></div>
-        <div className="mt-10 space-y-4">
-          <div className="h-4 bg-gray-200 rounded"></div>
-          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-          <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+        <SkeletonLoader className="h-64 w-full rounded-2xl mb-10" />
+        <div className="space-y-4">
+          <SkeletonLoader className="h-4 w-full" />
+          <SkeletonLoader className="h-4 w-5/6" />
+          <SkeletonLoader className="h-4 w-4/6" />
         </div>
       </main>
     );
