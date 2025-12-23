@@ -1,0 +1,21 @@
+# Render.com Deployment Configuration
+# Save this file in your backend directory
+# Render will automatically use these settings
+
+services:
+  - type: web
+    name: backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn backend.wsgi:application
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        value: "your-secret-key-here"
+      - key: DATABASE_URL
+        value: "postgresql://username:password@host:port/database"
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "*.onrender.com,your-domain.com"
