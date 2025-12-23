@@ -1,5 +1,0 @@
-0000000000000000000000000000000000000000 1d6018ff9ffd8881918dbc6a6995f5e082dcdd30 Waleedanwar01 <waleeddogare@gmail.com> 1763812592 +0500	commit (initial): Fix: Add gunicorn to requirements.txt for deployment
-1d6018ff9ffd8881918dbc6a6995f5e082dcdd30 f83f617addbf552373c9e57952a4ad1707d07a3d Waleedanwar01 <waleeddogare@gmail.com> 1763812788 +0500	commit: Security: Remove .env files and add .gitignore for environment variables protection
-f83f617addbf552373c9e57952a4ad1707d07a3d 5b654cc036530eab486ddfbbbdc4c9ee227b3cce Waleedanwar01 <waleeddogare@gmail.com> 1763813051 +0500	commit: Deployment: Add pinned versions for all dependencies including gunicorn
-5b654cc036530eab486ddfbbbdc4c9ee227b3cce 9ac96cb8048fe65d91c92209ec1dc5e525153c68 Waleedanwar01 <waleeddogare@gmail.com> 1763815031 +0500	commit: Add render.yaml configuration for automatic deployment setup
-9ac96cb8048fe65d91c92209ec1dc5e525153c68 ee8f2e239389c3e5f9bd4d1c7a3f85a432137439 Waleedanwar01 <waleeddogare@gmail.com> 1763815102 +0500	commit: Add comprehensive deployment guide for Render configuration
