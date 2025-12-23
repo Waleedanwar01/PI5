@@ -32,6 +32,31 @@ export default function Navbar() {
     const [pagesData, setPagesData] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Cache helpers
+    const loadCache = (key) => {
+        if (typeof window === 'undefined') return null;
+        try {
+            const item = localStorage.getItem(key);
+            if (!item) return null;
+            const parsed = JSON.parse(item);
+            // Optional: Check expiry (e.g. 1 hour)
+            if (Date.now() - parsed.timestamp > 3600000) return null;
+            return parsed.data;
+        } catch (e) {
+            return null;
+        }
+    };
+
+    const saveCache = (key, data) => {
+        if (typeof window === 'undefined') return;
+        try {
+            localStorage.setItem(key, JSON.stringify({
+                data,
+                timestamp: Date.now()
+            }));
+        } catch (e) {}
+    };
+
     // Fetch site configuration data
     useEffect(() => {
         const versioned = (u, v) => {
@@ -40,19 +65,29 @@ export default function Navbar() {
             const sep = url.includes('?') ? '&' : '?';
             return v ? `${url}${sep}v=${encodeURIComponent(v)}` : url;
         };
+
+        const updateSiteConfig = (data) => {
+            setSiteConfig(data);
+            if (data.phone_number) setPhone(data.phone_number);
+            if (data.brand_name) setBrand(data.brand_name);
+            if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
+            if (data.logo_height_px) setLogoHeight(data.logo_height_px);
+        };
+
+        // Try cache first
+        const cachedConfig = loadCache('navbar_site_config');
+        if (cachedConfig) {
+            updateSiteConfig(cachedConfig);
+        }
+
         const fetchSiteConfig = async () => {
             try {
-                setIsFetching(true);
+                if (!cachedConfig) setIsFetching(true);
                 const response = await fetch('/api/site-config/', { cache: 'no-store' });
                 if (response.ok) {
                     const data = await response.json();
-                    setSiteConfig(data);
-                    
-                    // Update component state with site config data
-                    if (data.phone_number) setPhone(data.phone_number);
-                    if (data.brand_name) setBrand(data.brand_name);
-                    if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
-                    if (data.logo_height_px) setLogoHeight(data.logo_height_px);
+                    updateSiteConfig(data);
+                    saveCache('navbar_site_config', data);
                 }
             } catch (error) {
                 console.error('Error fetching site config:', error);
@@ -66,10 +101,20 @@ export default function Navbar() {
 
     // Fetch dynamic categories from database
     useEffect(() => {
+        // Try cache first
+        const cachedPages = loadCache('navbar_pages_data');
+        if (cachedPages && cachedPages.length > 0) {
+            setPagesData(cachedPages);
+            setLoading(false);
+        }
+
         const fetchPagesData = async () => {
             try {
-                setLoading(true);
-                setIsFetching(true);
+                if (!cachedPages) {
+                    setLoading(true);
+                    setIsFetching(true);
+                }
+                
                 const response = await fetch('/api/pages-with-categories/?include_blogs=0', { cache: 'no-store' });
                 if (response.ok) {
                     const data = await response.json();
@@ -116,12 +161,18 @@ export default function Navbar() {
                     };
 
                     const pages = filtered.map(p => ({ ...p, displayName: displayName(p) }));
-                    setPagesData(pages);
+                    
+                    if (pages.length > 0) {
+                        setPagesData(pages);
+                        saveCache('navbar_pages_data', pages);
+                    }
                 } else {
-                    setPagesData([]);
+                    // Only clear if we don't have cache
+                    if (!cachedPages) setPagesData([]);
                 }
             } catch (error) {
-                setPagesData([]);
+                // Only clear if we don't have cache
+                if (!cachedPages) setPagesData([]);
             } finally {
                 setLoading(false);
                 setIsFetching(false);

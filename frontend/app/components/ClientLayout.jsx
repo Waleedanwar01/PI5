@@ -9,6 +9,31 @@ import { getMediaUrl } from '../lib/config.js';
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
+
+  // Cache helpers
+  const loadCache = (key) => {
+    if (typeof window === 'undefined') return null;
+    try {
+        const item = localStorage.getItem(key);
+        if (!item) return null;
+        const parsed = JSON.parse(item);
+        if (Date.now() - parsed.timestamp > 3600000) return null;
+        return parsed.data;
+    } catch (e) {
+        return null;
+    }
+  };
+
+  const saveCache = (key, data) => {
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.setItem(key, JSON.stringify({
+            data,
+            timestamp: Date.now()
+        }));
+    } catch (e) {}
+  };
+
   // Read site-config on mount and apply admin-configured orange accent
   React.useEffect(() => {
     let mounted = true;
@@ -54,28 +79,7 @@ export default function ClientLayout({ children }) {
       } catch {}
     };
 
-    const applyAccent = async () => {
-      try {
-        // Try to get homepage data first for favicon, then fallback to site-config
-        let cfg = {};
-        let faviconSource = 'site-config';
-        
-        try {
-          const homepageRes = await fetch('/api/homepage/', { cache: 'no-store' });
-          if (homepageRes.ok) {
-            const homepageData = await homepageRes.json();
-            if (homepageData.meta_title) {
-              document.title = homepageData.meta_title;
-            }
-          }
-        } catch (e) {
-          // Fallback to site-config if homepage fails
-        }
-        
-        const res = await fetch('/api/site-config/', { cache: 'no-store' });
-        if (!res.ok) return;
-        cfg = await res.json();
-        
+    const applyConfig = (cfg) => {
         // Apply favicon from admin config
         applyFavicon(cfg);
         const orange = (cfg?.accent_orange_hex || '').trim();
@@ -139,6 +143,38 @@ export default function ClientLayout({ children }) {
         if (hWeight) document.documentElement.style.setProperty('--heading-weight', hWeight);
         document.documentElement.style.setProperty('--link-underline', linkUnderline ? 'underline' : 'none');
         if (linkWeight) document.documentElement.style.setProperty('--link-font-weight', linkWeight);
+    };
+
+    const applyAccent = async () => {
+      try {
+        // Try to get homepage data first for favicon, then fallback to site-config
+        let cfg = {};
+        
+        try {
+          const homepageRes = await fetch('/api/homepage/', { cache: 'no-store' });
+          if (homepageRes.ok) {
+            const homepageData = await homepageRes.json();
+            if (homepageData.meta_title) {
+              document.title = homepageData.meta_title;
+            }
+          }
+        } catch (e) {
+          // Fallback to site-config if homepage fails
+        }
+        
+        // Try cache first
+        const cachedConfig = loadCache('client_layout_config');
+        if (cachedConfig) {
+            applyConfig(cachedConfig);
+        }
+
+        const res = await fetch('/api/site-config/', { cache: 'no-store' });
+        if (!res.ok) return;
+        cfg = await res.json();
+        
+        applyConfig(cfg);
+        saveCache('client_layout_config', cfg);
+
       } catch {}
     };
     applyAccent();

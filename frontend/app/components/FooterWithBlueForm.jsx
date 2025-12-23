@@ -37,6 +37,30 @@ const FooterWithBlueForm = () => {
         return Globe;
     };
 
+    // Cache helpers
+    const loadCache = (key) => {
+        if (typeof window === 'undefined') return null;
+        try {
+            const item = localStorage.getItem(key);
+            if (!item) return null;
+            const parsed = JSON.parse(item);
+            if (Date.now() - parsed.timestamp > 3600000) return null;
+            return parsed.data;
+        } catch (e) {
+            return null;
+        }
+    };
+
+    const saveCache = (key, data) => {
+        if (typeof window === 'undefined') return;
+        try {
+            localStorage.setItem(key, JSON.stringify({
+                data,
+                timestamp: Date.now()
+            }));
+        } catch (e) {}
+    };
+
     // Fetch all data
     useEffect(() => {
         const versioned = (u, v) => {
@@ -46,58 +70,87 @@ const FooterWithBlueForm = () => {
             return v ? `${url}${sep}v=${encodeURIComponent(v)}` : url;
         };
 
-        setIsLoading(true);
+        const updateSiteConfig = (data) => {
+            const bn = (data.brand_name || data.site_name || '').trim();
+            if (bn) setBrandName(bn);
+            if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
+            if (data.logo_height) setLogoHeight(data.logo_height);
+
+            const aboutTxt = (data.footer_about_text || '').trim();
+            if (aboutTxt) setFooterText(aboutTxt);
+
+            const dsc = (data.footer_disclaimer || data.disclaimer || data.disclaimer_text || '').trim();
+            if (dsc) setDisclaimer(dsc);
+            const addr = (data.address || '').trim();
+            if (addr) setAddress(addr);
+
+            // Build social links
+            let linksFromAdmin = [];
+            const arr = Array.isArray(data.social_links) ? data.social_links : [];
+            arr.forEach((u) => {
+                const href = String(u || '').trim();
+                if (href) linksFromAdmin.push(href);
+            });
+            ['facebook_url','twitter_url','instagram_url','linkedin_url','youtube_url'].forEach((fname) => {
+                const href = String(data[fname] || '').trim();
+                if (href) linksFromAdmin.push(href);
+            });
+            linksFromAdmin = Array.from(new Set(linksFromAdmin));
+            setSocialLinks(linksFromAdmin);
+        };
+
+        const updateAddress = (data) => {
+            if (data.address) {
+                setAddress(data.address);
+                setAddressSource(data.source || '');
+            }
+        };
+
+        const updateMenu = (data) => {
+            const company = Array.isArray(data.company) ? data.company : [];
+            const legal = Array.isArray(data.legal) ? data.legal : [];
+            setCompanyLinks(company);
+            setLegalLinks(legal);
+        };
+
+        // Load from cache first
+        const cachedConfig = loadCache('footer_site_config');
+        if (cachedConfig) updateSiteConfig(cachedConfig);
+
+        const cachedAddress = loadCache('footer_address');
+        if (cachedAddress) updateAddress(cachedAddress);
+
+        const cachedMenu = loadCache('footer_menu');
+        if (cachedMenu) updateMenu(cachedMenu);
+
+        // If we have everything cached, don't show loading skeleton (but still fetch updates)
+        if (cachedConfig && (cachedAddress || cachedConfig.address) && cachedMenu) {
+            setIsLoading(false);
+        } else {
+            setIsLoading(true);
+        }
+
         const p1 = fetch('/api/site-config/', { cache: 'no-store' })
             .then(r => r.json())
             .then(data => {
-                const bn = (data.brand_name || data.site_name || '').trim();
-                if (bn) setBrandName(bn);
-                if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
-                if (data.logo_height) setLogoHeight(data.logo_height);
-
-                const aboutTxt = (data.footer_about_text || '').trim();
-                if (aboutTxt) setFooterText(aboutTxt);
-
-                const dsc = (data.footer_disclaimer || data.disclaimer || data.disclaimer_text || '').trim();
-                if (dsc) setDisclaimer(dsc);
-                const addr = (data.address || '').trim();
-                if (addr) setAddress(addr);
-
-                // Build social links from API: supports array of URLs and per-field URLs
-                let linksFromAdmin = [];
-                const arr = Array.isArray(data.social_links) ? data.social_links : [];
-                arr.forEach((u) => {
-                    const href = String(u || '').trim();
-                    if (href) linksFromAdmin.push(href);
-                });
-                // Also pick from individual fields if present
-                ['facebook_url','twitter_url','instagram_url','linkedin_url','youtube_url'].forEach((fname) => {
-                    const href = String(data[fname] || '').trim();
-                    if (href) linksFromAdmin.push(href);
-                });
-                // De-duplicate
-                linksFromAdmin = Array.from(new Set(linksFromAdmin));
-                setSocialLinks(linksFromAdmin);
+                updateSiteConfig(data);
+                saveCache('footer_site_config', data);
             })
             .catch(() => {});
 
         const p2 = fetch('/api/footer-address/', { cache: 'no-store' })
             .then(r => r.json())
             .then(data => {
-                if (data.address) {
-                    setAddress(data.address);
-                    setAddressSource(data.source || '');
-                }
+                updateAddress(data);
+                saveCache('footer_address', data);
             })
             .catch(() => {});
 
         const p3 = fetch(`${getApiBase()}/api/menu/footer/`, { cache: 'no-store' })
             .then(r => r.json())
             .then(data => {
-                const company = Array.isArray(data.company) ? data.company : [];
-                const legal = Array.isArray(data.legal) ? data.legal : [];
-                setCompanyLinks(company);
-                setLegalLinks(legal);
+                updateMenu(data);
+                saveCache('footer_menu', data);
             })
             .catch(() => {});
 

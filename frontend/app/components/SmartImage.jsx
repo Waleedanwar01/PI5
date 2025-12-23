@@ -53,6 +53,7 @@ export default function SmartImage({
         priority={priority}
         className={`${className} transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoadingComplete={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
         placeholder={priority ? undefined : 'blur'}
         blurDataURL={priority ? undefined : blurDataURL}
         {...rest}
