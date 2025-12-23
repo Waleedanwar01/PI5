@@ -49,7 +49,7 @@ export async function GET(req) {
     const backendSearch = outParams.toString();
     const target = backendSearch ? `${API_BASE}/api/blogs/?${backendSearch}` : `${API_BASE}/api/blogs/`;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
+    const timer = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(target, { cache: 'no-store', signal: controller.signal });
     clearTimeout(timer);
     // Avoid throwing on non-JSON error bodies; forward status cleanly

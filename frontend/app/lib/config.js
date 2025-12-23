@@ -7,8 +7,18 @@
 
 // Get backend API base URL
 export function getApiBase() {
-  // Default to production URL if env var is missing (for Vercel without env setup)
-  return process.env.NEXT_PUBLIC_API_BASE || 'https://pi5-y8gd.onrender.com';
+  // If env var is set, use it (works for both local with .env and production)
+  if (process.env.NEXT_PUBLIC_API_BASE) {
+    return process.env.NEXT_PUBLIC_API_BASE;
+  }
+  
+  // If in development mode and no env var, default to local backend
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://127.0.0.1:8000';
+  }
+
+  // Fallback to production URL for production builds without env vars
+  return 'https://pi5-y8gd.onrender.com';
 }
 
 // Get media/assets base URL

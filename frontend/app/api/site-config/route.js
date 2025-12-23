@@ -4,7 +4,7 @@ export async function GET() {
   const API_BASE = getApiBase();
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
+    const timer = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(`${API_BASE}/api/site-config/`, { cache: 'no-store', signal: controller.signal });
     clearTimeout(timer);
     if (!res.ok) {

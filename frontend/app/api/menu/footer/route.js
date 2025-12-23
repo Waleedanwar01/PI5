@@ -5,7 +5,7 @@ export async function GET() {
   const API_BASE = getApiBase();
   const url = `${API_BASE}/api/menu/footer/`;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 5000);
+  const timer = setTimeout(() => controller.abort(), 10000);
   try {
     const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
     clearTimeout(timer);

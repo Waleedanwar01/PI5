@@ -19,10 +19,10 @@ export async function GET(req) {
   const zip = params.get('zip') || '';
   const qs = new URLSearchParams();
   if (zip) qs.set('zip', String(zip));
-  const url = `${API_BASE}/api/quotes${qs.toString() ? `?${qs.toString()}` : ''}`;
+  const url = `${API_BASE}/api/quotes/${qs.toString() ? `?${qs.toString()}` : ''}`;
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
+    const timer = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
     clearTimeout(timer);
     if (!res.ok) {

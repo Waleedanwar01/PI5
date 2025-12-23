@@ -5,7 +5,7 @@ export async function GET() {
   const API_BASE = getApiBase();
   try {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
+    const timer = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(`${API_BASE}/api/menu/header/`, { cache: 'no-store', signal: controller.signal });
     clearTimeout(timer);
     if (!res.ok) return Response.json({ links: [] }, { status: 200 });

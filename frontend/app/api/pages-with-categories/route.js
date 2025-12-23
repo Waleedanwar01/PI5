@@ -36,7 +36,7 @@ export async function GET(req) {
     
     const backendUrl = `${API_BASE}/api/pages-with-categories/${search}`;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
+    const timer = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(backendUrl, { cache: 'no-store', signal: controller.signal });
     clearTimeout(timer);
     if (!res.ok) {
