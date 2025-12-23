@@ -3,6 +3,8 @@ import "./theme-vars.css";
 import ClientLayout from "./components/ClientLayout.jsx";
 import { getApiBase, getMediaUrl } from "./lib/config.js";
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata() {
   try {
     const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
