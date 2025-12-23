@@ -195,6 +195,7 @@ export default function Navbar() {
     }, []);
 
     // Toggle mobile menu with GSAP animations
+    // Refactored to remove IIFE for better build stability
     const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
     };
