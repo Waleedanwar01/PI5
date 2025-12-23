@@ -531,7 +531,7 @@ export default function Navbar() {
                                  <SkeletonLoader className="h-4 w-1/2" />
                              </li>
                          ))
-                    ) : (
+                    ) : 
                     pagesData.map((p) => (
                         <li key={p.slug} className="border-b border-slate-100 last:border-0">
                              <div className="flex flex-col">
@@ -581,7 +581,7 @@ export default function Navbar() {
                                  )}
                              </div>
                         </li>
-                    )))}
+                    ))}
                     </ul>
                 </div>
                  
