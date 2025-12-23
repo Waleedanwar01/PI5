@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ChevronDown, ChevronRight, Phone, X, Menu } from 'lucide-react';
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
+import SkeletonLoader from './SkeletonLoader.jsx';
 import { getMediaUrl } from '../lib/config.js';
 import { gsap } from 'gsap';
 
@@ -255,7 +256,9 @@ export default function Navbar() {
                     {/* Left: Logo/Brand */}
                     <div className="flex items-center flex-shrink-0">
                         <SmartLink href="/" className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                            {logoUrl ? (
+                            {isFetching && !logoUrl ? (
+                                <SkeletonLoader className="h-8 w-40" />
+                            ) : logoUrl ? (
                                 <SmartImage 
                                     src={logoUrl} 
                                     alt={brand} 
@@ -296,7 +299,15 @@ export default function Navbar() {
                              </form>
                         ) : (
                             <ul className="flex items-center gap-8">
-                                {pagesData.map((p) => (
+                                {loading ? (
+                                    // Skeleton for Links
+                                    Array(5).fill(0).map((_, i) => (
+                                        <li key={i} className="h-16 flex items-center">
+                                            <SkeletonLoader className="h-4 w-24" />
+                                        </li>
+                                    ))
+                                ) : (
+                                    pagesData.map((p) => (
                                     <li
                                         key={p.slug}
                                         className="relative group h-16 flex items-center"
@@ -330,7 +341,8 @@ export default function Navbar() {
                                         {/* Animated bottom border */}
                                         <span className="absolute bottom-0 left-0 w-full h-0.5 bg-sky-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                                     </li>
-                                ))}
+                                ))
+                                )}
                             </ul>
                         )}
                     </div>

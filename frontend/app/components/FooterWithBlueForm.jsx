@@ -37,7 +37,7 @@ const FooterWithBlueForm = () => {
         return Globe;
     };
 
-    // Fetch site config: brand, logo, disclaimer, address, social links
+    // Fetch all data
     useEffect(() => {
         const versioned = (u, v) => {
             const url = String(u || '').trim();
@@ -45,7 +45,9 @@ const FooterWithBlueForm = () => {
             const sep = url.includes('?') ? '&' : '?';
             return v ? `${url}${sep}v=${encodeURIComponent(v)}` : url;
         };
-        fetch('/api/site-config/', { cache: 'no-store' })
+
+        setIsLoading(true);
+        const p1 = fetch('/api/site-config/', { cache: 'no-store' })
             .then(r => r.json())
             .then(data => {
                 const bn = (data.brand_name || data.site_name || '').trim();
@@ -77,15 +79,9 @@ const FooterWithBlueForm = () => {
                 linksFromAdmin = Array.from(new Set(linksFromAdmin));
                 setSocialLinks(linksFromAdmin);
             })
-            .catch(() => {
-                // Silent fail: keep defaults and show no social icons if unavailable
-                setSocialLinks([]);
-            });
-    }, []);
+            .catch(() => {});
 
-    // Fetch footer address from articles dynamically
-    useEffect(() => {
-        fetch('/api/footer-address/', { cache: 'no-store' })
+        const p2 = fetch('/api/footer-address/', { cache: 'no-store' })
             .then(r => r.json())
             .then(data => {
                 if (data.address) {
@@ -93,14 +89,9 @@ const FooterWithBlueForm = () => {
                     setAddressSource(data.source || '');
                 }
             })
-            .catch(() => {
-                // Silent fail: keep existing address or default
-            });
-    }, []);
+            .catch(() => {});
 
-    // Fetch footer links (Company, Legal) from admin
-    useEffect(() => {
-        fetch(`${getApiBase()}/api/menu/footer/`, { cache: 'no-store' })
+        const p3 = fetch(`${getApiBase()}/api/menu/footer/`, { cache: 'no-store' })
             .then(r => r.json())
             .then(data => {
                 const company = Array.isArray(data.company) ? data.company : [];
@@ -108,9 +99,9 @@ const FooterWithBlueForm = () => {
                 setCompanyLinks(company);
                 setLegalLinks(legal);
             })
-            .catch(() => {
-                // Ignore menu errors in UI
-            });
+            .catch(() => {});
+
+        Promise.all([p1, p2, p3]).finally(() => setIsLoading(false));
     }, []);
 
     
@@ -174,17 +165,47 @@ const FooterWithBlueForm = () => {
             <div className="bg-[#111] border border-neutral-800 p-6 md:p-8">
                 <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-12 text-left w-full lg:justify-start">
                     <div className="flex-shrink-0">
-                        {logoUrl ? (
+                        {isLoading ? (
+                            <SkeletonLoader className="h-10 w-32 bg-neutral-800" />
+                        ) : logoUrl ? (
                             <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto" />
                         ) : null}
                     </div>
-                    <p className="text-sm text-gray-300 leading-relaxed text-left flex-1">
-                        {footerText}
-                    </p>
+                    <div className="flex-1 w-full">
+                        {isLoading ? (
+                            <div className="space-y-2">
+                                <SkeletonLoader className="h-4 w-full max-w-lg bg-neutral-800" />
+                                <SkeletonLoader className="h-4 w-3/4 max-w-md bg-neutral-800" />
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-300 leading-relaxed text-left">
+                                {footerText}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 {/* Company + Legal sections */}
-                    {(companyLinks?.length > 0 || legalLinks?.length > 0) && (
+                    {isLoading ? (
+                         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8">
+                            <div>
+                                <SkeletonLoader className="h-6 w-24 mb-4 bg-neutral-800" />
+                                <div className="space-y-3">
+                                    <SkeletonLoader className="h-4 w-32 bg-neutral-800" />
+                                    <SkeletonLoader className="h-4 w-40 bg-neutral-800" />
+                                    <SkeletonLoader className="h-4 w-28 bg-neutral-800" />
+                                </div>
+                            </div>
+                            <div>
+                                <SkeletonLoader className="h-6 w-24 mb-4 bg-neutral-800" />
+                                <div className="space-y-3">
+                                    <SkeletonLoader className="h-4 w-32 bg-neutral-800" />
+                                    <SkeletonLoader className="h-4 w-40 bg-neutral-800" />
+                                    <SkeletonLoader className="h-4 w-28 bg-neutral-800" />
+                                </div>
+                            </div>
+                         </div>
+                    ) : (companyLinks?.length > 0 || legalLinks?.length > 0) && (
                         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8">
                             {companyLinks?.length > 0 && (
                                 <div>
@@ -222,7 +243,16 @@ const FooterWithBlueForm = () => {
                     )}
 
                     {/* Follow us row */}
-                    {socialLinks && socialLinks.length > 0 ? (
+                    {isLoading ? (
+                        <div className="mt-8 flex items-center gap-3">
+                            <SkeletonLoader className="h-4 w-24 bg-neutral-800" />
+                            <div className="flex gap-2">
+                                <SkeletonLoader variant="circular" className="h-9 w-9 bg-neutral-800" />
+                                <SkeletonLoader variant="circular" className="h-9 w-9 bg-neutral-800" />
+                                <SkeletonLoader variant="circular" className="h-9 w-9 bg-neutral-800" />
+                            </div>
+                        </div>
+                    ) : socialLinks && socialLinks.length > 0 ? (
                         <div className="mt-8 flex items-center gap-3">
                             <span className="text-sm text-gray-400">Follow us on:</span>
                             {socialLinks.map((href, idx) => {
@@ -247,12 +277,23 @@ const FooterWithBlueForm = () => {
                 {/* Bottom bar: copyright + legal inline links */}
                 <div className="mt-6 border-t border-neutral-800 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="flex items-center gap-2 whitespace-normal sm:whitespace-nowrap">
-                        {logoUrl ? (
-                            <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto h-6" />
-                        ) : null}
-                        <FooterCopyright brandName={brandName} />
+                        {isLoading ? (
+                             <SkeletonLoader className="h-6 w-64 bg-neutral-800" />
+                        ) : (
+                            <>
+                                {logoUrl ? (
+                                    <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto h-6" />
+                                ) : null}
+                                <FooterCopyright brandName={brandName} />
+                            </>
+                        )}
                     </div>
-                    {legalLinks?.length > 0 && (
+                    {isLoading ? (
+                        <div className="flex gap-4">
+                            <SkeletonLoader className="h-4 w-20 bg-neutral-800" />
+                            <SkeletonLoader className="h-4 w-20 bg-neutral-800" />
+                        </div>
+                    ) : legalLinks?.length > 0 && (
                         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
                             {legalLinks.map((item, idx) => (
                                 <SmartLink
@@ -267,13 +308,24 @@ const FooterWithBlueForm = () => {
                     )}
                 </div>
 
-                <p className="mt-4 pt-4 border-t border-neutral-800 text-[10px] sm:text-xs leading-relaxed text-gray-400">
-                    {disclaimer || (
+                <div className="mt-4 pt-4 border-t border-neutral-800 text-[10px] sm:text-xs leading-relaxed text-gray-400">
+                    {isLoading ? (
+                        <div className="space-y-1">
+                            <SkeletonLoader className="h-3 w-full bg-neutral-800" />
+                            <SkeletonLoader className="h-3 w-3/4 bg-neutral-800" />
+                        </div>
+                    ) : (
+                        disclaimer || (
                         "Disclaimer: CarInsuranceComparison.com strives to present the most up-to-date and comprehensive information on saving money on car insurance possible. This information may be different than what you see when you visit an insurance provider, insurance agency, or insurance company website. All insurance rates, products, and services are presented without warranty and guarantee. When evaluating rates, please verify directly with your insurance company or agent. Quotes and offers are not binding, nor a guarantee of coverage."
+                        )
                     )}
-                </p>
+                </div>
 
-                {address ? (
+                {isLoading ? (
+                    <div className="mt-2">
+                        <SkeletonLoader className="h-3 w-64 bg-neutral-800" />
+                    </div>
+                ) : address ? (
                     <div className="w-full mt-2">
                         <p className="text-xs text-gray-500">{address}</p>
                     </div>
