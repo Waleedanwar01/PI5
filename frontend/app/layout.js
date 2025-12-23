@@ -23,7 +23,21 @@ export async function generateMetadata() {
                 shortcut: faviconUrl,
                 apple: faviconUrl,
             };
+        } else {
+             // Fallback to default icon
+             icons = {
+                icon: '/icon.svg',
+                shortcut: '/icon.svg',
+                apple: '/icon.svg',
+            };
         }
+    } else {
+        // Fallback to default icon if fetch fails
+        icons = {
+            icon: '/icon.svg',
+            shortcut: '/icon.svg',
+            apple: '/icon.svg',
+        };
     }
 
     return {
