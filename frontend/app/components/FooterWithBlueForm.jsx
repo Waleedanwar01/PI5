@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Twitter, Youtube, Facebook, Instagram, Linkedin, Globe, Shield } from "lucide-react";
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
+import SkeletonLoader from './SkeletonLoader.jsx';
 import { getMediaUrl, getApiBase } from '../lib/config.js';
 
 // Helper functions (resolveHref and FooterCopyright) remain the same.
@@ -22,6 +23,7 @@ const FooterWithBlueForm = () => {
     const [companyLinks, setCompanyLinks] = useState([]);
     const [legalLinks, setLegalLinks] = useState([]);
     const [socialLinks, setSocialLinks] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     // Pick icon based on URL hostname
     const iconFor = (url) => {
