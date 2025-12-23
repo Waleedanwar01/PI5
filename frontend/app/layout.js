@@ -18,10 +18,20 @@ export async function generateMetadata() {
         const config = await siteConfigRes.json();
         if (config.favicon) {
             const faviconUrl = getMediaUrl(config.favicon);
+            // Provide both custom and default as fallback
             icons = {
-                icon: faviconUrl,
-                shortcut: faviconUrl,
-                apple: faviconUrl,
+                icon: [
+                    { url: faviconUrl },
+                    { url: '/icon.svg' }
+                ],
+                shortcut: [
+                    { url: faviconUrl },
+                    { url: '/icon.svg' }
+                ],
+                apple: [
+                    { url: faviconUrl },
+                    { url: '/icon.svg' }
+                ],
             };
         } else {
              // Fallback to default icon
