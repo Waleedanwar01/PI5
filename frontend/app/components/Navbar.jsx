@@ -290,6 +290,47 @@ export default function Navbar() {
         setMobileOpenDropdown(mobileOpenDropdown === slug ? null : slug);
     };
 
+    const renderDropdown = () => {
+        if (!dropdownOpen || !activeDropdown) return null;
+        const currentPage = pagesData.find(p => p.slug === activeDropdown);
+        if (!currentPage || !currentPage.dropdownItems || currentPage.dropdownItems.length === 0) return null;
+
+        return (
+            <div
+                className="absolute left-0 right-0 bg-white shadow-xl border-t border-slate-200 z-50"
+                style={{ top: '100%' }}
+                onMouseEnter={() => handleDropdownEnter(activeDropdown)}
+                onMouseLeave={handleDropdownLeave}
+            >
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-4 mb-6">
+                        {currentPage.dropdownItems.slice(0, 20).map((item, index) => (
+                            <SmartLink
+                                key={index}
+                                href={`/articles/${item.slug}`}
+                                className="group flex items-center text-sm text-slate-600 hover:text-sky-600 py-2 transition-colors"
+                                onClick={handleMobileLinkClick}
+                            >
+                                <ChevronRight className="w-3 h-3 mr-2 text-sky-500 opacity-0 group-hover:opacity-100 transition-opacity transform -translate-x-2 group-hover:translate-x-0" />
+                                <span className="transform translate-x-0 group-hover:translate-x-1 transition-transform">{item.name}</span>
+                            </SmartLink>
+                        ))}
+                    </div>
+                    <div className="border-t border-slate-100 pt-4 flex justify-end">
+                        <SmartLink
+                            href="/articles"
+                            className="inline-flex items-center text-sm font-semibold text-sky-600 hover:text-sky-700 transition-colors group"
+                            onClick={handleMobileLinkClick}
+                        >
+                            View All Articles
+                            <ChevronRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
+                        </SmartLink>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
         <>
             {isFetching && (
@@ -427,45 +468,7 @@ export default function Navbar() {
             </div>
 
             {/* Dropdown Menu */}
-            {dropdownOpen && activeDropdown && (() => {
-                const currentPage = pagesData.find(p => p.slug === activeDropdown);
-                if (!currentPage || !currentPage.dropdownItems || currentPage.dropdownItems.length === 0) return null;
-                
-                return (
-                    <div
-                        className="absolute left-0 right-0 bg-white shadow-xl border-t border-slate-200 z-50"
-                        style={{ top: '100%' }}
-                        onMouseEnter={() => handleDropdownEnter(activeDropdown)}
-                        onMouseLeave={handleDropdownLeave}
-                    >
-                        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-4 mb-6">
-                                {currentPage.dropdownItems.slice(0, 20).map((item, index) => (
-                                    <SmartLink
-                                        key={index}
-                                        href={`/articles/${item.slug}`}
-                                        className="group flex items-center text-sm text-slate-600 hover:text-sky-600 py-2 transition-colors"
-                                        onClick={handleMobileLinkClick}
-                                    >
-                                        <ChevronRight className="w-3 h-3 mr-2 text-sky-500 opacity-0 group-hover:opacity-100 transition-opacity transform -translate-x-2 group-hover:translate-x-0" />
-                                        <span className="transform translate-x-0 group-hover:translate-x-1 transition-transform">{item.name}</span>
-                                    </SmartLink>
-                                ))}
-                            </div>
-                            <div className="border-t border-slate-100 pt-4 flex justify-end">
-                                <SmartLink
-                                    href="/articles"
-                                    className="inline-flex items-center text-sm font-semibold text-sky-600 hover:text-sky-700 transition-colors group"
-                                    onClick={handleMobileLinkClick}
-                                >
-                                    View All Articles
-                                    <ChevronRight className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" />
-                                </SmartLink>
-                            </div>
-                        </div>
-                    </div>
-                );
-            })()}
+            {renderDropdown()}
             
             {/* Mobile Menu Overlay */}
             <div 
