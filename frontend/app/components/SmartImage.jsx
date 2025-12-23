@@ -16,34 +16,46 @@ export default function SmartImage({
 }) {
   const finalSrc = getMediaUrl(src);
   const hasDims = Number.isFinite(width) && Number.isFinite(height);
+  const [loaded, setLoaded] = React.useState(false);
+  const blurDataURL = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZWVlIi8+PC9zdmc+';
+
   if (fill) {
     return (
-      <Image
-        src={finalSrc}
-        alt={alt}
-        fill
-        sizes={sizes}
-        priority={priority}
-        className={className}
-        style={style}
-        {...rest}
-      />
+      <div className={`relative ${className}`} style={style}>
+        {!loaded && <div className="absolute inset-0 animate-pulse bg-slate-200" />}
+        <Image
+          src={finalSrc}
+          alt={alt}
+          fill
+          sizes={sizes}
+          priority={priority}
+          className={className}
+          onLoadingComplete={() => setLoaded(true)}
+          placeholder={priority ? undefined : 'blur'}
+          blurDataURL={priority ? undefined : blurDataURL}
+          {...rest}
+        />
+      </div>
     );
   }
-  // Fallback reasonable defaults when dimensions are unknown
   const w = hasDims ? width : 800;
   const h = hasDims ? height : 600;
   return (
-    <Image
-      src={finalSrc}
-      alt={alt}
-      width={w}
-      height={h}
-      sizes={sizes}
-      priority={priority}
-      className={className}
-      style={style}
-      {...rest}
-    />
+    <div className={`relative ${className}`} style={style}>
+      {!loaded && <div className="absolute inset-0 animate-pulse bg-slate-200" />}
+      <Image
+        src={finalSrc}
+        alt={alt}
+        width={w}
+        height={h}
+        sizes={sizes}
+        priority={priority}
+        className={className}
+        onLoadingComplete={() => setLoaded(true)}
+        placeholder={priority ? undefined : 'blur'}
+        blurDataURL={priority ? undefined : blurDataURL}
+        {...rest}
+      />
+    </div>
   );
 }

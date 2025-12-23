@@ -21,10 +21,9 @@ export function RichHTML({ html, className }) {
   if (!html) return null;
   
   // Fix relative image URLs and localhost URLs in the HTML string
-  const processedHtml = html.replace(
-    /src=["']([^"']+)["']/g, 
+  let processedHtml = html.replace(
+    /src=["']([^"']+)["']/g,
     (match, src) => {
-      // If it's a relative path or localhost, use getMediaUrl
       if (src.startsWith('/') || src.includes('localhost') || src.includes('127.0.0.1')) {
         const newSrc = getMediaUrl(src);
         return `src="${newSrc}"`;
@@ -32,6 +31,13 @@ export function RichHTML({ html, className }) {
       return match;
     }
   );
+  processedHtml = processedHtml.replace(/<img(\s[^>]*)?>/gi, (m) => {
+    const hasLoading = /loading=/.test(m);
+    const hasDecoding = /decoding=/.test(m);
+    const hasPriority = /fetchpriority=/.test(m);
+    const attrs = `${hasLoading ? '' : ' loading="lazy"'}${hasDecoding ? '' : ' decoding="async"'}${hasPriority ? '' : ' fetchpriority="low"'}`;
+    return m.replace('<img', `<img${attrs}`);
+  });
 
   return (
     <div className={`rich-html max-w-none break-words leading-relaxed text-slate-600 ${className || ''}`}>
@@ -87,6 +93,9 @@ function BlocksRenderer({ blocks, roundImages = false, imageSizePx }) {
                 src={url}
                 alt={caption || 'Image'}
                 className={`${roundImages ? 'rounded-full object-cover w-[200px] h-[200px] mx-auto' : 'rounded-lg object-contain w-full h-auto'} border border-slate-200 shadow-sm`}
+                loading="lazy"
+                decoding="async"
+                fetchpriority="low"
                 style={roundImages && imageSizePx ? { width: `${imageSizePx}px`, height: `${imageSizePx}px` } : undefined}
               />
               {caption ? <figcaption className="text-sm text-slate-500 mt-2 text-center">{caption}</figcaption> : null}
@@ -252,6 +261,9 @@ export default function SectionRenderer({ sections, mediaBase, roundImages = fal
                       src={url}
                       alt={s.title || 'Image'}
                       className={`${roundImages ? 'rounded-full object-cover w-[200px] h-[200px] mx-auto' : 'rounded-lg object-contain w-full h-auto'} shadow-sm`}
+                      loading="lazy"
+                      decoding="async"
+                      fetchpriority="low"
                       style={roundImages && imageSizePx ? { width: `${imageSizePx}px`, height: `${imageSizePx}px` } : undefined}
                     />
                   ) : null}

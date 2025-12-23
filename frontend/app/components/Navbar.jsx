@@ -25,6 +25,7 @@ export default function Navbar() {
     const dropdownTimeoutRef = useRef(null);
     const [scrolled, setScrolled] = useState(false);
     const [zip, setZip] = useState("");
+    const [isFetching, setIsFetching] = useState(false);
     
     // Dynamic data from database
     const [pagesData, setPagesData] = useState([]);
@@ -40,6 +41,7 @@ export default function Navbar() {
         };
         const fetchSiteConfig = async () => {
             try {
+                setIsFetching(true);
                 const response = await fetch('/api/site-config/', { cache: 'no-store' });
                 if (response.ok) {
                     const data = await response.json();
@@ -53,6 +55,8 @@ export default function Navbar() {
                 }
             } catch (error) {
                 console.error('Error fetching site config:', error);
+            } finally {
+                setIsFetching(false);
             }
         };
 
@@ -64,6 +68,7 @@ export default function Navbar() {
         const fetchPagesData = async () => {
             try {
                 setLoading(true);
+                setIsFetching(true);
                 const response = await fetch('/api/pages-with-categories/?include_blogs=0', { cache: 'no-store' });
                 if (response.ok) {
                     const data = await response.json();
@@ -118,6 +123,7 @@ export default function Navbar() {
                 setPagesData([]);
             } finally {
                 setLoading(false);
+                setIsFetching(false);
             }
         };
 
@@ -233,7 +239,13 @@ export default function Navbar() {
     };
 
     return (
-        <nav
+        <>
+            {isFetching && (
+                <div className="fixed top-0 left-0 right-0 z-[1000]">
+                    <div className="h-1 w-full bg-gradient-to-r from-sky-400 via-sky-600 to-sky-400 animate-pulse" />
+                </div>
+            )}
+            <nav
             ref={navbarRef}
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-md py-2 border-b border-slate-200' : 'bg-white shadow-sm py-4'}`}
         >
@@ -514,6 +526,7 @@ export default function Navbar() {
                     </div>
                  )}
             </div>
-        </nav>
+            </nav>
+        </>
     );
 }
