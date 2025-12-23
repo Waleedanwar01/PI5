@@ -523,16 +523,13 @@ export default function Navbar() {
                             Home
                         </SmartLink>
                     </li>
-                    {loading ? (
-                         // Mobile Menu Skeletons
-                         Array(5).fill(0).map((_, i) => (
-                             <li key={i} className="border-b border-slate-100 py-4">
-                                 <SkeletonLoader className="h-6 w-3/4 mb-2" />
-                                 <SkeletonLoader className="h-4 w-1/2" />
-                             </li>
-                         ))
-                    ) : (
-                        pagesData.map((p) => (
+                    {loading && Array(5).fill(0).map((_, i) => (
+                         <li key={i} className="border-b border-slate-100 py-4">
+                             <SkeletonLoader className="h-6 w-3/4 mb-2" />
+                             <SkeletonLoader className="h-4 w-1/2" />
+                         </li>
+                    ))}
+                    {!loading && pagesData.map((p) => (
                         <li key={p.slug} className="border-b border-slate-100 last:border-0">
                              <div className="flex flex-col">
                                  {(p.has_dropdown || p.dropdownItems.length > 0) ? (
@@ -581,7 +578,7 @@ export default function Navbar() {
                                  )}
                              </div>
                         </li>
-                    )))}
+                    ))}
                     </ul>
                 </div>
                  
