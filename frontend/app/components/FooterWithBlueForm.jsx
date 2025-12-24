@@ -393,3 +393,5 @@ function FooterCopyright({ brandName }) {
         <p className="text-gray-400 font-medium text-xs sm:text-sm">{copyright}</p>
     );
 }
+
+// Force push trigger
