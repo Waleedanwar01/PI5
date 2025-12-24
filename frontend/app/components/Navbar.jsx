@@ -370,7 +370,8 @@ export default function Navbar() {
                                 src="/logos/Auto-Insure-Savings-Logo.svg" 
                                 alt={brand} 
                                 style={{ height: `${logoHeight}px` }} 
-                                className="w-auto object-contain" 
+                                className="w-auto object-contain"
+                                fetchPriority="high"
                             />
                         </SmartLink>
                     </div>
@@ -495,20 +496,13 @@ export default function Navbar() {
                     {/* Logo in Drawer */}
                     <div className="flex items-center">
                         <SmartLink href="/" className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2" onClick={handleMobileLinkClick}>
-                            {logoUrl ? (
-                                <SmartImage 
-                                    src={logoUrl} 
-                                    alt={brand} 
-                                    style={{ '--mobile-h': '24px' }} 
-                                    className="w-auto object-contain h-[var(--mobile-h)]" 
-                                />
-                            ) : (
-                                <span className="flex items-center">
-                                    <span className="text-slate-900">Auto</span>
-                                    <span className="text-sky-600">Insure</span>
-                                    <span className="text-slate-900">Savings</span>
-                                </span>
-                            )}
+                            <img 
+                                src="/logos/Auto-Insure-Savings-Logo.svg" 
+                                alt={brand} 
+                                style={{ '--mobile-h': '24px' }} 
+                                className="w-auto object-contain h-[var(--mobile-h)]" 
+                                fetchPriority="high"
+                            />
                         </SmartLink>
                     </div>
 

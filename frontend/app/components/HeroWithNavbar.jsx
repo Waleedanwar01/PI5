@@ -85,7 +85,7 @@ export default function HeroWithNavbar({ initialPressLogos }) {
     <section className="relative min-h-[calc(100vh-80px)] flex flex-col font-sans">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
-            <img src={bgImage} alt="Background" className="w-full h-full object-cover" loading="lazy" decoding="async" fetchpriority="low" />
+            <img src={bgImage} alt="Background" className="w-full h-full object-cover" fetchPriority="high" />
             <div className="absolute inset-0 bg-white/90"></div>
         </div>
 
@@ -153,7 +153,8 @@ export default function HeroWithNavbar({ initialPressLogos }) {
                             src="/logos/as-seen-logos.svg" 
                             alt="Fox News, USA Today, CNN, Forbes, MSNBC" 
                             className="h-full w-auto object-contain transition-opacity hover:opacity-100"
-                            style={{ filter: 'brightness(0)' }} 
+                            style={{ filter: 'brightness(0)' }}
+                            fetchPriority="high"
                         />
                       </div>
                   </div>

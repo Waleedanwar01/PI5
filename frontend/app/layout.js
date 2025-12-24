@@ -49,6 +49,11 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet" />
+        
+        {/* Preload critical assets for LCP optimization */}
+        <link rel="preload" href="/logos/Auto-Insure-Savings-Logo.svg" as="image" />
+        <link rel="preload" href="/logos/as-seen-logos.svg" as="image" />
+        <link rel="preload" href="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1920&auto=format&fit=crop" as="image" />
       </head>
 
       <body className="font-google-sans antialiased overflow-x-hidden">
