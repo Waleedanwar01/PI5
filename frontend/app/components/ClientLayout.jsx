@@ -173,7 +173,7 @@ export default function ClientLayout({ children }) {
 
         const res = await fetch('/api/site-config/', { cache: 'no-store' });
         if (!res.ok) return;
-        cfg = await res.json();
+        const cfg = await res.json();
         
         applyConfig(cfg);
         saveCache('client_layout_config', cfg);
