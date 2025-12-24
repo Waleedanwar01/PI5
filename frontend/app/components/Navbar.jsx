@@ -1,5 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { ChevronDown, ChevronRight, Phone, X, Menu } from 'lucide-react';
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
@@ -8,6 +9,7 @@ import { getMediaUrl } from '../lib/config.js';
 import { gsap } from 'gsap';
 
 export default function Navbar() {
+    const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
@@ -292,9 +294,7 @@ export default function Navbar() {
         e.preventDefault();
         const clean = zip.replace(/\D/g, "").slice(0, 5);
         if (clean.length === 5) {
-            if (typeof window !== "undefined") {
-                window.location.href = `/quotes?zip=${encodeURIComponent(clean)}`;
-            }
+            router.push(`/quotes?zip=${encodeURIComponent(clean)}`);
         }
     };
 
