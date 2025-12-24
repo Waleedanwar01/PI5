@@ -12,18 +12,51 @@ export default function HeroWithNavbar({ initialPressLogos }) {
   const [heroTitle, setHeroTitle] = useState(null);
   const [tagline, setTagline] = useState(null);
   
+  // Cache helper
+  const loadCache = (key) => {
+    if (typeof window === 'undefined') return null;
+    try {
+        const item = localStorage.getItem(key);
+        if (!item) return null;
+        const parsed = JSON.parse(item);
+        if (Date.now() - parsed.timestamp > 3600000) return null; // 1 hour
+        return parsed.data;
+    } catch (e) {
+        return null;
+    }
+  };
+
+  const saveCache = (key, data) => {
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.setItem(key, JSON.stringify({
+            data,
+            timestamp: Date.now()
+        }));
+    } catch (e) {}
+  };
+
   // Fetch site configuration only (homepage data no longer needed for logos)
   useEffect(() => {
+    const updateData = (data) => {
+        setSiteConfig(data);
+        if (data.phone_number) setPhone(data.phone_number);
+        if (data.brand_name) setBrand(data.brand_name);
+        if (data.hero_title) setHeroTitle(data.hero_title);
+        if (data.tagline) setTagline(data.tagline);
+    };
+
+    // Try cache first
+    const cached = loadCache('hero_site_config');
+    if (cached) updateData(cached);
+
     const fetchData = async () => {
       try {
         const siteConfigRes = await fetch('/api/site-config/', { cache: 'no-store' });
         if (siteConfigRes.ok) {
           const data = await siteConfigRes.json();
-          setSiteConfig(data);
-          if (data.phone_number) setPhone(data.phone_number);
-          if (data.brand_name) setBrand(data.brand_name);
-          if (data.hero_title) setHeroTitle(data.hero_title);
-          if (data.tagline) setTagline(data.tagline);
+          updateData(data);
+          saveCache('hero_site_config', data);
         }
       } catch (error) {
         console.error('Error fetching data:', error);

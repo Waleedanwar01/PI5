@@ -170,7 +170,10 @@ const FooterWithBlueForm = () => {
             })
             .catch(() => {});
 
-        Promise.all([p1, p2, p3]).finally(() => setIsLoading(false));
+        // Parallelize all requests and update state as they finish, but only turn off loading when all are done (or if cache was hit)
+        Promise.allSettled([p1, p2, p3]).finally(() => {
+             setIsLoading(false);
+        });
     }, []);
 
     
