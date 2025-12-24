@@ -320,6 +320,7 @@ export default function Navbar() {
                             <SmartLink
                                 key={index}
                                 href={`/articles/${item.slug}`}
+                                prefetch
                                 className="group flex items-center text-sm text-slate-600 hover:text-sky-600 py-2 transition-colors"
                                 onClick={handleMobileLinkClick}
                             >
@@ -331,6 +332,7 @@ export default function Navbar() {
                     <div className="border-t border-slate-100 pt-4 flex justify-end">
                         <SmartLink
                             href="/articles"
+                            prefetch
                             className="inline-flex items-center text-sm font-semibold text-sky-600 hover:text-sky-700 transition-colors group"
                             onClick={handleMobileLinkClick}
                         >
@@ -436,7 +438,7 @@ export default function Navbar() {
                                                     />
                                                  </>
                                             ) : (
-                                                 <SmartLink href={`/${p.slug}`}>
+                                                 <SmartLink href={`/${p.slug}`} prefetch>
                                                     <span>{p.displayName || p.name}</span>
                                                  </SmartLink>
                                             )}
@@ -564,6 +566,7 @@ export default function Navbar() {
                                                     <SmartLink
                                                         key={idx}
                                                         href={`/articles/${item.slug}`}
+                                                        prefetch
                                                         className="block py-2 text-sm text-slate-600 hover:text-sky-600"
                                                         onClick={handleMobileLinkClick}
                                                     >
@@ -573,6 +576,7 @@ export default function Navbar() {
                                                 {(p.dropdownItems || []).length > 8 && (
                                                     <SmartLink 
                                                         href={`/${p.slug}`}
+                                                        prefetch
                                                         className="block py-2 text-sm font-semibold text-sky-600"
                                                         onClick={handleMobileLinkClick}
                                                     >
@@ -585,6 +589,7 @@ export default function Navbar() {
                                  ) : (
                                     <SmartLink 
                                         href={`/${p.slug}`} 
+                                        prefetch
                                         className="block py-4 text-lg font-bold text-slate-900 hover:text-sky-600" 
                                         onClick={handleMobileLinkClick}
                                     >
