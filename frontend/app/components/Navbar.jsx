@@ -5,6 +5,7 @@ import { ChevronDown, ChevronRight, Phone, X, Menu } from 'lucide-react';
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
 import SkeletonLoader from './SkeletonLoader.jsx';
+import Logo from './Logo.jsx';
 import { gsap } from 'gsap';
 
 export default function Navbar() {
@@ -493,9 +494,7 @@ export default function Navbar() {
                     {/* Logo in Drawer */}
                     <div className="flex items-center">
                         <SmartLink href="/" className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2" onClick={handleMobileLinkClick}>
-                            <img 
-                                src="/logos/logo.svg" 
-                                alt={brand} 
+                            <Logo 
                                 style={{ height: '24px', width: 'auto' }} 
                                 className="object-contain" 
                             />

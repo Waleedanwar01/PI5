@@ -8,11 +8,13 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata() {
   const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   
-  // Hardcoded stable favicon
+  // Hardcoded stable favicon (Green square with white triangle)
+  const faviconDataUrl = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzAwN0ExMSIvPjxwYXRoIGZpbGw9IiNmZmZmZmYiIGQ9Ik0xNiA2bDggMThIOHoiLz48L3N2Zz4=";
+
   const icons = {
-      icon: ['/logos/favicon.png'],
-      shortcut: ['/logos/favicon.png'],
-      apple: ['/logos/favicon.png'],
+      icon: [faviconDataUrl],
+      shortcut: [faviconDataUrl],
+      apple: [faviconDataUrl],
   };
 
   try {

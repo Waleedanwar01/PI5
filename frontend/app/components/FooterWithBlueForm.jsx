@@ -5,11 +5,15 @@ import { Twitter, Youtube, Facebook, Instagram, Linkedin, Globe, Shield, Mail, P
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
 import SkeletonLoader from './SkeletonLoader.jsx';
+import Logo from './Logo.jsx';
 
 // Helper functions (resolveHref and FooterCopyright) remain the same.
 
-const FooterWithBlueForm = () => {
-    const [brandName, setBrandName] = useState("Car Insurance Comparison");
+const FooterWithBlueForm = ({
+    logo,
+    brandName: initialBrandName = "Auto Insure Savings",
+}) => {
+    const [brandName, setBrandName] = useState(initialBrandName);
     const [logoUrl, setLogoUrl] = useState(null);
     const [logoHeight, setLogoHeight] = useState(null);
     const [disclaimer, setDisclaimer] = useState("");

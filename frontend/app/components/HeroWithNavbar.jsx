@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { ChevronRight, Phone, ShieldCheck, MapPin } from 'lucide-react';
+import AsSeenLogo from './AsSeenLogo.jsx';
 
 export default function HeroWithNavbar({ initialPressLogos }) {
   const [zip, setZip] = useState("");
