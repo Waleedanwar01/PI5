@@ -89,7 +89,7 @@ const FooterWithBlueForm = () => {
             const bn = (data.brand_name || data.site_name || '').trim();
             if (bn) setBrandName(bn);
             // Dynamic logo from site config
-            if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
+            // if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
             if (data.logo_height) setLogoHeight(data.logo_height);
 
             const aboutTxt = (data.footer_about_text || '').trim();
@@ -176,11 +176,14 @@ const FooterWithBlueForm = () => {
     
 
     return (
-        <footer className="bg-slate-950 text-slate-300 font-sans border-t border-slate-900">
+        <footer className="bg-slate-950 text-slate-300 font-sans border-t border-slate-900 relative">
+            {/* Top Border Gradient */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 via-blue-500 to-orange-500 opacity-70"></div>
+
             {/* 1. CTA / ZIP Form Section - Clean & Modern */}
-            <div className="bg-slate-900/50 py-20 px-4 relative overflow-hidden backdrop-blur-sm">
+            <div className="bg-slate-900/80 py-20 px-4 relative overflow-hidden backdrop-blur-md">
                 {/* Subtle background pattern/gradient */}
-                <div className="absolute inset-0 bg-gradient-to-b from-slate-900 to-transparent pointer-events-none"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-transparent pointer-events-none opacity-40"></div>
                 
                 <div className="max-w-4xl mx-auto text-center relative z-10">
                     <h3 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">

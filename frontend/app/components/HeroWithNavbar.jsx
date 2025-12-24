@@ -120,8 +120,7 @@ export default function HeroWithNavbar({ initialPressLogos }) {
                             src="/logos/as-seen-logos.svg" 
                             alt="Fox News, USA Today, CNN, Forbes, MSNBC" 
                             className="h-full w-auto object-contain transition-opacity hover:opacity-100"
-                            loading="lazy"
-                            style={{ filter: 'grayscale(100%) brightness(0)' }} 
+                            style={{ filter: 'brightness(0)' }} 
                         />
                       </div>
                   </div>
