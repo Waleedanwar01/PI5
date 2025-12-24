@@ -497,7 +497,7 @@ export default function Navbar() {
                     <div className="flex items-center">
                         <SmartLink href="/" className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2" onClick={handleMobileLinkClick}>
                             <img 
-                                src="/logos/Auto-Insure-Savings-Logo.svg" 
+                                src="/logos/logo.svg" 
                                 alt={brand} 
                                 style={{ '--mobile-h': '24px' }} 
                                 className="w-auto object-contain h-[var(--mobile-h)]" 

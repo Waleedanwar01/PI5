@@ -242,7 +242,7 @@ const FooterWithBlueForm = () => {
                     <div className="lg:col-span-5 flex flex-col items-start">
                         <SmartLink href="/" className="inline-block mb-8">
                              <img 
-                                src="/logos/Auto-Insure-Savings-Logo.svg" 
+                                src="/logos/logo.svg" 
                                 alt={brandName} 
                                 style={{ height: logoHeight ? `${logoHeight}px` : '36px' }} 
                                 className="w-auto object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity" 

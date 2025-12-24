@@ -150,7 +150,7 @@ export default function HeroWithNavbar({ initialPressLogos }) {
                   <div className="flex flex-wrap items-center gap-6 md:gap-8 opacity-70">
                       <div className="relative h-8 md:h-10 w-auto">
                         <img 
-                            src="/logos/as-seen-logos.svg" 
+                            src="/logos/as-seen.svg" 
                             alt="Fox News, USA Today, CNN, Forbes, MSNBC" 
                             className="h-full w-auto object-contain transition-opacity hover:opacity-100"
                             style={{ filter: 'brightness(0)' }}
