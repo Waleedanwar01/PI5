@@ -14,15 +14,26 @@ const FooterWithBlueForm = ({
     brandName: initialBrandName = "Auto Insure Savings",
 }) => {
     const [brandName, setBrandName] = useState(initialBrandName);
+    const [logoUrl, setLogoUrl] = useState(null);
+    const [logoHeight, setLogoHeight] = useState(null);
     const [disclaimer, setDisclaimer] = useState("");
     const [footerText, setFooterText] = useState("We are a free online resource for anyone interested in learning more about auto insurance. Our goal is to be an objective, third-party resource for everything auto insurance related.");
     const [address, setAddress] = useState("");
     const [addressSource, setAddressSource] = useState(""); // Track where address came from
     const [submitMessage, setSubmitMessage] = useState('');
     
-    // Company and Legal links fetched dynamically from backend
-    const [companyLinks, setCompanyLinks] = useState([]);
-    const [legalLinks, setLegalLinks] = useState([]);
+    // Company and Legal links - Hardcoded for performance
+    const [companyLinks, setCompanyLinks] = useState([
+        { name: "About Us", slug: "about-us" },
+        { name: "Careers", slug: "careers" },
+        { name: "Contact Us", slug: "contact" },
+        { name: "Blog", slug: "blog" }
+    ]);
+    const [legalLinks, setLegalLinks] = useState([
+        { name: "Privacy Policy", slug: "privacy-policy" },
+        { name: "Terms of Service", slug: "terms-of-service" },
+        { name: "Editorial Guidelines", slug: "editorial-guidelines" }
+    ]);
     const [socialLinks, setSocialLinks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -124,13 +135,6 @@ const FooterWithBlueForm = ({
             }
         };
 
-        const updateMenu = (data) => {
-            const company = Array.isArray(data.company) ? data.company : [];
-            const legal = Array.isArray(data.legal) ? data.legal : [];
-            setCompanyLinks(company);
-            setLegalLinks(legal);
-        };
-
         // Load from cache first
         const cachedConfig = loadCache('footer_site_config');
         if (cachedConfig) updateSiteConfig(cachedConfig);
@@ -138,11 +142,8 @@ const FooterWithBlueForm = ({
         const cachedAddress = loadCache('footer_address');
         if (cachedAddress) updateAddress(cachedAddress);
 
-        const cachedMenu = loadCache('footer_menu');
-        if (cachedMenu) updateMenu(cachedMenu);
-
         // If we have everything cached, don't show loading skeleton (but still fetch updates)
-        if (cachedConfig && (cachedAddress || cachedConfig.address) && cachedMenu) {
+        if (cachedConfig && (cachedAddress || cachedConfig.address)) {
             setIsLoading(false);
         } else {
             setIsLoading(true);
@@ -164,16 +165,8 @@ const FooterWithBlueForm = ({
             })
             .catch(() => {});
 
-        const p3 = fetchWithRetry('/api/menu/footer/', { cache: 'no-store' })
-            .then(r => r.json())
-            .then(data => {
-                updateMenu(data);
-                saveCache('footer_menu', data);
-            })
-            .catch(() => {});
-
-        // Parallelize all requests and update state as they finish, but only turn off loading when all are done (or if cache was hit)
-        Promise.allSettled([p1, p2, p3]).finally(() => {
+        // Parallelize requests
+        Promise.allSettled([p1, p2]).finally(() => {
              setIsLoading(false);
         });
     }, []);
@@ -243,11 +236,8 @@ const FooterWithBlueForm = ({
                     {/* Brand Column (Left) */}
                     <div className="lg:col-span-5 flex flex-col items-start">
                         <SmartLink href="/" className="inline-block mb-8">
-                             <img 
-                                src="/logos/logo.svg" 
-                                alt={brandName} 
-                                style={{ height: logoHeight ? `${logoHeight}px` : '36px' }} 
-                                className="w-auto object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity" 
+                             <Logo 
+                                className="h-9 w-auto object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity" 
                             />
                         </SmartLink>
                         
