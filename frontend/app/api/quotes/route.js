@@ -1,5 +1,7 @@
 import { getApiBase } from '../../lib/config.js';
 
+export const dynamic = 'force-dynamic';
+
 const FALLBACK_COMPANIES = [
   {
     id: 991,
@@ -49,7 +51,7 @@ const FALLBACK_COMPANIES = [
     id: 995,
     name: "Liberty Mutual",
     slug: "liberty-mutual",
-    logo: "https://www.libertymutual.com/akam/13/pixel_52504b77.png", // Generic or text if logo unavailable
+    logo: "https://www.libertymutual.com/akam/13/pixel_52504b77.png",
     headline: "Only pay for what you need",
     features: "RightTrack\nViolation Free\nMulti-Car",
     cta_text: "View Quote",
@@ -60,7 +62,6 @@ const FALLBACK_COMPANIES = [
 
 export async function GET(req) {
   const API_BASE = getApiBase();
-  // Parse params robustly
   let params;
   try {
     if (req?.nextUrl?.searchParams) {
@@ -74,7 +75,8 @@ export async function GET(req) {
     params = new URLSearchParams();
   }
 
-  const zip = params.get('zip') || '';
+  // Sanitize ZIP: digits only, 5 chars
+  const zip = String(params.get('zip') || '').replace(/\D/g, '').slice(0, 5);
   const qs = new URLSearchParams();
   if (zip) qs.set('zip', String(zip));
   const url = `${API_BASE}/api/quotes/${qs.toString() ? `?${qs.toString()}` : ''}`;
@@ -86,22 +88,40 @@ export async function GET(req) {
     clearTimeout(timer);
     
     if (!res.ok) {
-        // Fallback to static data on error
-        console.error('Upstream quotes error, using fallback');
         return Response.json({ ok: true, companies: FALLBACK_COMPANIES, zip, _source: 'fallback_error' }, { status: 200 });
     }
     
     const json = await res.json();
+
+    // Ensure baseline providers are present even if upstream misses some
+    const upstream = Array.isArray(json?.companies) ? json.companies : [];
     
-    // If backend returns empty list (no companies found), use fallback
-    if (!json.companies || json.companies.length === 0) {
-        return Response.json({ ...json, companies: FALLBACK_COMPANIES, zip, _source: 'fallback_empty' }, { status: 200 });
+    // Patch logos for known companies in upstream data to ensure they show up
+    upstream.forEach(c => {
+        try {
+            const slug = String(c.slug || c.name || '').toLowerCase();
+            const fallback = FALLBACK_COMPANIES.find(f => f.slug === slug || f.name.toLowerCase() === slug);
+            if (fallback) {
+                 // If logo is missing, relative, or suspicious, use the stable fallback logo
+                 if (!c.logo || c.logo.startsWith('/') || c.logo.includes('localhost')) {
+                     c.logo = fallback.logo;
+                 }
+            }
+        } catch (e) {}
+    });
+
+    const bySlug = new Set(upstream.map(c => String(c.slug || c.name || '').toLowerCase()));
+    const merged = [...upstream];
+    for (const baseCo of FALLBACK_COMPANIES) {
+      const key = String(baseCo.slug || baseCo.name).toLowerCase();
+      if (!bySlug.has(key)) merged.push(baseCo);
     }
-    
-    return Response.json({ ...json, zip }, { status: 200 });
+    if (merged.length === 0) {
+      return Response.json({ ...json, companies: FALLBACK_COMPANIES, zip, _source: 'fallback_empty' }, { status: 200 });
+    }
+    return Response.json({ ...json, companies: merged, zip }, { status: 200 });
   } catch (e) {
     const message = typeof e?.message === 'string' ? e.message : 'Proxy fetch failed';
-    console.error('Proxy fetch failed, using fallback:', message);
     
     // Fallback: try production URL explicitly if env var failed
     try {
@@ -109,13 +129,12 @@ export async function GET(req) {
       const altUrl = `${altBase}/api/quotes/${qs.toString() ? `?${qs.toString()}` : ''}`;
       const res2 = await fetch(altUrl, { cache: 'no-store' });
       const json2 = await res2.json();
-      
       if (!json2.companies || json2.companies.length === 0) {
           return Response.json({ ...json2, companies: FALLBACK_COMPANIES, zip, _source: 'fallback_alt_empty' }, { status: 200 });
       }
       return Response.json({ ...json2, zip }, { status: 200 });
     } catch (e2) {
-      // Final Fallback: Return static data
+      
       return Response.json({ ok: true, companies: FALLBACK_COMPANIES, error: message, zip, _source: 'fallback_final' }, { status: 200 });
     }
   }

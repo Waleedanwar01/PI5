@@ -51,6 +51,12 @@ export function getApiUrl(path) {
 export function getMediaUrl(path) {
   if (!path) return null;
   
+  // PASS THROUGH LOCAL ASSETS (Logos, Icons, etc.)
+  // If the path starts with /logos/, /images/, /icons/ or /favicon, assume it's a local frontend asset.
+  if (path.startsWith('/logos/') || path.startsWith('/images/') || path.startsWith('/icons/') || path.startsWith('/favicon')) {
+      return path;
+  }
+  
   const productionBase = 'https://pi5-y8gd.onrender.com';
   
   // If path is already absolute

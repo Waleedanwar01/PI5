@@ -1,6 +1,12 @@
 import { headers } from 'next/headers';
 import { getApiBase } from '../../lib/config.js';
 
+export const dynamic = 'force-dynamic';
+
+let CACHE = null;
+let CACHE_AT = 0;
+const TTL_MS = 5 * 60 * 1000;
+
 export async function GET(req) {
   const API_BASE = getApiBase();
   try {
@@ -48,6 +54,10 @@ export async function GET(req) {
     
     const backendSearch = outParams.toString();
     const target = backendSearch ? `${API_BASE}/api/blogs/?${backendSearch}` : `${API_BASE}/api/blogs/`;
+    const cacheKey = backendSearch ? `blogs?${backendSearch}` : 'blogs';
+    if (CACHE && CACHE[cacheKey] && (Date.now() - CACHE_AT) < TTL_MS) {
+      return Response.json(CACHE[cacheKey], { status: 200 });
+    }
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 10000);
     const res = await fetch(target, { cache: 'no-store', signal: controller.signal });
@@ -63,7 +73,18 @@ export async function GET(req) {
           msg = await res.text();
         } catch {}
       }
-      return Response.json({ blogs: [], pagination: null, error: msg }, { status: 200 });
+      return Response.json({ 
+        blogs: [], 
+        pagination: {
+          total_count: 0,
+          page_size: 10,
+          current_page: 1,
+          total_pages: 1,
+          has_next: false,
+          has_previous: false,
+        }, 
+        error: msg 
+      }, { status: 200 });
     }
     const json = await res.json();
     
@@ -120,7 +141,11 @@ export async function GET(req) {
       const pNum = Number(page) || 1;
       pagination = { total_count: 0, page_size: psNum, current_page: pNum, total_pages: 0, has_next: false, has_previous: false };
     }
-    return Response.json({ ...json, blogs, pagination });
+    const payload = { ...json, blogs, pagination };
+    CACHE = CACHE || {};
+    CACHE[cacheKey] = payload;
+    CACHE_AT = Date.now();
+    return Response.json(payload);
   } catch (e) {
     console.error('blogs upstream error:', e?.message || e);
     return Response.json({ blogs: [], pagination: null, error: e?.message || 'Blogs proxy failed' }, { status: 200 });

@@ -6,6 +6,8 @@ import WhyChooseSection from "./components/WhyChooseSection.jsx";
 import SectionRenderer, { RichHTML } from "./components/SectionRenderer.jsx";
 import ClientHomepage from "./ClientHomepage.jsx";
 
+export const dynamic = 'force-dynamic';
+
 // Ensure this page is static at the server level; all dynamic
 // content loads in client components without blocking route rendering.
 

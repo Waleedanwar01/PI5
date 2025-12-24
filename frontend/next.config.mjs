@@ -83,6 +83,13 @@ const nextConfig = {
         port: '8000',
         pathname: '/**',
       },
+      // Allow any HTTPS image host (team member images, logos, CDNs)
+      {
+        protocol: 'https',
+        hostname: '**',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

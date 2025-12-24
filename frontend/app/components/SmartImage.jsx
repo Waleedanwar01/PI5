@@ -17,6 +17,12 @@ export default function SmartImage({
 }) {
   const finalSrc = getMediaUrl(src);
   const [srcToUse, setSrcToUse] = React.useState(finalSrc || '/icon.svg');
+  
+  React.useEffect(() => {
+    setSrcToUse(finalSrc || '/icon.svg');
+    setLoaded(false);
+  }, [finalSrc]);
+
   const hasDims = Number.isFinite(width) && Number.isFinite(height);
   const [loaded, setLoaded] = React.useState(false);
   const blurDataURL = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZWVlIi8+PC9zdmc+';

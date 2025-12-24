@@ -1,9 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { ChevronRight, Phone, ShieldCheck, MapPin } from 'lucide-react';
-import SmartLink from './SmartLink.jsx';
-import SmartImage from './SmartImage.jsx';
-import { getMediaUrl } from '../lib/config.js';
 
 export default function HeroWithNavbar({ initialPressLogos }) {
   const [zip, setZip] = useState("");
@@ -14,30 +11,19 @@ export default function HeroWithNavbar({ initialPressLogos }) {
   const [siteConfig, setSiteConfig] = useState(null);
   const [heroTitle, setHeroTitle] = useState(null);
   const [tagline, setTagline] = useState(null);
-  const [pressLogos, setPressLogos] = useState(initialPressLogos || []);
   
-  // Fetch site configuration and homepage data
+  // Fetch site configuration only (homepage data no longer needed for logos)
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [siteConfigRes, homepageRes] = await Promise.all([
-          fetch('/api/site-config/', { cache: 'no-store' }),
-          !initialPressLogos ? fetch('/api/homepage/', { cache: 'no-store' }) : Promise.resolve(null)
-        ]);
-
+        const siteConfigRes = await fetch('/api/site-config/', { cache: 'no-store' });
         if (siteConfigRes.ok) {
           const data = await siteConfigRes.json();
           setSiteConfig(data);
-          
           if (data.phone_number) setPhone(data.phone_number);
           if (data.brand_name) setBrand(data.brand_name);
           if (data.hero_title) setHeroTitle(data.hero_title);
           if (data.tagline) setTagline(data.tagline);
-        }
-
-        if (homepageRes && homepageRes.ok) {
-          const homeData = await homepageRes.json();
-          if (homeData.press_logos) setPressLogos(homeData.press_logos);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -45,7 +31,7 @@ export default function HeroWithNavbar({ initialPressLogos }) {
     };
 
     fetchData();
-  }, [initialPressLogos]);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -123,32 +109,23 @@ export default function HeroWithNavbar({ initialPressLogos }) {
                      <span className="text-xs font-medium">Secured with SHA-256 Encryption</span>
                 </div>
                 
-                {/* As Seen In */}
-                {pressLogos && pressLogos.length > 0 && (
-                  <div className="mt-6 pt-6 border-t border-slate-200">
-                    <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-4">
-                      As seen in
-                    </p>
-                    <div className="flex flex-wrap items-center gap-6 md:gap-8 opacity-70">
-                      {pressLogos.map((logo, index) => (
-                        logo.image ? (
-                          <img 
-                            key={index} 
-                            src={getMediaUrl(logo.image)} 
-                            alt={logo.name || 'Press Logo'} 
-                            className="h-6 md:h-8 object-contain transition-opacity hover:opacity-100"
+                {/* As Seen In - Static Hardcoded */}
+                <div className="mt-6 pt-6 border-t border-slate-200">
+                  <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-4">
+                    As seen in
+                  </p>
+                  <div className="flex flex-wrap items-center gap-6 md:gap-8 opacity-70">
+                      <div className="relative h-8 md:h-10 w-auto">
+                        <img 
+                            src="/logos/as-seen-logos.svg" 
+                            alt="Fox News, USA Today, CNN, Forbes, MSNBC" 
+                            className="h-full w-auto object-contain transition-opacity hover:opacity-100"
                             loading="lazy"
-                            decoding="async"
-                            fetchpriority="low"
                             style={{ filter: 'grayscale(100%) brightness(0)' }} 
-                          />
-                        ) : (
-                          <span key={index} className="text-slate-400 font-medium text-sm">{logo.name}</span>
-                        )
-                      ))}
-                    </div>
+                        />
+                      </div>
                   </div>
-                )}
+                </div>
             </div>
         </div>
       </div>

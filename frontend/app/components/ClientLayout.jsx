@@ -80,8 +80,8 @@ export default function ClientLayout({ children }) {
     };
 
     const applyConfig = (cfg) => {
-        // Apply favicon from admin config
-        applyFavicon(cfg);
+        // Apply favicon from admin config - DISABLED per user request for stability
+        // applyFavicon(cfg);
         const orange = (cfg?.accent_orange_hex || '').trim();
         const orangeHover = (cfg?.accent_orange_hover_hex || '').trim();
         const gradFrom = (cfg?.accent_gradient_from_hex || '').trim() || orange;
@@ -148,8 +148,10 @@ export default function ClientLayout({ children }) {
     const applyAccent = async () => {
       try {
         // Try to get homepage data first for favicon, then fallback to site-config
+        // OPTIMIZATION: Removed client-side homepage fetch for title to speed up loading.
+        // Title is handled server-side in page.js.
+        /*
         let cfg = {};
-        
         try {
           const homepageRes = await fetch('/api/homepage/', { cache: 'no-store' });
           if (homepageRes.ok) {
@@ -161,6 +163,7 @@ export default function ClientLayout({ children }) {
         } catch (e) {
           // Fallback to site-config if homepage fails
         }
+        */
         
         // Try cache first
         const cachedConfig = loadCache('client_layout_config');

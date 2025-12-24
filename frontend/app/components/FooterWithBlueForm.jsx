@@ -5,7 +5,6 @@ import { Twitter, Youtube, Facebook, Instagram, Linkedin, Globe, Shield } from "
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
 import SkeletonLoader from './SkeletonLoader.jsx';
-import { getMediaUrl, getApiBase } from '../lib/config.js';
 
 // Helper functions (resolveHref and FooterCopyright) remain the same.
 
@@ -65,6 +64,9 @@ const FooterWithBlueForm = () => {
 
     // Fetch all data
     useEffect(() => {
+        // Hardcoded logo
+        setLogoUrl('/logos/Auto-Insure-Savings-Logo.svg');
+
         const versioned = (u, v) => {
             const url = String(u || '').trim();
             if (!url) return null;
@@ -75,7 +77,8 @@ const FooterWithBlueForm = () => {
         const updateSiteConfig = (data) => {
             const bn = (data.brand_name || data.site_name || '').trim();
             if (bn) setBrandName(bn);
-            if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
+            // Hardcoded logo - ignoring admin logo_url
+            // if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
             if (data.logo_height) setLogoHeight(data.logo_height);
 
             const aboutTxt = (data.footer_about_text || '').trim();
@@ -132,7 +135,7 @@ const FooterWithBlueForm = () => {
             setIsLoading(true);
         }
 
-        const p1 = fetch('/api/site-config/', { cache: 'no-store' })
+        const p1 = fetchWithRetry('/api/site-config/', { cache: 'no-store' })
             .then(r => r.json())
             .then(data => {
                 updateSiteConfig(data);
@@ -140,7 +143,7 @@ const FooterWithBlueForm = () => {
             })
             .catch(() => {});
 
-        const p2 = fetch('/api/footer-address/', { cache: 'no-store' })
+        const p2 = fetchWithRetry('/api/footer-address/', { cache: 'no-store' })
             .then(r => r.json())
             .then(data => {
                 updateAddress(data);
@@ -148,7 +151,7 @@ const FooterWithBlueForm = () => {
             })
             .catch(() => {});
 
-        const p3 = fetch(`${getApiBase()}/api/menu/footer/`, { cache: 'no-store' })
+        const p3 = fetchWithRetry('/api/menu/footer/', { cache: 'no-store' })
             .then(r => r.json())
             .then(data => {
                 updateMenu(data);
@@ -219,12 +222,16 @@ const FooterWithBlueForm = () => {
                 {/* Top panel: logo + description like the screenshot */}
             <div className="bg-[#111] border border-neutral-800 p-6 md:p-8">
                 <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-12 text-left w-full lg:justify-start">
-                    <div className="flex-shrink-0">
-                        {isLoading ? (
-                            <SkeletonLoader className="h-10 w-32 bg-neutral-800" />
-                        ) : logoUrl ? (
-                            <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto" />
-                        ) : null}
+                    <div className="mb-6">
+                        {/* Hardcoded Logo - using standard img tag for stability */}
+                        <SmartLink href="/" className="inline-block">
+                             <img 
+                                src="/logos/Auto-Insure-Savings-Logo.svg" 
+                                alt={brandName} 
+                                style={{ height: logoHeight ? `${logoHeight}px` : '32px' }} 
+                                className="w-auto object-contain" 
+                            />
+                        </SmartLink>
                     </div>
                     <div className="flex-1 w-full">
                         {isLoading ? (

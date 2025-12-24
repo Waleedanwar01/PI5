@@ -6,58 +6,40 @@ import { getApiBase, getMediaUrl } from "./lib/config.js";
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata() {
+  const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  
+  // Hardcoded stable favicon
+  const icons = {
+      icon: ['/logos/favicon.png'],
+      shortcut: ['/logos/favicon.png'],
+      apple: ['/logos/favicon.png'],
+  };
+
   try {
-    const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
     const apiBase = getApiBase();
+    // Fetch site config only for title/description if needed, or hardcode that too if requested.
+    // User said "logo faviocn or as seen logo ko hard coded kar do", didn't explicitly say title.
+    // But to be safe and stable, I'll keep title dynamic but fallback gracefully.
     
-    // Fetch site config for favicon
     const siteConfigRes = await fetch(`${apiBase}/api/site-config/`, { cache: 'no-store' });
-    let icons = {};
-    
     if (siteConfigRes.ok) {
         const config = await siteConfigRes.json();
-        const rawFav = config.favicon || config.favicon_url || config.faviconUrl || null;
-        if (rawFav) {
-            const faviconUrl = getMediaUrl(rawFav);
-            icons = {
-                icon: [
-                    { url: faviconUrl },
-                    { url: '/favicon.ico' },
-                    { url: '/icon.svg' }
-                ],
-                shortcut: [
-                    { url: faviconUrl },
-                    { url: '/favicon.ico' },
-                    { url: '/icon.svg' }
-                ],
-                apple: [
-                    { url: faviconUrl },
-                    { url: '/favicon.ico' },
-                    { url: '/icon.svg' }
-                ],
-            };
-        } else {
-            icons = {
-                icon: ['/favicon.ico', '/icon.svg'],
-                shortcut: ['/favicon.ico', '/icon.svg'],
-                apple: ['/favicon.ico', '/icon.svg'],
-            };
-        }
-    } else {
-        icons = {
-            icon: ['/favicon.ico', '/icon.svg'],
-            shortcut: ['/favicon.ico', '/icon.svg'],
-            apple: ['/favicon.ico', '/icon.svg'],
+        // Ignore admin favicon, use hardcoded
+        return {
+            metadataBase: new URL(base),
+            icons: icons,
+            title: config.brand_name || "Car Insurance Comparison",
+            description: config.tagline || "Compare car insurance rates",
         };
     }
+  } catch {}
 
-    return {
-      metadataBase: new URL(base),
-      icons: icons,
-    };
-  } catch {
-    return {};
-  }
+  return {
+    metadataBase: new URL(base),
+    icons: icons,
+    title: "Car Insurance Comparison",
+    description: "Compare car insurance rates and find the best coverage for you",
+  };
 }
 
 export default function RootLayout({ children }) {

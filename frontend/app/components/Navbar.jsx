@@ -5,7 +5,6 @@ import { ChevronDown, ChevronRight, Phone, X, Menu } from 'lucide-react';
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
 import SkeletonLoader from './SkeletonLoader.jsx';
-import { getMediaUrl } from '../lib/config.js';
 import { gsap } from 'gsap';
 
 export default function Navbar() {
@@ -83,9 +82,13 @@ export default function Navbar() {
             setSiteConfig(data);
             if (data.phone_number) setPhone(data.phone_number);
             if (data.brand_name) setBrand(data.brand_name);
-            if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
+            // Hardcoded logo - ignoring admin logo_url
+            // if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
             if (data.logo_height_px) setLogoHeight(data.logo_height_px);
         };
+
+        // Always set hardcoded logo
+        setLogoUrl('/logos/Auto-Insure-Savings-Logo.svg');
 
         // Try cache first
         const cachedConfig = loadCache('navbar_site_config');
@@ -362,22 +365,13 @@ export default function Navbar() {
                     {/* Left: Logo/Brand */}
                     <div className="flex items-center flex-shrink-0">
                         <SmartLink href="/" className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                            {isFetching && !logoUrl ? (
-                                <SkeletonLoader className="h-8 w-40" />
-                            ) : logoUrl ? (
-                                <SmartImage 
-                                    src={logoUrl} 
-                                    alt={brand} 
-                                    style={{ '--desktop-h': `${logoHeight}px` }} 
-                                    className="w-auto object-contain h-5 md:h-[calc(var(--desktop-h)*0.85)] lg:h-[calc(var(--desktop-h)*0.85)]" 
-                                />
-                            ) : (
-                                <span className="flex items-center">
-                                    <span className="text-slate-900">Auto</span>
-                                    <span className="text-sky-600">Insure</span>
-                                    <span className="text-slate-900">Savings</span>
-                                </span>
-                            )}
+                            {/* Hardcoded Logo - using standard img tag for stability */}
+                            <img 
+                                src="/logos/Auto-Insure-Savings-Logo.svg" 
+                                alt={brand} 
+                                style={{ height: `${logoHeight}px` }} 
+                                className="w-auto object-contain" 
+                            />
                         </SmartLink>
                     </div>
 
