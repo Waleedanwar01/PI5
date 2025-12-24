@@ -21,8 +21,6 @@ export default function Navbar() {
     const overlayRef = useRef(null);
     const [phone, setPhone] = useState('');
     const [brand, setBrand] = useState('Car Insurance Comparison');
-    const [logoUrl, setLogoUrl] = useState(null);
-    const [logoHeight, setLogoHeight] = useState(32);
     const [siteConfig, setSiteConfig] = useState(null);
     const navbarRef = useRef(null);
     const dropdownTimeoutRef = useRef(null);
@@ -368,8 +366,7 @@ export default function Navbar() {
                         <SmartLink href="/" className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
                             {/* Hardcoded Logo - using inline SVG for max stability */}
                             <Logo 
-                                style={{ height: `${logoHeight}px`, width: 'auto' }} 
-                                className="object-contain"
+                                className="h-10 w-auto object-contain"
                             />
                         </SmartLink>
                     </div>
