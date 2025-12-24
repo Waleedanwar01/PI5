@@ -66,6 +66,17 @@ export default function Navbar() {
             return v ? `${url}${sep}v=${encodeURIComponent(v)}` : url;
         };
 
+        const fetchWithRetry = async (url, options = {}, retries = 2) => {
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                try {
+                    const res = await fetch(url, options);
+                    if (res.ok) return res;
+                } catch {}
+                await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+            }
+            return fetch(url, options).catch(() => ({ ok: false }));
+        };
+
         const updateSiteConfig = (data) => {
             setSiteConfig(data);
             if (data.phone_number) setPhone(data.phone_number);
@@ -83,7 +94,7 @@ export default function Navbar() {
         const fetchSiteConfig = async () => {
             try {
                 if (!cachedConfig) setIsFetching(true);
-                const response = await fetch('/api/site-config/', { cache: 'no-store' });
+                const response = await fetchWithRetry('/api/site-config/', { cache: 'no-store' }, 2);
                 if (response.ok) {
                     const data = await response.json();
                     updateSiteConfig(data);
@@ -115,7 +126,7 @@ export default function Navbar() {
                     setIsFetching(true);
                 }
                 
-                const response = await fetch('/api/pages-with-categories/?include_blogs=0', { cache: 'no-store' });
+                const response = await fetchWithRetry('/api/pages-with-categories/?include_blogs=0', { cache: 'no-store' }, 2);
                 if (response.ok) {
                     const data = await response.json();
                     // Transform ALL pages data from database

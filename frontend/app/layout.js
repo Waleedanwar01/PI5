@@ -18,35 +18,35 @@ export async function generateMetadata() {
         const config = await siteConfigRes.json();
         if (config.favicon) {
             const faviconUrl = getMediaUrl(config.favicon);
-            // Provide both custom and default as fallback
             icons = {
                 icon: [
                     { url: faviconUrl },
+                    { url: '/favicon.ico' },
                     { url: '/icon.svg' }
                 ],
                 shortcut: [
                     { url: faviconUrl },
+                    { url: '/favicon.ico' },
                     { url: '/icon.svg' }
                 ],
                 apple: [
                     { url: faviconUrl },
+                    { url: '/favicon.ico' },
                     { url: '/icon.svg' }
                 ],
             };
         } else {
-             // Fallback to default icon
-             icons = {
-                icon: '/icon.svg',
-                shortcut: '/icon.svg',
-                apple: '/icon.svg',
+            icons = {
+                icon: ['/favicon.ico', '/icon.svg'],
+                shortcut: ['/favicon.ico', '/icon.svg'],
+                apple: ['/favicon.ico', '/icon.svg'],
             };
         }
     } else {
-        // Fallback to default icon if fetch fails
         icons = {
-            icon: '/icon.svg',
-            shortcut: '/icon.svg',
-            apple: '/icon.svg',
+            icon: ['/favicon.ico', '/icon.svg'],
+            shortcut: ['/favicon.ico', '/icon.svg'],
+            apple: ['/favicon.ico', '/icon.svg'],
         };
     }
 
