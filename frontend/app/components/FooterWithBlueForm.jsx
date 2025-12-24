@@ -176,22 +176,25 @@ const FooterWithBlueForm = () => {
     
 
     return (
-        <footer className="bg-black text-gray-300 font-sans">
-            {/* Dark Form Section matching screenshot */}
-            <div className="bg-[#1e293b] text-white py-12 border-t border-slate-800">
-                <div className="max-w-4xl mx-auto px-4 text-center">
-                    <h3 className="text-2xl md:text-3xl font-bold mb-3 text-white">
-                        Free Auto Insurance Comparison
+        <footer className="bg-slate-950 text-slate-300 font-sans border-t border-slate-900">
+            {/* 1. CTA / ZIP Form Section - Clean & Modern */}
+            <div className="bg-slate-900/50 py-20 px-4 relative overflow-hidden backdrop-blur-sm">
+                {/* Subtle background pattern/gradient */}
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-900 to-transparent pointer-events-none"></div>
+                
+                <div className="max-w-4xl mx-auto text-center relative z-10">
+                    <h3 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">
+                        Compare Auto Insurance Rates
                     </h3>
-                    <p className="text-base md:text-lg text-slate-300 mb-8">
-                        Enter your ZIP code below to view companies that have cheap auto insurance rates.
+                    <p className="text-lg md:text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+                        Join thousands of drivers who have saved money. Enter your ZIP code to see your personalized quotes.
                     </p>
                     
-                    <form action="/quotes" method="GET" className="max-w-xl mx-auto mb-6">
-                        <div className="flex flex-col sm:flex-row shadow-lg">
-                            <div className="relative flex-grow">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <form action="/quotes" method="GET" className="max-w-lg mx-auto mb-10">
+                        <div className="flex flex-col sm:flex-row shadow-2xl rounded-xl overflow-hidden transition-all duration-300 hover:shadow-orange-500/20 ring-1 ring-white/10 focus-within:ring-orange-500/50">
+                            <div className="relative flex-grow group">
+                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                                    <svg className="h-6 w-6 text-slate-500 group-focus-within:text-orange-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
@@ -199,210 +202,153 @@ const FooterWithBlueForm = () => {
                                 <input
                                     type="text"
                                     name="zip"
-                                    placeholder="ZIP Code"
+                                    placeholder="Enter ZIP Code"
                                     pattern="[0-9]*"
                                     maxLength={5}
-                                    className="w-full pl-10 pr-4 py-3 md:py-4 text-gray-900 bg-white border-none focus:ring-2 focus:ring-orange-500 outline-none h-12 md:h-14"
+                                    className="w-full pl-14 pr-4 py-5 text-slate-900 bg-white border-none outline-none text-lg placeholder:text-slate-400 font-medium"
                                     required
                                 />
                             </div>
                             <button
                                 type="submit"
-                                className="bg-[#f97316] hover:bg-[#ea580c] text-white font-bold py-3 md:py-4 px-8 whitespace-nowrap transition-colors flex items-center justify-center gap-2 h-12 md:h-14"
+                                className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-5 px-10 whitespace-nowrap transition-all duration-200 flex items-center justify-center gap-2 text-lg active:scale-95"
                             >
-                                GET QUOTES
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                Get Quotes
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                 </svg>
                             </button>
                         </div>
                     </form>
 
-                    <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
-                        <Shield className="w-4 h-4" />
-                        <span>Secured with SHA-256 Encryption</span>
+                    <div className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        <Shield className="w-4 h-4 text-emerald-500" />
+                        <span>Secure & Encrypted</span>
                     </div>
-
-                    {/* Dotted decoration at the bottom */}
-                    <div className="mt-8 mx-auto max-w-xs border-b-4 border-dotted border-black/40 h-1 w-full"></div>
                 </div>
             </div>
 
-            {/* Original Footer Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-                {/* Top panel: logo + description like the screenshot */}
-            <div className="bg-[#111] border border-neutral-800 p-6 md:p-8">
-                <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-12 text-left w-full lg:justify-start">
-                    <div className="mb-6">
-                        {/* Hardcoded Logo - using standard img tag for stability */}
-                        <SmartLink href="/" className="inline-block">
+            {/* 2. Main Footer Content */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-16 mb-20">
+                    
+                    {/* Brand Column (Left) */}
+                    <div className="lg:col-span-5 flex flex-col items-start">
+                        <SmartLink href="/" className="inline-block mb-8">
                              <img 
                                 src="/logos/Auto-Insure-Savings-Logo.svg" 
                                 alt={brandName} 
-                                style={{ height: logoHeight ? `${logoHeight}px` : '32px' }} 
-                                className="w-auto object-contain" 
+                                style={{ height: logoHeight ? `${logoHeight}px` : '36px' }} 
+                                className="w-auto object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity" 
                             />
                         </SmartLink>
-                    </div>
-                    <div className="flex-1 w-full">
+                        
                         {isLoading ? (
-                            <div className="space-y-2">
-                                <SkeletonLoader className="h-4 w-full max-w-lg bg-neutral-800" />
-                                <SkeletonLoader className="h-4 w-3/4 max-w-md bg-neutral-800" />
+                             <div className="space-y-4 w-full max-w-sm">
+                                <SkeletonLoader className="h-4 w-full bg-slate-800 rounded" />
+                                <SkeletonLoader className="h-4 w-3/4 bg-slate-800 rounded" />
                             </div>
                         ) : (
-                            <p className="text-sm text-gray-300 leading-relaxed text-left">
+                            <p className="text-slate-400 leading-loose mb-10 max-w-md text-sm">
                                 {footerText}
                             </p>
                         )}
-                    </div>
-                </div>
 
-                {/* Company + Legal sections */}
-                    {isLoading ? (
-                         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8">
-                            <div>
-                                <SkeletonLoader className="h-6 w-24 mb-4 bg-neutral-800" />
-                                <div className="space-y-3">
-                                    <SkeletonLoader className="h-4 w-32 bg-neutral-800" />
-                                    <SkeletonLoader className="h-4 w-40 bg-neutral-800" />
-                                    <SkeletonLoader className="h-4 w-28 bg-neutral-800" />
-                                </div>
-                            </div>
-                            <div>
-                                <SkeletonLoader className="h-6 w-24 mb-4 bg-neutral-800" />
-                                <div className="space-y-3">
-                                    <SkeletonLoader className="h-4 w-32 bg-neutral-800" />
-                                    <SkeletonLoader className="h-4 w-40 bg-neutral-800" />
-                                    <SkeletonLoader className="h-4 w-28 bg-neutral-800" />
-                                </div>
-                            </div>
-                         </div>
-                    ) : (companyLinks?.length > 0 || legalLinks?.length > 0) && (
-                        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8">
-                            {companyLinks?.length > 0 && (
-                                <div>
-                                    <h3 className="text-white font-semibold mb-3">Company</h3>
-                                    <div className="flex flex-col gap-2">
-                                        {companyLinks.map((item, idx) => (
-                                            <SmartLink
-                                                key={`${String(item.page_slug || item.href || item.name || '')}-${idx}`}
-                                                href={resolveHref(item)}
-                                                className="text-gray-300 hover:text-white transition-colors duration-200 text-sm"
-                                            >
-                                                {item.name}
-                                            </SmartLink>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                            {legalLinks?.length > 0 && (
-                                <div>
-                                    <h3 className="text-white font-semibold mb-3">Legal</h3>
-                                    <div className="flex flex-col gap-2">
-                                        {legalLinks.map((item, idx) => (
-                                            <SmartLink
-                                                key={`${String(item.page_slug || item.href || item.name || '')}-${idx}`}
-                                                href={resolveHref(item)}
-                                                className="text-gray-300 hover:text-white transition-colors duration-200 text-sm"
-                                            >
-                                                {item.name}
-                                            </SmartLink>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Follow us row */}
-                    {isLoading ? (
-                        <div className="mt-8 flex items-center gap-3">
-                            <SkeletonLoader className="h-4 w-24 bg-neutral-800" />
-                            <div className="flex gap-2">
-                                <SkeletonLoader variant="circular" className="h-9 w-9 bg-neutral-800" />
-                                <SkeletonLoader variant="circular" className="h-9 w-9 bg-neutral-800" />
-                                <SkeletonLoader variant="circular" className="h-9 w-9 bg-neutral-800" />
-                            </div>
-                        </div>
-                    ) : socialLinks && socialLinks.length > 0 ? (
-                        <div className="mt-8 flex items-center gap-3">
-                            <span className="text-sm text-gray-400">Follow us on:</span>
-                            {socialLinks.map((href, idx) => {
-                                const Icon = iconFor(href);
+                        {/* Social Links */}
+                        <div className="flex items-center gap-3">
+                            {socialLinks.map((url, idx) => {
+                                const Icon = iconFor(url);
                                 return (
-                                    <a
-                                        key={`${href}-${idx}`}
-                                        href={href}
-                                        target="_blank"
+                                    <a 
+                                        key={idx} 
+                                        href={url} 
+                                        target="_blank" 
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-neutral-700 text-gray-300 hover:text-white hover:border-white/30 hover:bg-white/10 transition-colors"
-                                        aria-label="Social link"
+                                        className="bg-slate-900 hover:bg-orange-600 text-slate-400 hover:text-white p-3 rounded-xl transition-all duration-300 ring-1 ring-slate-800 hover:ring-orange-500"
+                                        aria-label="Social Link"
                                     >
-                                        <Icon className="w-4.5 h-4.5" />
+                                        <Icon className="w-5 h-5" />
                                     </a>
                                 );
                             })}
                         </div>
-                    ) : null}
+                    </div>
+
+                    {/* Links Columns (Right) */}
+                    <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-12 lg:pl-12">
+                        {/* Company Links */}
+                        <div>
+                            <h4 className="text-white font-bold text-lg mb-8 tracking-tight">Company</h4>
+                            {isLoading ? (
+                                <div className="space-y-4">
+                                    <SkeletonLoader className="h-4 w-24 bg-slate-800 rounded" />
+                                    <SkeletonLoader className="h-4 w-32 bg-slate-800 rounded" />
+                                    <SkeletonLoader className="h-4 w-20 bg-slate-800 rounded" />
+                                </div>
+                            ) : (
+                                <ul className="space-y-4">
+                                    {companyLinks.map((item, idx) => (
+                                        <li key={idx}>
+                                            <SmartLink
+                                                href={resolveHref(item)}
+                                                className="text-slate-400 hover:text-orange-500 transition-colors duration-200 text-sm flex items-center gap-3 group"
+                                            >
+                                                <span className="w-1.5 h-1.5 rounded-full bg-slate-800 group-hover:bg-orange-500 transition-colors"></span>
+                                                {item.name}
+                                            </SmartLink>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+
+                        {/* Legal / Resources Links */}
+                        <div>
+                            <h4 className="text-white font-bold text-lg mb-8 tracking-tight">Legal & Resources</h4>
+                            {isLoading ? (
+                                <div className="space-y-4">
+                                    <SkeletonLoader className="h-4 w-24 bg-slate-800 rounded" />
+                                    <SkeletonLoader className="h-4 w-32 bg-slate-800 rounded" />
+                                </div>
+                            ) : (
+                                <ul className="space-y-4">
+                                    {legalLinks.map((item, idx) => (
+                                        <li key={idx}>
+                                            <SmartLink
+                                                href={resolveHref(item)}
+                                                className="text-slate-400 hover:text-orange-500 transition-colors duration-200 text-sm flex items-center gap-3 group"
+                                            >
+                                                <span className="w-1.5 h-1.5 rounded-full bg-slate-800 group-hover:bg-orange-500 transition-colors"></span>
+                                                {item.name}
+                                            </SmartLink>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Bottom bar: copyright + legal inline links */}
-                <div className="mt-6 border-t border-neutral-800 pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex items-center gap-2 whitespace-normal sm:whitespace-nowrap">
-                        {isLoading ? (
-                             <SkeletonLoader className="h-6 w-64 bg-neutral-800" />
-                        ) : (
-                            <>
-                                {logoUrl ? (
-                                    <SmartImage src={logoUrl} alt={brandName} style={logoHeight ? { height: `${logoHeight}px` } : undefined} className="w-auto h-6" />
-                                ) : null}
-                                <FooterCopyright brandName={brandName} />
-                            </>
-                        )}
+                {/* Bottom Bar: Copyright & Address */}
+                <div className="border-t border-slate-900 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-500">
+                    <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+                        <span>&copy; {new Date().getFullYear()} {brandName}. All rights reserved.</span>
                     </div>
-                    {isLoading ? (
-                        <div className="flex gap-4">
-                            <SkeletonLoader className="h-4 w-20 bg-neutral-800" />
-                            <SkeletonLoader className="h-4 w-20 bg-neutral-800" />
-                        </div>
-                    ) : legalLinks?.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs">
-                            {legalLinks.map((item, idx) => (
-                                <SmartLink
-                                    key={`legal-inline-${idx}`}
-                                    href={resolveHref(item)}
-                                    className="text-gray-400 hover:text-white transition-colors"
-                                >
-                                    {item.name}
-                                </SmartLink>
-                            ))}
+                    
+                    {address && (
+                        <div className="flex items-center gap-2 text-center md:text-right">
+                            <span className="hidden md:inline text-slate-800">|</span>
+                            <span>{address}</span>
                         </div>
                     )}
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-neutral-800 text-[10px] sm:text-xs leading-relaxed text-gray-400">
-                    {isLoading ? (
-                        <div className="space-y-1">
-                            <SkeletonLoader className="h-3 w-full bg-neutral-800" />
-                            <SkeletonLoader className="h-3 w-3/4 bg-neutral-800" />
-                        </div>
-                    ) : (
-                        disclaimer || (
-                        "Disclaimer: CarInsuranceComparison.com strives to present the most up-to-date and comprehensive information on saving money on car insurance possible. This information may be different than what you see when you visit an insurance provider, insurance agency, or insurance company website. All insurance rates, products, and services are presented without warranty and guarantee. When evaluating rates, please verify directly with your insurance company or agent. Quotes and offers are not binding, nor a guarantee of coverage."
-                        )
-                    )}
-                </div>
-
-                {isLoading ? (
-                    <div className="mt-2">
-                        <SkeletonLoader className="h-3 w-64 bg-neutral-800" />
+                {/* Disclaimer Text */}
+                {disclaimer && (
+                    <div className="mt-10 pt-8 border-t border-slate-900/50 text-xs text-slate-600 text-justify leading-relaxed opacity-60 hover:opacity-100 transition-opacity">
+                        {disclaimer}
                     </div>
-                ) : address ? (
-                    <div className="w-full mt-2">
-                        <p className="text-xs text-gray-500">{address}</p>
-                    </div>
-                ) : null}
+                )}
             </div>
         </footer>
     );
