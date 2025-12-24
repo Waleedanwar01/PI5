@@ -178,7 +178,7 @@ export default function PageClient({ slug }) {
   ];
   
   // Deterministic selection based on slug length to keep it consistent per page
-  const fakeImage = fakeImages[slug.length % fakeImages.length];
+  const fakeImage = fakeImages[String(slug || '').length % fakeImages.length];
 
   const finalHeroImage = metaHeroImage || fakeImage;
 
