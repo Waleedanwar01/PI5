@@ -67,6 +67,17 @@ const FooterWithBlueForm = () => {
         // Hardcoded logo
         setLogoUrl('/logos/Auto-Insure-Savings-Logo.svg');
 
+        const fetchWithRetry = async (url, options = {}, retries = 2) => {
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                try {
+                    const res = await fetch(url, options);
+                    if (res.ok) return res;
+                } catch {}
+                await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+            }
+            return fetch(url, options).catch(() => ({ ok: false }));
+        };
+
         const versioned = (u, v) => {
             const url = String(u || '').trim();
             if (!url) return null;
