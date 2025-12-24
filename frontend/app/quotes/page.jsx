@@ -36,7 +36,7 @@ async function fetchQuotes(searchParams) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     const proxyPath = `${siteUrl}/api/quotes/${qs.toString() ? `?${qs.toString()}` : ''}`;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 4000);
+    const timer = setTimeout(() => controller.abort(), 1500); // Reduced from 4000ms for speed
     const res = await fetch(proxyPath, { cache: 'no-store', signal: controller.signal });
     clearTimeout(timer);
     const json = await res.json().catch(() => ({}));
@@ -113,7 +113,21 @@ export default async function QuotesPage({ searchParams }) {
 
   const filteredCompanies = filterCompaniesByZip(companies, zip);
 
-  return (
+  // Helper to process features safely
+    const getFeatures = (features) => {
+        if (typeof features === 'string') return features.split('\n');
+        if (Array.isArray(features)) return features;
+        return [];
+    };
+
+    const hasFeatures = (c) => {
+        if (!c.features) return false;
+        if (typeof c.features === 'string' && c.features.trim().length > 0) return true;
+        if (Array.isArray(c.features) && c.features.length > 0) return true;
+        return false;
+    };
+
+    return (
     <div className="min-h-screen bg-gray-100 py-8">
       <div className="mx-auto max-w-5xl px-8 sm:px-12 lg:px-16">
         
@@ -162,14 +176,14 @@ export default async function QuotesPage({ searchParams }) {
                     </h2>
                     
                     <ul className="space-y-1">
-                        {company.features ? (
-                            company.features.split('\n').map((feature, i) => (
-                                feature.trim() && (
+                        {hasFeatures(company) ? (
+                            getFeatures(company.features).map((feature, i) => (
+                                (typeof feature === 'string' && feature.trim()) ? (
                                     <li key={i} className="flex items-start text-sm text-gray-800">
                                         <span className="mr-2 text-black font-bold">•</span>
                                         <span>{feature.trim()}</span>
                                     </li>
-                                )
+                                ) : null
                             ))
                         ) : (
                             // Fallback bullets
