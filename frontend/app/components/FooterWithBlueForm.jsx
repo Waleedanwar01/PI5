@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { Twitter, Youtube, Facebook, Instagram, Linkedin, Globe, Shield } from "lucide-react";
+import { Twitter, Youtube, Facebook, Instagram, Linkedin, Globe, Shield, Mail, Phone, MapPin, ChevronRight, Clock, CheckCircle2 } from "lucide-react";
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
 import SkeletonLoader from './SkeletonLoader.jsx';

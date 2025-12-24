@@ -33,7 +33,8 @@ async function fetchQuotes(searchParams) {
   
   // Prefer Next.js API proxy first (fast local call) — use relative URL to avoid wrong host in production
   try {
-    const proxyPath = `/api/quotes/${qs.toString() ? `?${qs.toString()}` : ''}`;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    const proxyPath = `${siteUrl}/api/quotes/${qs.toString() ? `?${qs.toString()}` : ''}`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 4000);
     const res = await fetch(proxyPath, { cache: 'no-store', signal: controller.signal });

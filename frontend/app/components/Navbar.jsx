@@ -365,13 +365,10 @@ export default function Navbar() {
                     {/* Left: Logo/Brand */}
                     <div className="flex items-center flex-shrink-0">
                         <SmartLink href="/" className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                            {/* Hardcoded Logo - using standard img tag for stability */}
-                            <img 
-                                src="/logos/Auto-Insure-Savings-Logo.svg" 
-                                alt={brand} 
-                                style={{ height: `${logoHeight}px` }} 
-                                className="w-auto object-contain"
-                                fetchPriority="high"
+                            {/* Hardcoded Logo - using inline SVG for max stability */}
+                            <Logo 
+                                style={{ height: `${logoHeight}px`, width: 'auto' }} 
+                                className="object-contain"
                             />
                         </SmartLink>
                     </div>
@@ -499,9 +496,8 @@ export default function Navbar() {
                             <img 
                                 src="/logos/logo.svg" 
                                 alt={brand} 
-                                style={{ '--mobile-h': '24px' }} 
-                                className="w-auto object-contain h-[var(--mobile-h)]" 
-                                fetchPriority="high"
+                                style={{ height: '24px', width: 'auto' }} 
+                                className="object-contain" 
                             />
                         </SmartLink>
                     </div>

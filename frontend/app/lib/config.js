@@ -23,7 +23,7 @@ export function getApiBase() {
 
 // Get media/assets base URL
 export function getMediaBase() {
-  return process.env.NEXT_PUBLIC_MEDIA_BASE || process.env.NEXT_PUBLIC_API_BASE;
+  return process.env.NEXT_PUBLIC_MEDIA_BASE || process.env.NEXT_PUBLIC_API_BASE || getApiBase();
 }
 
 // Get site URL for metadata and absolute URLs
