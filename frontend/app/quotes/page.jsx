@@ -31,15 +31,14 @@ async function fetchQuotes(searchParams) {
   const qs = new URLSearchParams();
   if (zip) qs.set('zip', String(zip));
   
-  // Prefer Next.js API proxy first (fast local call)
+  // Prefer Next.js API proxy first (fast local call) — use relative URL to avoid wrong host in production
   try {
-    const proxyUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/quotes/${qs.toString() ? `?${qs.toString()}` : ''}`;
+    const proxyPath = `/api/quotes/${qs.toString() ? `?${qs.toString()}` : ''}`;
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 3000);
-    const res = await fetch(proxyUrl, { cache: 'no-store', signal: controller.signal });
+    const timer = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(proxyPath, { cache: 'no-store', signal: controller.signal });
     clearTimeout(timer);
     const json = await res.json().catch(() => ({}));
-    const arr = Array.isArray(json?.companies) ? json.companies : [];
     if (json?.ok === true) {
       return { ...json, _source: 'proxy' };
     }
@@ -69,7 +68,7 @@ async function fetchQuotes(searchParams) {
 
 export default async function QuotesPage({ searchParams }) {
   const data = await fetchQuotes(searchParams);
-  const zip = String(searchParams?.zip || data?.zip || '').slice(0, 5);
+  const zip = String(searchParams?.zip || data?.zip || '').replace(/\D/g, '').slice(0, 5);
   const companies = Array.isArray(data?.companies) ? data.companies : [];
   const ok = data?.ok === true;
 
