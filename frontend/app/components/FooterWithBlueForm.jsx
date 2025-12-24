@@ -88,8 +88,8 @@ const FooterWithBlueForm = () => {
         const updateSiteConfig = (data) => {
             const bn = (data.brand_name || data.site_name || '').trim();
             if (bn) setBrandName(bn);
-            // Hardcoded logo - ignoring admin logo_url
-            // if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
+            // Dynamic logo from site config
+            if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
             if (data.logo_height) setLogoHeight(data.logo_height);
 
             const aboutTxt = (data.footer_about_text || '').trim();

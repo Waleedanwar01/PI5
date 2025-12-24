@@ -31,6 +31,21 @@ export default function PageClient({ slug }) {
           const json = await res.json();
           // Check if we got a valid page (usually has sections or meta)
           if (json && (json.sections?.length > 0 || json.meta?.title)) {
+             // Fix for backend returning absolute URLs for media which prevents CDN override
+             if (json.team_members) {
+                json.team_members = json.team_members.map(m => {
+                    if (m.image && (m.image.includes('onrender.com') || m.image.includes('localhost'))) {
+                        try {
+                            const urlObj = new URL(m.image);
+                            // Keep path only, e.g. /media/team/...
+                            m.image = urlObj.pathname;
+                        } catch (e) {
+                            // ignore invalid urls
+                        }
+                    }
+                    return m;
+                });
+             }
              if (!cancelled) setData(json);
              found = true;
           }
