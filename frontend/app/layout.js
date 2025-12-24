@@ -16,8 +16,9 @@ export async function generateMetadata() {
     
     if (siteConfigRes.ok) {
         const config = await siteConfigRes.json();
-        if (config.favicon) {
-            const faviconUrl = getMediaUrl(config.favicon);
+        const rawFav = config.favicon || config.favicon_url || config.faviconUrl || null;
+        if (rawFav) {
+            const faviconUrl = getMediaUrl(rawFav);
             icons = {
                 icon: [
                     { url: faviconUrl },
