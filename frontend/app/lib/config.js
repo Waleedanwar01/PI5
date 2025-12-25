@@ -52,8 +52,9 @@ export function getMediaUrl(path) {
   if (!path) return null;
   
   // PASS THROUGH LOCAL ASSETS (Logos, Icons, etc.)
-  // If the path starts with /logos/, /images/, /icons/, /favicon or /media (static fallback), assume it's a local frontend asset.
-  if (path.startsWith('/logos/') || path.startsWith('/images/') || path.startsWith('/icons/') || path.startsWith('/favicon') || path.startsWith('/media/')) {
+  // If the path starts with /logos/, /images/, /icons/ or /favicon, assume it's a local frontend asset.
+  // Note: /media/ is purposely excluded here because backend media files (uploads) often start with /media/
+  if (path.startsWith('/logos/') || path.startsWith('/images/') || path.startsWith('/icons/') || path.startsWith('/favicon')) {
       return path;
   }
   
