@@ -95,3 +95,6 @@ const nextConfig = {
 };
 
 export default nextConfig;
+
+// Forced update to trigger deployment
+
