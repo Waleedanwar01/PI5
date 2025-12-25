@@ -10,6 +10,7 @@ import HardcodedLogo from './HardcodedLogo.jsx';
 // Helper functions
 function resolveHref(item) {
     if (item.href) return item.href;
+    if (item.url) return item.url;
     // Handle both page_slug (old) and slug (new API)
     const slug = item.page_slug || item.slug;
     if (slug) {

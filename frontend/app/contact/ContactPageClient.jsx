@@ -67,7 +67,7 @@ export default function ContactPageClient() {
                     </div>
                     <div className="ml-4">
                       <p className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">By Mail</p>
-                      <p className="text-slate-600">{cfg.company_address || '7901 4th St. N #19799 St. Petersburg, FL 33702'}</p>
+                      <p className="text-slate-600">{cfg.company_address || ''}</p>
                     </div>
                   </div>
                 </div>
