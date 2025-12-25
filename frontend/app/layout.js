@@ -9,7 +9,7 @@ export async function generateMetadata() {
   const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   
   // Hardcoded stable favicon
-  const faviconUrl = "/logos/favicon.png";
+  const faviconUrl = "/assets/favicon.png";
 
   const icons = {
       icon: [faviconUrl],

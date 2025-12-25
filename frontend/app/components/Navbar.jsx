@@ -81,13 +81,8 @@ export default function Navbar() {
             setSiteConfig(data);
             if (data.phone_number) setPhone(data.phone_number);
             if (data.brand_name) setBrand(data.brand_name);
-            // Hardcoded logo - ignoring admin logo_url
-            // if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
             if (data.logo_height_px) setLogoHeight(data.logo_height_px);
         };
-
-        // Always set hardcoded logo (forced update)
-        setLogoUrl('/logos/logo.svg');
 
         // Try cache first
         const cachedConfig = loadCache('navbar_site_config');
@@ -364,9 +359,9 @@ export default function Navbar() {
                     {/* Left: Logo/Brand */}
                     <div className="flex items-center flex-shrink-0">
                         <SmartLink href="/" className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                            {/* Hardcoded Logo from public/logos */}
+                            {/* Hardcoded Logo from public/assets */}
                             <img 
-                                src="/logos/logo.svg" 
+                                src="/assets/logo.svg" 
                                 alt="Auto Insure Savings"
                                 className="h-10 w-auto object-contain"
                             />

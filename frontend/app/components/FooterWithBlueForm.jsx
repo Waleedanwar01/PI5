@@ -24,7 +24,7 @@ const FooterWithBlueForm = ({
 }) => {
     const [brandName, setBrandName] = useState(initialBrandName);
     // Logo is hardcoded, but we keep state if we ever need to switch back or for consistency
-    const [logoUrl, setLogoUrl] = useState('/logos/logo.svg'); 
+    const [logoUrl, setLogoUrl] = useState('/assets/logo.svg'); 
     const [disclaimer, setDisclaimer] = useState("");
     const [footerText, setFooterText] = useState("We are a free online resource for anyone interested in learning more about auto insurance. Our goal is to be an objective, third-party resource for everything auto insurance related.");
     const [address, setAddress] = useState("");
@@ -77,7 +77,7 @@ const FooterWithBlueForm = ({
     // Fetch all data
     useEffect(() => {
         // Hardcoded logo path as requested
-        setLogoUrl('/logos/logo.svg');
+        setLogoUrl('/assets/logo.svg');
 
         const fetchWithRetry = async (url, options = {}, retries = 2) => {
             for (let attempt = 0; attempt <= retries; attempt++) {
@@ -252,7 +252,7 @@ const FooterWithBlueForm = ({
                         <SmartLink href="/" className="inline-block mb-8 group">
                              {/* Hardcoded Logo */}
                              <img 
-                                src="/logos/logo.svg"
+                                src="/assets/logo.svg"
                                 alt={brandName}
                                 className="h-10 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity" 
                             />
