@@ -86,7 +86,7 @@ export default function Navbar() {
             if (data.logo_height_px) setLogoHeight(data.logo_height_px);
         };
 
-        // Always set hardcoded logo
+        // Always set hardcoded logo (forced update)
         setLogoUrl('/logos/logo.svg');
 
         // Try cache first
