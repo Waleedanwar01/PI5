@@ -5,6 +5,7 @@ import { Twitter, Youtube, Facebook, Instagram, Linkedin, Globe, Shield, Mail, P
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
 import SkeletonLoader from './SkeletonLoader.jsx';
+import logoSrc from '../assets/logo.svg';
 
 // Helper functions
 function resolveHref(item) {
@@ -252,7 +253,7 @@ const FooterWithBlueForm = ({
                         <SmartLink href="/" className="inline-block mb-8 group">
                              {/* Hardcoded Logo */}
                              <img 
-                                src="/assets/logo.svg"
+                                src={logoSrc.src || logoSrc}
                                 alt={brandName}
                                 className="h-10 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity" 
                             />

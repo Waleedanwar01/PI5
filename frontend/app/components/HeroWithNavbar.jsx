@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronRight, Phone, ShieldCheck, MapPin } from 'lucide-react';
 import AsSeenLogo from './AsSeenLogo.jsx';
+import asSeenSrc from '../assets/as-seen.svg';
 
 export default function HeroWithNavbar({ initialPressLogos }) {
   const [zip, setZip] = useState("");
@@ -151,7 +152,7 @@ export default function HeroWithNavbar({ initialPressLogos }) {
                   <div className="flex flex-wrap items-center gap-6 md:gap-8 opacity-70">
                       <div className="relative h-8 md:h-10 w-auto">
                         <img 
-                            src="/assets/as-seen.svg" 
+                            src={asSeenSrc.src || asSeenSrc} 
                             alt="As Seen In" 
                             className="h-full w-auto object-contain transition-opacity hover:opacity-100"
                             style={{ filter: 'brightness(0)' }}
