@@ -5,7 +5,6 @@ import { ChevronDown, ChevronRight, Phone, X, Menu } from 'lucide-react';
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
 import SkeletonLoader from './SkeletonLoader.jsx';
-import Logo from './Logo.jsx';
 import { gsap } from 'gsap';
 import HardcodedLogo from './HardcodedLogo.jsx';
 

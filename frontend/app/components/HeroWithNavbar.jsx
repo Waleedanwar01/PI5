@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { ChevronRight, Phone, ShieldCheck, MapPin } from 'lucide-react';
-import AsSeenLogo from './AsSeenLogo.jsx';
 import HardcodedAsSeen from './HardcodedAsSeen.jsx';
 
 export default function HeroWithNavbar({ initialPressLogos }) {
