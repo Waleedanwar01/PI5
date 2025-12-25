@@ -87,7 +87,7 @@ export default function Navbar() {
         };
 
         // Always set hardcoded logo
-        setLogoUrl('/logos/Auto-Insure-Savings-Logo.svg');
+        setLogoUrl('/logos/logo.svg');
 
         // Try cache first
         const cachedConfig = loadCache('navbar_site_config');
