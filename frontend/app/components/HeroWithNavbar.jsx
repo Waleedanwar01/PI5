@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { ChevronRight, Phone, ShieldCheck, MapPin } from 'lucide-react';
 import AsSeenLogo from './AsSeenLogo.jsx';
-import asSeenSrc from '../assets/as-seen.svg';
+import HardcodedAsSeen from './HardcodedAsSeen.jsx';
 
 export default function HeroWithNavbar({ initialPressLogos }) {
   const [zip, setZip] = useState("");
@@ -151,9 +151,7 @@ export default function HeroWithNavbar({ initialPressLogos }) {
                   </p>
                   <div className="flex flex-wrap items-center gap-6 md:gap-8 opacity-70">
                       <div className="relative h-8 md:h-10 w-auto">
-                        <img 
-                            src={asSeenSrc.src || asSeenSrc} 
-                            alt="As Seen In" 
+                        <HardcodedAsSeen 
                             className="h-full w-auto object-contain transition-opacity hover:opacity-100"
                             style={{ filter: 'brightness(0)' }}
                         />

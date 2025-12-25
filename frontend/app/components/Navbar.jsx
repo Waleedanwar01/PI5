@@ -7,7 +7,7 @@ import SmartImage from './SmartImage.jsx';
 import SkeletonLoader from './SkeletonLoader.jsx';
 import Logo from './Logo.jsx';
 import { gsap } from 'gsap';
-import logoSrc from '../assets/logo.svg';
+import HardcodedLogo from './HardcodedLogo.jsx';
 
 export default function Navbar() {
     const router = useRouter();
@@ -361,11 +361,7 @@ export default function Navbar() {
                     <div className="flex items-center flex-shrink-0">
                         <SmartLink href="/" className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
                             {/* Hardcoded Logo imported directly */}
-                            <img 
-                                src={logoSrc.src || logoSrc} 
-                                alt="Auto Insure Savings"
-                                className="h-10 w-auto object-contain"
-                            />
+                            <HardcodedLogo className="h-10 w-auto object-contain" />
                         </SmartLink>
                     </div>
 
@@ -489,9 +485,8 @@ export default function Navbar() {
                     {/* Logo in Drawer */}
                     <div className="flex items-center">
                         <SmartLink href="/" className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2" onClick={handleMobileLinkClick}>
-                            <Logo 
-                                style={{ height: '24px', width: 'auto' }} 
-                                className="object-contain" 
+                            <HardcodedLogo 
+                                className="h-6 w-auto object-contain" 
                             />
                         </SmartLink>
                     </div>

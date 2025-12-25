@@ -53,8 +53,6 @@ export default function RootLayout({ children }) {
         <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet" />
         
         {/* Preload critical assets for LCP optimization */}
-        <link rel="preload" href="/logos/logo.svg" as="image" />
-        <link rel="preload" href="/logos/as-seen.svg" as="image" />
         <link rel="preload" href="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1920&auto=format&fit=crop" as="image" />
       </head>
 
