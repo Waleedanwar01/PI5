@@ -19,7 +19,7 @@ export default function Navbar() {
     const hamburgerRef = useRef(null);
     const mobileMenuRef = useRef(null);
     const overlayRef = useRef(null);
-    const [phone, setPhone] = useState('');
+    const [phone, setPhone] = useState('(800) 308-0987');
     const [brand, setBrand] = useState('Car Insurance Comparison');
     const [siteConfig, setSiteConfig] = useState(null);
     const navbarRef = useRef(null);

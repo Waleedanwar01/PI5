@@ -28,12 +28,19 @@ const FooterWithBlueForm = ({
     const [logoUrl, setLogoUrl] = useState('/assets/logo.svg'); 
     const [disclaimer, setDisclaimer] = useState("");
     const [footerText, setFooterText] = useState("We are a free online resource for anyone interested in learning more about auto insurance. Our goal is to be an objective, third-party resource for everything auto insurance related.");
-    const [address, setAddress] = useState("");
+    const [address, setAddress] = useState("7901 4th St. N #19799 St. Petersburg, FL 33702");
     
-    // Links state - defaulted to empty to respect "data from config" rule
-    // We will try to load from cache/API. 
-    const [companyLinks, setCompanyLinks] = useState([]);
-    const [legalLinks, setLegalLinks] = useState([]);
+    // Links state - defaulted to hardcoded values to ensure visibility
+    const [companyLinks, setCompanyLinks] = useState([
+        { name: 'About Us', url: '/about-us' },
+        { name: 'Contact Us', url: '/contact-us' },
+        { name: 'Careers', url: '/careers' }
+    ]);
+    const [legalLinks, setLegalLinks] = useState([
+        { name: 'Privacy Policy', url: '/privacy-policy' },
+        { name: 'Terms of Use', url: '/terms-of-use' },
+        { name: 'Do Not Sell My Info', url: '/do-not-sell' }
+    ]);
     const [socialLinks, setSocialLinks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -127,10 +134,10 @@ const FooterWithBlueForm = ({
         };
 
         const updateFooterMenu = (data) => {
-            if (data.company && Array.isArray(data.company)) {
+            if (data.company && Array.isArray(data.company) && data.company.length > 0) {
                 setCompanyLinks(data.company);
             }
-            if (data.legal && Array.isArray(data.legal)) {
+            if (data.legal && Array.isArray(data.legal) && data.legal.length > 0) {
                 setLegalLinks(data.legal);
             }
         };
