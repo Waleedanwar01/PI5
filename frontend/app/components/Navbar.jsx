@@ -364,8 +364,10 @@ export default function Navbar() {
                     {/* Left: Logo/Brand */}
                     <div className="flex items-center flex-shrink-0">
                         <SmartLink href="/" className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                            {/* Hardcoded Logo - using inline SVG for max stability */}
-                            <Logo 
+                            {/* Hardcoded Logo from public/logos */}
+                            <img 
+                                src="/logos/logo.svg" 
+                                alt="Auto Insure Savings"
                                 className="h-10 w-auto object-contain"
                             />
                         </SmartLink>

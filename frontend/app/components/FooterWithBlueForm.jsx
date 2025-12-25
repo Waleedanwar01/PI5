@@ -1,39 +1,38 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { Twitter, Youtube, Facebook, Instagram, Linkedin, Globe, Shield, Mail, Phone, MapPin, ChevronRight, Clock, CheckCircle2 } from "lucide-react";
+import { Twitter, Youtube, Facebook, Instagram, Linkedin, Globe, Shield, Mail, Phone, MapPin, ChevronRight, Clock, CheckCircle2, ArrowRight } from "lucide-react";
 import SmartLink from './SmartLink.jsx';
 import SmartImage from './SmartImage.jsx';
 import SkeletonLoader from './SkeletonLoader.jsx';
-import Logo from './Logo.jsx';
 
-// Helper functions (resolveHref and FooterCopyright) remain the same.
+// Helper functions
+function resolveHref(item) {
+    if (item.href) return item.href;
+    // Handle both page_slug (old) and slug (new API)
+    const slug = item.page_slug || item.slug;
+    if (slug) {
+        const anchor = item.anchor_id ? `#${String(item.anchor_id)}` : "";
+        return `/${encodeURIComponent(String(slug))}${anchor}`;
+    }
+    return "#";
+}
 
 const FooterWithBlueForm = ({
-    logo,
+    logo, // Unused, keeping for prop compatibility
     brandName: initialBrandName = "Auto Insure Savings",
 }) => {
     const [brandName, setBrandName] = useState(initialBrandName);
-    const [logoUrl, setLogoUrl] = useState(null);
-    const [logoHeight, setLogoHeight] = useState(null);
+    // Logo is hardcoded, but we keep state if we ever need to switch back or for consistency
+    const [logoUrl, setLogoUrl] = useState('/logos/logo.svg'); 
     const [disclaimer, setDisclaimer] = useState("");
     const [footerText, setFooterText] = useState("We are a free online resource for anyone interested in learning more about auto insurance. Our goal is to be an objective, third-party resource for everything auto insurance related.");
     const [address, setAddress] = useState("");
-    const [addressSource, setAddressSource] = useState(""); // Track where address came from
-    const [submitMessage, setSubmitMessage] = useState('');
     
-    // Company and Legal links - Hardcoded for performance
-    const [companyLinks, setCompanyLinks] = useState([
-        { name: "About Us", slug: "about-us" },
-        { name: "Careers", slug: "careers" },
-        { name: "Contact Us", slug: "contact" },
-        { name: "Blog", slug: "blog" }
-    ]);
-    const [legalLinks, setLegalLinks] = useState([
-        { name: "Privacy Policy", slug: "privacy-policy" },
-        { name: "Terms of Service", slug: "terms-of-service" },
-        { name: "Editorial Guidelines", slug: "editorial-guidelines" }
-    ]);
+    // Links state - defaulted to empty to respect "data from config" rule
+    // We will try to load from cache/API. 
+    const [companyLinks, setCompanyLinks] = useState([]);
+    const [legalLinks, setLegalLinks] = useState([]);
     const [socialLinks, setSocialLinks] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -58,7 +57,7 @@ const FooterWithBlueForm = ({
             const item = localStorage.getItem(key);
             if (!item) return null;
             const parsed = JSON.parse(item);
-            if (Date.now() - parsed.timestamp > 3600000) return null;
+            if (Date.now() - parsed.timestamp > 3600000) return null; // 1 hour cache
             return parsed.data;
         } catch (e) {
             return null;
@@ -77,8 +76,8 @@ const FooterWithBlueForm = ({
 
     // Fetch all data
     useEffect(() => {
-        // Hardcoded logo
-        setLogoUrl('/logos/Auto-Insure-Savings-Logo.svg');
+        // Hardcoded logo path as requested
+        setLogoUrl('/logos/logo.svg');
 
         const fetchWithRetry = async (url, options = {}, retries = 2) => {
             for (let attempt = 0; attempt <= retries; attempt++) {
@@ -91,20 +90,12 @@ const FooterWithBlueForm = ({
             return fetch(url, options).catch(() => ({ ok: false }));
         };
 
-        const versioned = (u, v) => {
-            const url = String(u || '').trim();
-            if (!url) return null;
-            const sep = url.includes('?') ? '&' : '?';
-            return v ? `${url}${sep}v=${encodeURIComponent(v)}` : url;
-        };
-
         const updateSiteConfig = (data) => {
             const bn = (data.brand_name || data.site_name || '').trim();
             if (bn) setBrandName(bn);
-            // Dynamic logo from site config
-            // if (data.logo_url) setLogoUrl(versioned(getMediaUrl(data.logo_url), data.updated_at));
-            if (data.logo_height) setLogoHeight(data.logo_height);
-
+            
+            // Note: Logo is hardcoded per user request, ignoring data.logo_url
+            
             const aboutTxt = (data.footer_about_text || '').trim();
             if (aboutTxt) setFooterText(aboutTxt);
 
@@ -131,7 +122,15 @@ const FooterWithBlueForm = ({
         const updateAddress = (data) => {
             if (data.address) {
                 setAddress(data.address);
-                setAddressSource(data.source || '');
+            }
+        };
+
+        const updateFooterMenu = (data) => {
+            if (data.company && Array.isArray(data.company)) {
+                setCompanyLinks(data.company);
+            }
+            if (data.legal && Array.isArray(data.legal)) {
+                setLegalLinks(data.legal);
             }
         };
 
@@ -142,11 +141,12 @@ const FooterWithBlueForm = ({
         const cachedAddress = loadCache('footer_address');
         if (cachedAddress) updateAddress(cachedAddress);
 
-        // If we have everything cached, don't show loading skeleton (but still fetch updates)
-        if (cachedConfig && (cachedAddress || cachedConfig.address)) {
+        const cachedMenu = loadCache('footer_menu');
+        if (cachedMenu) updateFooterMenu(cachedMenu);
+
+        // If we have minimal data, stop loading state
+        if (cachedConfig && (cachedMenu || cachedAddress)) {
             setIsLoading(false);
-        } else {
-            setIsLoading(true);
         }
 
         const p1 = fetchWithRetry('/api/site-config/', { cache: 'no-store' })
@@ -165,40 +165,45 @@ const FooterWithBlueForm = ({
             })
             .catch(() => {});
 
-        // Parallelize requests
-        Promise.allSettled([p1, p2]).finally(() => {
+        const p3 = fetchWithRetry('/api/menu/footer/', { cache: 'no-store' })
+            .then(r => r.json())
+            .then(data => {
+                updateFooterMenu(data);
+                saveCache('footer_menu', data);
+            })
+            .catch(() => {});
+
+        Promise.allSettled([p1, p2, p3]).finally(() => {
              setIsLoading(false);
         });
     }, []);
 
-    
-
     return (
         <footer className="bg-slate-950 text-slate-300 font-sans border-t border-slate-900 relative">
-            {/* Top Border Gradient */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 via-blue-500 to-orange-500 opacity-70"></div>
+            {/* Top Border Gradient - Sleek and modern */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-80"></div>
 
-            {/* 1. CTA / ZIP Form Section - Clean & Modern */}
-            <div className="bg-slate-900/80 py-20 px-4 relative overflow-hidden backdrop-blur-md">
-                {/* Subtle background pattern/gradient */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-slate-900 to-transparent pointer-events-none opacity-40"></div>
+            {/* 1. CTA / ZIP Form Section - Modernized */}
+            <div className="relative py-24 px-4 overflow-hidden">
+                {/* Background Glow */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl bg-blue-900/10 blur-[100px] rounded-full pointer-events-none"></div>
                 
-                <div className="max-w-4xl mx-auto text-center relative z-10">
-                    <h3 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">
-                        Compare Auto Insurance Rates
+                <div className="max-w-5xl mx-auto text-center relative z-10">
+                    <span className="inline-block py-1 px-3 rounded-full bg-blue-500/10 text-blue-400 text-sm font-semibold mb-6 border border-blue-500/20">
+                        Fast & Free Quotes
+                    </span>
+                    <h3 className="text-4xl md:text-6xl font-bold mb-6 text-white tracking-tight leading-tight">
+                        Compare Rates, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Save Money</span>
                     </h3>
                     <p className="text-lg md:text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-                        Join thousands of drivers who have saved money. Enter your ZIP code to see your personalized quotes.
+                        Join thousands of smart drivers. Enter your ZIP code to unlock personalized savings in minutes.
                     </p>
                     
                     <form action="/quotes" method="GET" className="max-w-lg mx-auto mb-10">
-                        <div className="flex flex-col sm:flex-row shadow-2xl rounded-xl overflow-hidden transition-all duration-300 hover:shadow-orange-500/20 ring-1 ring-white/10 focus-within:ring-orange-500/50">
+                        <div className="flex flex-col sm:flex-row gap-3">
                             <div className="relative flex-grow group">
                                 <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                                    <svg className="h-6 w-6 text-slate-500 group-focus-within:text-orange-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
+                                    <MapPin className="h-5 w-5 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
                                 </div>
                                 <input
                                     type="text"
@@ -206,48 +211,60 @@ const FooterWithBlueForm = ({
                                     placeholder="Enter ZIP Code"
                                     pattern="[0-9]*"
                                     maxLength={5}
-                                    className="w-full pl-14 pr-4 py-5 text-slate-900 bg-white border-none outline-none text-lg placeholder:text-slate-400 font-medium"
+                                    className="w-full pl-12 pr-4 py-4 rounded-xl text-slate-900 bg-white/95 border border-white/10 focus:bg-white outline-none text-lg placeholder:text-slate-400 font-medium shadow-lg shadow-black/5 focus:ring-4 focus:ring-blue-500/20 transition-all"
                                     required
                                 />
                             </div>
                             <button
                                 type="submit"
-                                className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-5 px-10 whitespace-nowrap transition-all duration-200 flex items-center justify-center gap-2 text-lg active:scale-95"
+                                className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-xl whitespace-nowrap transition-all duration-200 flex items-center justify-center gap-2 text-lg shadow-lg shadow-blue-900/20 hover:shadow-blue-600/30 hover:-translate-y-0.5"
                             >
                                 Get Quotes
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
+                                <ArrowRight className="w-5 h-5" />
                             </button>
                         </div>
                     </form>
 
-                    <div className="flex items-center justify-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        <Shield className="w-4 h-4 text-emerald-500" />
-                        <span>Secure & Encrypted</span>
+                    <div className="flex items-center justify-center gap-6 text-sm font-medium text-slate-500">
+                        <div className="flex items-center gap-2">
+                            <Shield className="w-4 h-4 text-emerald-500" />
+                            <span>SSL Secured</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-blue-500" />
+                            <span>No Spam</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            {/* Separator */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="border-t border-slate-800/60"></div>
+            </div>
+
             {/* 2. Main Footer Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-16 mb-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-16">
                     
                     {/* Brand Column (Left) */}
                     <div className="lg:col-span-5 flex flex-col items-start">
-                        <SmartLink href="/" className="inline-block mb-8">
-                             <Logo 
-                                className="h-9 w-auto object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity" 
+                        <SmartLink href="/" className="inline-block mb-8 group">
+                             {/* Hardcoded Logo */}
+                             <img 
+                                src="/logos/logo.svg"
+                                alt={brandName}
+                                className="h-10 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity" 
                             />
                         </SmartLink>
                         
                         {isLoading ? (
                              <div className="space-y-4 w-full max-w-sm">
-                                <SkeletonLoader className="h-4 w-full bg-slate-800 rounded" />
-                                <SkeletonLoader className="h-4 w-3/4 bg-slate-800 rounded" />
+                                <SkeletonLoader className="h-4 w-full bg-slate-900 rounded" />
+                                <SkeletonLoader className="h-4 w-3/4 bg-slate-900 rounded" />
                             </div>
                         ) : (
-                            <p className="text-slate-400 leading-loose mb-10 max-w-md text-sm">
+                            <p className="text-slate-400 leading-relaxed mb-8 max-w-md text-sm">
                                 {footerText}
                             </p>
                         )}
@@ -262,7 +279,7 @@ const FooterWithBlueForm = ({
                                         href={url} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
-                                        className="bg-slate-900 hover:bg-orange-600 text-slate-400 hover:text-white p-3 rounded-xl transition-all duration-300 ring-1 ring-slate-800 hover:ring-orange-500"
+                                        className="bg-slate-900 hover:bg-blue-600 text-slate-400 hover:text-white p-2.5 rounded-lg transition-all duration-300 ring-1 ring-slate-800 hover:ring-blue-500"
                                         aria-label="Social Link"
                                     >
                                         <Icon className="w-5 h-5" />
@@ -276,51 +293,59 @@ const FooterWithBlueForm = ({
                     <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-12 lg:pl-12">
                         {/* Company Links */}
                         <div>
-                            <h4 className="text-white font-bold text-lg mb-8 tracking-tight">Company</h4>
-                            {isLoading ? (
+                            <h4 className="text-white font-semibold text-lg mb-6">Company</h4>
+                            {isLoading && companyLinks.length === 0 ? (
                                 <div className="space-y-4">
-                                    <SkeletonLoader className="h-4 w-24 bg-slate-800 rounded" />
-                                    <SkeletonLoader className="h-4 w-32 bg-slate-800 rounded" />
-                                    <SkeletonLoader className="h-4 w-20 bg-slate-800 rounded" />
+                                    <SkeletonLoader className="h-4 w-24 bg-slate-900 rounded" />
+                                    <SkeletonLoader className="h-4 w-32 bg-slate-900 rounded" />
+                                    <SkeletonLoader className="h-4 w-20 bg-slate-900 rounded" />
                                 </div>
                             ) : (
-                                <ul className="space-y-4">
+                                <ul className="space-y-3">
                                     {companyLinks.map((item, idx) => (
                                         <li key={idx}>
                                             <SmartLink
                                                 href={resolveHref(item)}
-                                                className="text-slate-400 hover:text-orange-500 transition-colors duration-200 text-sm flex items-center gap-3 group"
+                                                className="text-slate-400 hover:text-blue-400 transition-colors duration-200 text-sm flex items-center gap-2 group"
                                             >
-                                                <span className="w-1.5 h-1.5 rounded-full bg-slate-800 group-hover:bg-orange-500 transition-colors"></span>
+                                                <ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-blue-500 transition-colors" />
                                                 {item.name}
                                             </SmartLink>
                                         </li>
                                     ))}
+                                    {/* Fallback if no links */}
+                                    {companyLinks.length === 0 && !isLoading && (
+                                        <li className="text-slate-600 italic text-sm">Links not configured</li>
+                                    )}
                                 </ul>
                             )}
                         </div>
 
                         {/* Legal / Resources Links */}
                         <div>
-                            <h4 className="text-white font-bold text-lg mb-8 tracking-tight">Legal & Resources</h4>
-                            {isLoading ? (
+                            <h4 className="text-white font-semibold text-lg mb-6">Legal & Resources</h4>
+                            {isLoading && legalLinks.length === 0 ? (
                                 <div className="space-y-4">
-                                    <SkeletonLoader className="h-4 w-24 bg-slate-800 rounded" />
-                                    <SkeletonLoader className="h-4 w-32 bg-slate-800 rounded" />
+                                    <SkeletonLoader className="h-4 w-24 bg-slate-900 rounded" />
+                                    <SkeletonLoader className="h-4 w-32 bg-slate-900 rounded" />
                                 </div>
                             ) : (
-                                <ul className="space-y-4">
+                                <ul className="space-y-3">
                                     {legalLinks.map((item, idx) => (
                                         <li key={idx}>
                                             <SmartLink
                                                 href={resolveHref(item)}
-                                                className="text-slate-400 hover:text-orange-500 transition-colors duration-200 text-sm flex items-center gap-3 group"
+                                                className="text-slate-400 hover:text-blue-400 transition-colors duration-200 text-sm flex items-center gap-2 group"
                                             >
-                                                <span className="w-1.5 h-1.5 rounded-full bg-slate-800 group-hover:bg-orange-500 transition-colors"></span>
+                                                <ChevronRight className="w-3 h-3 text-slate-600 group-hover:text-blue-500 transition-colors" />
                                                 {item.name}
                                             </SmartLink>
                                         </li>
                                     ))}
+                                    {/* Fallback if no links */}
+                                    {legalLinks.length === 0 && !isLoading && (
+                                        <li className="text-slate-600 italic text-sm">Links not configured</li>
+                                    )}
                                 </ul>
                             )}
                         </div>
@@ -328,7 +353,7 @@ const FooterWithBlueForm = ({
                 </div>
 
                 {/* Bottom Bar: Copyright & Address */}
-                <div className="border-t border-slate-900 pt-10 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-500">
+                <div className="border-t border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-slate-500">
                     <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
                         <span>&copy; {new Date().getFullYear()} {brandName}. All rights reserved.</span>
                     </div>
@@ -343,7 +368,7 @@ const FooterWithBlueForm = ({
 
                 {/* Disclaimer Text */}
                 {disclaimer && (
-                    <div className="mt-10 pt-8 border-t border-slate-900/50 text-xs text-slate-600 text-justify leading-relaxed opacity-60 hover:opacity-100 transition-opacity">
+                    <div className="mt-8 pt-6 border-t border-slate-900/50 text-xs text-slate-600 text-justify leading-relaxed opacity-60 hover:opacity-100 transition-opacity">
                         {disclaimer}
                     </div>
                 )}
@@ -353,40 +378,3 @@ const FooterWithBlueForm = ({
 };
 
 export default FooterWithBlueForm;
-
-function resolveHref(item) {
-    if (item.href) return item.href;
-    // Handle both page_slug (old) and slug (new API)
-    const slug = item.page_slug || item.slug;
-    if (slug) {
-        const anchor = item.anchor_id ? `#${String(item.anchor_id)}` : "";
-        return `/${encodeURIComponent(String(slug))}${anchor}`;
-    }
-    return "#";
-}
-
-function FooterCopyright({ brandName }) {
-    const [copyright, setCopyright] = React.useState("");
-    React.useEffect(() => {
-        fetch('/api/site-config/', { cache: 'no-store' })
-            .then(r => r.json())
-            .then(data => {
-                const txt = (data.copyright_text || '').trim();
-                if (txt) {
-                    setCopyright(txt);
-                } else {
-                    const year = new Date().getFullYear();
-                    setCopyright(`Copyright © ${year} ${brandName}`);
-                }
-            })
-            .catch(() => {
-                const year = new Date().getFullYear();
-                setCopyright(`Copyright © ${year} ${brandName}`);
-            });
-    }, [brandName]);
-    return (
-        <p className="text-gray-400 font-medium text-xs sm:text-sm">{copyright}</p>
-    );
-}
-
-// Force push trigger
